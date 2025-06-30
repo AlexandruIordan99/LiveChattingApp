@@ -14,7 +14,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
     where (f.user.id = :usersId and f.friend.id= :friendId)\s
     or (f.user.id = :friendId and f.friend.id =:usersId)
    \s""")
-  Optional<Friendship> findFriendshipBetweenUsers(@Param("usersId") Integer usersId,
+  Optional<Friendship> findFriendshipBetweenUsers(@Param("userId") Integer usersId,
                                               @Param("friendId") Integer friendId);
 
   @Query("""
@@ -23,7 +23,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
         WHERE (f.user.id = :userId AND f.friend.id = :friendId) 
            OR (f.user.id = :friendId AND f.friend.id = :userId)
         """)
-  boolean existsFriendshipBetweenUsers(@Param("usersId") Integer usersId,
+  boolean existsFriendshipBetweenUsers(@Param("userId") Integer usersId,
                                        @Param("friendId") Integer friendId);
 
   @Query("""
@@ -31,14 +31,14 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
     where (f.user.id= :usersId and f.friend.id= :friendId)
     and f.friendshipsStatus = 'ACCEPTED'
 """)
-  List<Friendship> findAcceptedFriendships(@Param("usersId") Integer usersId);
+  List<Friendship> findAcceptedFriendships(@Param("userId") Integer usersId);
 
   @Query("""
     select f from Friendship f
     where f.user.id =:usersId
     and f.friendshipsStatus = 'PENDING'
 """)
-    List<Friendship> findPendingSentRequests(@Param("usersId") Integer usersId);
+    List<Friendship> findPendingSentRequests(@Param("userId") Integer usersId);
 
 
   @Query("""
@@ -46,14 +46,14 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
         WHERE f.friend.id = :userId 
           AND f.friendshipsStatus = 'PENDING'
         """)
-  List<Friendship> findPendingReceivedRequests(@Param("usersId") Integer userId);
+  List<Friendship> findPendingReceivedRequests(@Param("userId") Integer userId);
 
   @Query("""
         SELECT f FROM Friendship f
         WHERE f.user.id = :userId 
          AND f.friendshipsStatus = 'BLOCKED'
         """)
-  List<Friendship> findBlockedUsers(@Param("usersId") Integer usersId);
+  List<Friendship> findBlockedUsers(@Param("userId") Integer usersId);
 
   @Query("""
     select case when count(f) > 0 then true else false end from Friendship f where
