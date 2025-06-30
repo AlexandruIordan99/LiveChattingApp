@@ -1,0 +1,31 @@
+services:
+  postgres:
+    container_name: postgres-sql-lap
+    image: postgres #taken from DockerHub
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pass
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - 5432:5432
+    networks:
+      - spring-demo
+    restart: unless-stopped
+
+  mail-dev:
+    container_name: mail-dev-lap
+    image: maildev/maildev
+    ports:
+    - 1080:1080 #web service
+    - 1025:1025 #SMTP
+
+
+networks:
+  spring-demo:
+    driver: bridge #bridges connections between containers on this network
+
+volumes:
+  postgres:
+    driver: local
