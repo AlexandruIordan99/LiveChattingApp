@@ -8,7 +8,10 @@ import com.example.LiveChattingApp.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.event.spi.SaveOrUpdateEvent;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +44,7 @@ public class FriendshipService {
     return mapToResponseDto(savedFriendship, currentUserId);
   }
 
+
   private FriendshipResponseDTO acceptFriendRequest(Integer currentUserId, Integer friendshipId){
     User currentUser = findUserById(currentUserId);
     Friendship friendship = findFriendshipById(friendshipId);
@@ -50,6 +54,19 @@ public class FriendshipService {
     Friendship savedFriendship = friendshipRepository.save(friendship);
     return mapToResponseDto(savedFriendship, currentUserId);
   }
+
+  private FriendshipResponseDTO rejectFriendRequest(Integer currentUserId, Integer friendshipId){
+    User currentUser = findUserById(currentUserId);
+    Friendship friendship = findFriendshipById(friendshipId);
+    friendship.setUser(currentUser);
+
+    friendship.setFriendshipsStatus(FriendshipStatus.REJECTED);
+    Friendship savedFriendship = friendshipRepository.save(friendship);
+
+    return mapToResponseDto(savedFriendship, currentUserId);
+  }
+
+
 
 
   private User findUserById(Integer userId){
