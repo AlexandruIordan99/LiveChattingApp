@@ -50,6 +50,14 @@ public class FriendshipService {
     Friendship friendship = findFriendshipById(friendshipId);
     friendship.setUser(currentUser);
 
+    if(!friendship.getFriend().getId().equals(currentUserId)){
+      throw new IllegalArgumentException("You can only accept requests sent to you.");
+    }
+
+    if(friendship.getFriendshipsStatus()!= FriendshipStatus.PENDING){
+      throw new IllegalStateException("You can only accept pending requests.");
+    }
+
     friendship.setFriendshipsStatus(FriendshipStatus.ACCEPTED);
     Friendship savedFriendship = friendshipRepository.save(friendship);
     return mapToResponseDto(savedFriendship, currentUserId);
@@ -59,6 +67,13 @@ public class FriendshipService {
     User currentUser = findUserById(currentUserId);
     Friendship friendship = findFriendshipById(friendshipId);
     friendship.setUser(currentUser);
+
+    if(!friendship.getFriend().getId().equals(currentUserId)){
+      throw new IllegalArgumentException("You can only reject requests sent to you.");
+    }
+    if(friendship.getFriendshipsStatus()!= FriendshipStatus.PENDING){
+      throw new IllegalStateException("You can only reject pending requests.");
+    }
 
     friendship.setFriendshipsStatus(FriendshipStatus.REJECTED);
     Friendship savedFriendship = friendshipRepository.save(friendship);
@@ -81,8 +96,7 @@ public class FriendshipService {
 
   private FriendshipResponseDTO mapToResponseDto(Friendship friendship, Integer currentUserId){
     User otherUser = friendship.getUser().getId().equals(currentUserId)
-      ? friendship.getFriend()
-      :friendship.getUser();
+      ? friendship.getFriend() : friendship.getUser();
 
    boolean isRequester = friendship.getUser().getId().equals(currentUserId);
 
