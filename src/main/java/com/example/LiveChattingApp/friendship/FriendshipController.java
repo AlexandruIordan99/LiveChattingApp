@@ -114,5 +114,17 @@ public class FriendshipController {
 
   }
 
+  @GetMapping("blocked-users")
+  public ResponseEntity<List<FriendshipResponseDTO>> getBlockedUsers(
+    @Valid Authentication authentication){
+    User user = (User) authentication.getPrincipal();
+    Integer userId = user.getId();
+
+    List<FriendshipResponseDTO> response = service.getBlockedUsers(userId);
+
+    return ResponseEntity.ok(response);
+  }
+
+
 
 }
