@@ -1,4 +1,4 @@
-package com.example.LiveChattingApp.friendship;
+package com.example.LiveChattingApp.friendship.DTOs;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
