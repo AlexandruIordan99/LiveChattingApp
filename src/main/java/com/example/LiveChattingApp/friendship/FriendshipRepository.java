@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface FriendshipRepository extends JpaRepository {
+public interface FriendshipRepository extends JpaRepository<Friendship, Integer> {
 
   @Query("""
     Select f from Friendship f
