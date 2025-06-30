@@ -14,7 +14,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
     where (f.user.id = :usersId and f.friend.id= :friendId)\s
     or (f.user.id = :friendId and f.friend.id =:usersId)
    \s""")
-  Optional<Friendship> friendshipBetweenUsers(@Param("usersId") Integer usersId,
+  Optional<Friendship> findFriendshipBetweenUsers(@Param("usersId") Integer usersId,
                                               @Param("friendId") Integer friendId);
 
   boolean existsFriendshipBetweenUsers(@Param("usersId") Integer usersId,
@@ -25,8 +25,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
     where (f.user.id= :usersId and f.friend.id= :friendId)
     and f.friendshipsStatus = 'ACCEPTED'\s
 """)
-  List<Friendship> findAcceptedFriendships(@Param("usersId") Integer usersId,
-                                           @Param("friendId") Integer friendId);
+  List<Friendship> findAcceptedFriendships(@Param("usersId") Integer usersId);
 
   @Query("""
     select f from Friendship f\s
@@ -53,13 +52,5 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
                                                 FriendshipStatus status);
 
   List<Friendship> findByFriendIdAndStatus(Integer friendId, FriendshipStatus status);
-
-  @Query(""" 
-    SELECT f FROM Friendship f WHERE 
-    (f.user.id = :userId AND f.friend.id = :friendId) OR 
-    (f.user.id = :friendId AND f.friend.id = :userId)
-""")
-  Optional<Friendship> findFriendshipBetweenUsers(@Param("userId") Integer userId,
-                                                  @Param("friendId") Integer friendId);
 
 }
