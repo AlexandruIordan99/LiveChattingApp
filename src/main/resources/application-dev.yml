@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/LiveChattingAppDB
+    username: postgres
+    password: pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update #only for dev, never in prod
+    properties:
+      format-sql: true
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      show-sql: true
+      logging:
+        level:
+          org.springframework.boot.autoconfigure: DEBUG
+          org.hibernate.SQL: DEBUG
+          org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+      database: postgresql
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  mail:
+    host: localhost
+    port: 1025
+    username: postgres
+    password: pass
+    properties:
+      mail:
+        smtp:
+          trust: "*" #never in prod
+          auth: true
+          starttls: #upgrades plain connection to encrypted tsl/ssl
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+
+
+application:
+  security:
+    jwt:
+      secret-key:  #must be in base 64 to be properly decoded later
+      expiration: 86400000  #equivalent to 1 day, measured in miliseconds
+  emailing:
+    frontend:
+      activation-url: http://localhost:4200/activate-account
+  file:
+    upload:
+      photos-output-path: ./uploads
+
+server:
+  port: 8090
