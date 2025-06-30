@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 
 @RestController
@@ -42,7 +43,6 @@ public class FriendshipController {
 
   }
 
-
   @PutMapping("{friendshipId}/reject")
   public ResponseEntity<Void> rejectFriendRequest
     (@Valid Authentication authentication,
@@ -51,7 +51,7 @@ public class FriendshipController {
     User user = (User) authentication.getPrincipal();
     Integer userId = user.getId();
 
-     service.rejectFriendRequest(userId, friendshipId);
+    service.rejectFriendRequest(userId, friendshipId);
     return ResponseEntity.ok().build();
   }
 
@@ -70,7 +70,6 @@ public class FriendshipController {
 
   }
 
-
   @PostMapping("block/{userToBlockId}")
   public ResponseEntity<Void> blockUser(@Valid Authentication authentication,
   @PathVariable Integer userToBlockId){
@@ -79,6 +78,40 @@ public class FriendshipController {
 
     service.blockUser(userId, userToBlockId);
     return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("friendlist")
+  public ResponseEntity<List<FriendshipResponseDTO>> getFriends(
+    @Valid Authentication authentication){
+    User user = (User) authentication.getPrincipal();
+    Integer userId = user.getId();
+
+    List<FriendshipResponseDTO> response = service.getFriends(userId);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("sent-pending-requests")
+  public ResponseEntity<List<FriendshipResponseDTO>> getSentPendingRequests (
+    @Valid Authentication authentication){
+    User user = (User) authentication.getPrincipal();
+    Integer userId = user.getId();
+
+    List<FriendshipResponseDTO> response = service.getSentPendingRequests(userId);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("received-pending-requests")
+  public ResponseEntity<List<FriendshipResponseDTO>> getReceivedPendingRequests(
+    @Valid Authentication authentication){
+    User user = (User) authentication.getPrincipal();
+    Integer userId  = user.getId();
+
+    List<FriendshipResponseDTO> response = service.getReceivedPendingRequests(userId);
+
+    return ResponseEntity.ok(response);
+
   }
 
 
