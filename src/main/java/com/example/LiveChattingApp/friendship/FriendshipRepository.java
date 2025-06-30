@@ -28,7 +28,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
 
   @Query("""
     select f from Friendship f
-    where (f.user.id= :usersId and f.friend.id= :friendId)
+    where (f.user.id= :usersId or f.friend.id= :usersId)
     and f.friendshipsStatus = 'ACCEPTED'
 """)
   List<Friendship> findAcceptedFriendships(@Param("userId") Integer usersId);
