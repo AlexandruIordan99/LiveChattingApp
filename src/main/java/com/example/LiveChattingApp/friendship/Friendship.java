@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "friendship",
+  uniqueConstraints = @UniqueConstraint(columnNames = {"users_id", "friend_id"}
+))
 public class Friendship {
 
   @Id
