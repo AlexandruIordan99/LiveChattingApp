@@ -61,7 +61,7 @@ public class FriendshipService {
     return mapToResponseDto(savedFriendship, currentUserId);
   }
 
-  public  FriendshipResponseDTO rejectFriendRequest(Integer currentUserId, Integer friendshipId){
+  public void rejectFriendRequest(Integer currentUserId, Integer friendshipId){
     Friendship friendship = findFriendshipById(friendshipId);
 
     if(!friendship.getFriend().getId().equals(currentUserId)){
@@ -72,9 +72,8 @@ public class FriendshipService {
     }
 
     friendship.setFriendshipsStatus(FriendshipStatus.REJECTED);
-    Friendship savedFriendship = friendshipRepository.save(friendship);
 
-    return mapToResponseDto(savedFriendship, currentUserId);
+    friendshipRepository.save(friendship);
   }
 
   public  void removeFriend(Integer currentUserId, Integer friendId){
@@ -84,7 +83,7 @@ public class FriendshipService {
     friendshipRepository.delete(friendship);
   }
 
-  public  void blockUser(Integer currentUserId, Integer userToBlockId){
+  public void blockUser(Integer currentUserId, Integer userToBlockId){
     User userToBlock = findUserById(userToBlockId);
 
     Friendship friendship = friendshipRepository.findFriendshipBetweenUsers(currentUserId, userToBlockId)
