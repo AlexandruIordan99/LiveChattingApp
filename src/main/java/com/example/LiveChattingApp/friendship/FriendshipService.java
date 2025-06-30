@@ -95,6 +95,19 @@ public class FriendshipService {
     friendshipRepository.delete(friendship);
   }
 
+  private void blockUser(Integer currentUserId, Integer userToBlockId){
+    User currentUser = findUserById(currentUserId);
+    User userToBlock = findUserById(userToBlockId);
+
+    Friendship friendship = friendshipRepository.findFriendshipBetweenUsers(currentUserId, userToBlockId)
+      .orElse(new Friendship());
+
+    friendship.setUser(currentUser);
+    friendship.setFriend(userToBlock);
+    friendship.setFriendshipsStatus(FriendshipStatus.BLOCKED);
+
+    friendshipRepository.save(friendship);
+  }
 
 
   private User findUserById(Integer userId){
