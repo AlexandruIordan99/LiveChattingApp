@@ -5,10 +5,10 @@ import com.example.LiveChattingApp.friendship.exceptions.FriendshipAlreadyExists
 import com.example.LiveChattingApp.friendship.exceptions.FriendshipNotFoundException;
 import com.example.LiveChattingApp.user.User;
 import com.example.LiveChattingApp.user.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class FriendshipService {
 
   private final FriendshipRepository friendshipRepository;
@@ -110,7 +109,7 @@ public class FriendshipService {
     friendshipRepository.save(friendship);
   }
 
-  @Transactional
+  @Transactional(readOnly= true)
   public List<FriendshipResponseDTO> getFriends(Integer userId){
 
     List<Friendship> friendships = friendshipRepository.findAcceptedFriendships(userId);
@@ -119,6 +118,26 @@ public class FriendshipService {
       .map(friendship -> mapToResponseDto(friendship, userId))
       .collect(Collectors.toList());
   }
+
+  @Transactional(readOnly= true)
+  public List<FriendshipResponseDTO> getPendingRequests(Integer userId){
+    List<Friendship> pendingFriendships = friendshipRepository.findPendingFriendships(userId);
+
+    return pendingFriendships.stream()
+      .map(friendship -> mapToResponseDto(friendship, userId))
+      .collect(Collectors.toList());
+  }
+
+
+  @Transactional(readOnly = true)
+  public List<FriendshipResponseDTO> getBlockedUsers(Integer userId){
+    List<Friendship> blockedUsers=  friendshipRepository.findBlockedUsers(userId);
+
+    return blockedUsers.stream()
+      .map(friendship -> mapToResponseDto(friendship, userId))
+      .collect(Collectors.toList());
+  }
+
 
 
   private User findUserById(Integer userId){

@@ -32,16 +32,14 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
     where(f.user.id =:usersId and f.friend.id= :friendId)
     and f.friendshipsStatus = 'PENDING'
 """)
-    List<Friendship> findPendingFriendships(@Param("usersId") Integer usersId,
-                                            @Param("friendId") Integer friendId);
+    List<Friendship> findPendingFriendships(@Param("usersId") Integer usersId);
 
     @Query("""
     select f from Friendship f\s
     where(f.user.id =:usersId and f.friend.id= :friendId)
     and f.friendshipsStatus = 'BLOCKED'
 """)
-  List<Friendship> findBlockedUsers(@Param("usersId") Integer usersId,
-                                    @Param("friendId") Integer friendId);
+  List<Friendship> findBlockedUsers(@Param("usersId") Integer usersId);
 
   @Query("""
     select case when count(f) > 0 then true else false end from Friendship f where
