@@ -50,7 +50,6 @@ public interface FriendshipRepository extends JpaRepository {
     (f.user.id= :friendId and f.friend.id = :userId)
 """)
 
-  //To find requests to and from the user
   List<Friendship> findRequestByUserIdAndStatus(Integer userId, FriendshipStatus status);
 
   List<Friendship> findRequestByFriendIdAndStatus(Integer friendId, FriendshipStatus status);
