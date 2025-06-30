@@ -22,7 +22,7 @@ public class FriendshipService {
   private final FriendshipRepository friendshipRepository;
   private final UserRepository userRepository;
 
-  private FriendshipResponseDTO sendFriendRequest(Integer currentUserId, Integer friendId){
+  public  FriendshipResponseDTO sendFriendRequest(Integer currentUserId, Integer friendId){
     User currentUser = findUserById(currentUserId);
     User friendUser = findUserById(friendId);
 
@@ -45,7 +45,7 @@ public class FriendshipService {
   }
 
 
-  private FriendshipResponseDTO acceptFriendRequest(Integer currentUserId, Integer friendshipId){
+  public  FriendshipResponseDTO acceptFriendRequest(Integer currentUserId, Integer friendshipId){
     User currentUser = findUserById(currentUserId);
     Friendship friendship = findFriendshipById(friendshipId);
     friendship.setUser(currentUser);
@@ -63,7 +63,7 @@ public class FriendshipService {
     return mapToResponseDto(savedFriendship, currentUserId);
   }
 
-  private FriendshipResponseDTO rejectFriendRequest(Integer currentUserId, Integer friendshipId){
+  public  FriendshipResponseDTO rejectFriendRequest(Integer currentUserId, Integer friendshipId){
     User currentUser = findUserById(currentUserId);
     Friendship friendship = findFriendshipById(friendshipId);
     friendship.setUser(currentUser);
@@ -81,7 +81,7 @@ public class FriendshipService {
     return mapToResponseDto(savedFriendship, currentUserId);
   }
 
-  private void removeFriend(Integer currentUserId, Integer friendId){
+  public  void removeFriend(Integer currentUserId, Integer friendId){
     boolean exists = friendshipRepository.existsFriendshipBetweenUsers(currentUserId, friendId);
 
     if(!exists){
@@ -95,7 +95,7 @@ public class FriendshipService {
     friendshipRepository.delete(friendship);
   }
 
-  private void blockUser(Integer currentUserId, Integer userToBlockId){
+  public  void blockUser(Integer currentUserId, Integer userToBlockId){
     User currentUser = findUserById(currentUserId);
     User userToBlock = findUserById(userToBlockId);
 
@@ -138,6 +138,12 @@ public class FriendshipService {
       .collect(Collectors.toList());
   }
 
+  @Transactional(readOnly = true)
+  public String getFriendshipStatus(Integer userId, Integer friendId){
+    return friendshipRepository.findFriendshipBetweenUsers(userId, friendId)
+      .map(friendship -> friendship.getFriendshipsStatus().toString())
+      .orElse("NONE");
+  }
 
 
   private User findUserById(Integer userId){
