@@ -106,7 +106,7 @@ public class FriendshipService {
   }
 
   @Transactional(readOnly= true)
-  public List<FriendshipResponseDTO> getPendingReceivedRequests(Integer userId){
+  public List<FriendshipResponseDTO> getReceivedPendingRequests(Integer userId){
     List<Friendship> pendingFriendships = friendshipRepository.findPendingReceivedRequests(userId);
 
     return pendingFriendships.stream()
@@ -115,7 +115,7 @@ public class FriendshipService {
   }
 
   @Transactional(readOnly= true)
-  public List<FriendshipResponseDTO> getPendingSentRequests(Integer userId){
+  public List<FriendshipResponseDTO> getSentPendingRequests(Integer userId){
     List<Friendship> pendingFriendships = friendshipRepository.findPendingSentRequests(userId);
 
     return pendingFriendships.stream()
