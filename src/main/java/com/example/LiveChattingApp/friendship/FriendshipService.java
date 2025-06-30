@@ -8,10 +8,11 @@ import com.example.LiveChattingApp.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.event.spi.SaveOrUpdateEvent;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -107,6 +108,16 @@ public class FriendshipService {
     friendship.setFriendshipsStatus(FriendshipStatus.BLOCKED);
 
     friendshipRepository.save(friendship);
+  }
+
+  @Transactional
+  public List<FriendshipResponseDTO> getFriends(Integer userId){
+
+    List<Friendship> friendships = friendshipRepository.findAcceptedFriendships(userId);
+
+    return friendships.stream()
+      .map(friendship -> mapToResponseDto(friendship, userId))
+      .collect(Collectors.toList());
   }
 
 
