@@ -17,28 +17,42 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
   Optional<Friendship> findFriendshipBetweenUsers(@Param("usersId") Integer usersId,
                                               @Param("friendId") Integer friendId);
 
+  @Query("""
+        SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END 
+        FROM Friendship f 
+        WHERE (f.user.id = :userId AND f.friend.id = :friendId) 
+           OR (f.user.id = :friendId AND f.friend.id = :userId)
+        """)
   boolean existsFriendshipBetweenUsers(@Param("usersId") Integer usersId,
                                        @Param("friendId") Integer friendId);
 
   @Query("""
     select f from Friendship f
     where (f.user.id= :usersId and f.friend.id= :friendId)
-    and f.friendshipsStatus = 'ACCEPTED'\s
+    and f.friendshipsStatus = 'ACCEPTED'
 """)
   List<Friendship> findAcceptedFriendships(@Param("usersId") Integer usersId);
 
   @Query("""
-    select f from Friendship f\s
-    where(f.user.id =:usersId and f.friend.id= :friendId)
+    select f from Friendship f
+    where f.user.id =:usersId
     and f.friendshipsStatus = 'PENDING'
 """)
-    List<Friendship> findPendingFriendships(@Param("usersId") Integer usersId);
+    List<Friendship> findPendingSentFriendships(@Param("usersId") Integer usersId);
 
-    @Query("""
-    select f from Friendship f\s
-    where(f.user.id =:usersId and f.friend.id= :friendId)
-    and f.friendshipsStatus = 'BLOCKED'
-""")
+
+  @Query("""
+        SELECT f FROM Friendship f
+        WHERE f.friend.id = :userId 
+          AND f.friendshipsStatus = 'PENDING'
+        """)
+  List<Friendship> findPendingReceivedRequests(@Param("usersId") Integer userId);
+
+  @Query("""
+        SELECT f FROM Friendship f
+        WHERE f.user.id = :userId 
+         AND f.friendshipsStatus = 'BLOCKED'
+        """)
   List<Friendship> findBlockedUsers(@Param("usersId") Integer usersId);
 
   @Query("""
@@ -46,9 +60,8 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
     (f.user.id= :userId and f.friend.id = :friendId) or
     (f.user.id= :friendId and f.friend.id = :userId)
 """)
-  List<Friendship> findRequestByUserIdAndStatus(Integer userId,
-                                                FriendshipStatus status);
+  List<Friendship> findByUserIdAndFriendshipsStatus(Integer userId, FriendshipStatus status);
 
-  List<Friendship> findByFriendIdAndStatus(Integer friendId, FriendshipStatus status);
+  List<Friendship> findByFriendIdAndFriendshipsStatus(Integer friendId, FriendshipStatus status);;
 
 }
