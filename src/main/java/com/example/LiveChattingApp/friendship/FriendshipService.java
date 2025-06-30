@@ -46,9 +46,7 @@ public class FriendshipService {
 
 
   public  FriendshipResponseDTO acceptFriendRequest(Integer currentUserId, Integer friendshipId){
-    User currentUser = findUserById(currentUserId);
     Friendship friendship = findFriendshipById(friendshipId);
-    friendship.setUser(currentUser);
 
     if(!friendship.getFriend().getId().equals(currentUserId)){
       throw new IllegalArgumentException("You can only accept requests sent to you.");
@@ -64,9 +62,7 @@ public class FriendshipService {
   }
 
   public  FriendshipResponseDTO rejectFriendRequest(Integer currentUserId, Integer friendshipId){
-    User currentUser = findUserById(currentUserId);
     Friendship friendship = findFriendshipById(friendshipId);
-    friendship.setUser(currentUser);
 
     if(!friendship.getFriend().getId().equals(currentUserId)){
       throw new IllegalArgumentException("You can only reject requests sent to you.");
@@ -82,27 +78,18 @@ public class FriendshipService {
   }
 
   public  void removeFriend(Integer currentUserId, Integer friendId){
-    boolean exists = friendshipRepository.existsFriendshipBetweenUsers(currentUserId, friendId);
-
-    if(!exists){
-      throw new FriendshipNotFoundException("You can only remove a friend you have a friendship with.");
-    }
-
-    Friendship friendship = findFriendshipById(currentUserId);
-    User currentUser = findUserById(currentUserId);
-    friendship.setUser(currentUser);
+    Friendship friendship = friendshipRepository.findFriendshipBetweenUsers(currentUserId, friendId)
+      .orElseThrow(() -> new FriendshipNotFoundException("Friendship not found between these users"));
 
     friendshipRepository.delete(friendship);
   }
 
   public  void blockUser(Integer currentUserId, Integer userToBlockId){
-    User currentUser = findUserById(currentUserId);
     User userToBlock = findUserById(userToBlockId);
 
     Friendship friendship = friendshipRepository.findFriendshipBetweenUsers(currentUserId, userToBlockId)
       .orElse(new Friendship());
 
-    friendship.setUser(currentUser);
     friendship.setFriend(userToBlock);
     friendship.setFriendshipsStatus(FriendshipStatus.BLOCKED);
 
@@ -120,8 +107,17 @@ public class FriendshipService {
   }
 
   @Transactional(readOnly= true)
-  public List<FriendshipResponseDTO> getPendingRequests(Integer userId){
-    List<Friendship> pendingFriendships = friendshipRepository.findPendingFriendships(userId);
+  public List<FriendshipResponseDTO> getPendingReceivedRequests(Integer userId){
+    List<Friendship> pendingFriendships = friendshipRepository.findPendingReceivedRequests(userId);
+
+    return pendingFriendships.stream()
+      .map(friendship -> mapToResponseDto(friendship, userId))
+      .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly= true)
+  public List<FriendshipResponseDTO> getPendingSentRequests(Integer userId){
+    List<Friendship> pendingFriendships = friendshipRepository.findPendingSentRequests(userId);
 
     return pendingFriendships.stream()
       .map(friendship -> mapToResponseDto(friendship, userId))
