@@ -38,7 +38,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
     where f.user.id =:usersId
     and f.friendshipsStatus = 'PENDING'
 """)
-    List<Friendship> findPendingSentFriendships(@Param("usersId") Integer usersId);
+    List<Friendship> findPendingSentRequests(@Param("usersId") Integer usersId);
 
 
   @Query("""
