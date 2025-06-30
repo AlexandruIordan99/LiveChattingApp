@@ -30,3 +30,7 @@ body {
     text-decoration: none;
     border-radius: 5px;
 }
+
+.activation-link:hover{
+    cursor:pointer;
+}
