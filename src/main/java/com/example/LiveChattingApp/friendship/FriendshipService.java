@@ -81,6 +81,19 @@ public class FriendshipService {
     return mapToResponseDto(savedFriendship, currentUserId);
   }
 
+  private void removeFriend(Integer currentUserId, Integer friendId){
+    boolean exists = friendshipRepository.existsFriendshipBetweenUsers(currentUserId, friendId);
+
+    if(!exists){
+      throw new FriendshipNotFoundException("You can only remove a friend you have a friendship with.");
+    }
+
+    Friendship friendship = findFriendshipById(currentUserId);
+    User currentUser = findUserById(currentUserId);
+    friendship.setUser(currentUser);
+
+    friendshipRepository.delete(friendship);
+  }
 
 
 
