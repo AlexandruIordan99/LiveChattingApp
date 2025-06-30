@@ -6,6 +6,7 @@ import com.example.LiveChattingApp.friendship.DTOs.FriendshipResponseDTO;
 import com.example.LiveChattingApp.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.internal.constraintvalidators.hv.ScriptAssertValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,6 @@ import java.util.List;
 public class FriendshipController {
 
   private final FriendshipService service;
-
 
   @PostMapping("/request")
   public ResponseEntity<FriendshipResponseDTO> sendFriendRequest(
@@ -125,6 +125,18 @@ public class FriendshipController {
     return ResponseEntity.ok(response);
   }
 
+  @GetMapping("friendship-status/{friendId}")
+  public ResponseEntity<String> getFriendshipStatus(
+    @Valid Authentication authentication,
+    @PathVariable FriendshipRequestDTO friendId){
+    User user = (User) authentication.getPrincipal();
+    Integer userId = user.getId();
 
+    String response = String.valueOf(FriendshipStatus.valueOf(
+      service.getFriendshipStatus(userId, friendId.getFriendId())
+    ));
+
+    return ResponseEntity.ok(response);
+  }
 
 }
