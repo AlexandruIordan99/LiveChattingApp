@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FriendshipRequestDto {
+public class FriendshipRequestDTO {
 
   private Integer friendId;
 
