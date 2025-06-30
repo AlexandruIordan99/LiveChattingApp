@@ -29,7 +29,7 @@ spring:
         smtp:
           trust: "*" #never in prod
           auth: true
-          starttls: #upgrades plain connection to encrypted tsl/ssl
+          starttls: #upgrades plain connection (unencrypted) to encrypted tsl/ssl
             enable: true
             required: true
           connectiontimeout: 5000
@@ -40,7 +40,7 @@ spring:
 application:
   security:
     jwt:
-      secret-key:  #must be in base 64 to be properly decoded later
+      secret-key: OXotaGV4I3puMiMmMCgmJmlxZjJ3bD0wYiRkeXIlOW5vZz12bC1kMDdiMHV3Y2VfPWM= #must be in base 64 to be properly decoded later
       expiration: 86400000  #equivalent to 1 day, measured in miliseconds
   emailing:
     frontend:

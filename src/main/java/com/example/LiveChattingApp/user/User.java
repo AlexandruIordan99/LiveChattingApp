@@ -1,6 +1,6 @@
 package com.example.LiveChattingApp.user;
 
-
+import com.example.LiveChattingApp.friendship.Friendship;
 import com.example.LiveChattingApp.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -62,6 +62,11 @@ public class User implements UserDetails, Principal {
         return firstname + " " + lastname;
     }
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Friendship> sentFriendRequests;
+
+    @OneToMany(mappedBy = "friend", cascade = CascadeType.ALL)
+    private List<Friendship> receivedFriendRequests;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() { //for roles and permissions
