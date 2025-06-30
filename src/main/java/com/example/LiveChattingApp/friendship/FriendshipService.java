@@ -41,6 +41,16 @@ public class FriendshipService {
     return mapToResponseDto(savedFriendship, currentUserId);
   }
 
+  private FriendshipResponseDTO acceptFriendRequest(Integer currentUserId, Integer friendshipId){
+    User currentUser = findUserById(currentUserId);
+    Friendship friendship = findFriendshipById(friendshipId);
+    friendship.setUser(currentUser);
+
+    friendship.setFriendshipsStatus(FriendshipStatus.ACCEPTED);
+    Friendship savedFriendship = friendshipRepository.save(friendship);
+    return mapToResponseDto(savedFriendship, currentUserId);
+  }
+
 
   private User findUserById(Integer userId){
     return userRepository.findById(userId)
