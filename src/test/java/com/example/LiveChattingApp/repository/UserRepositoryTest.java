@@ -1,6 +1,5 @@
 package com.example.LiveChattingApp.repository;
 
-
 import com.example.LiveChattingApp.user.User;
 import com.example.LiveChattingApp.user.UserRepository;
 import org.assertj.core.api.Assertions;
@@ -36,7 +35,7 @@ public class UserRepositoryTest {
   }
 
   @Test
-  public void UserRepositoryReturnSavedUser(){
+  public void UserRepository_CreateUser_ReturnSavedUser(){
     //Arrange
     User testUser = User.builder()
       .firstname("Alexandru")
