@@ -55,11 +55,6 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
        \s""")
   List<Friendship> findBlockedUsers(@Param("userId") Integer userId);
 
-  @Query("""
-    select case when count(f) > 0 then true else false end from Friendship f where
-    (f.user.id= :userId and f.friend.id = :friendId) or
-    (f.user.id= :friendId and f.friend.id = :userId)
-""")
   List<Friendship> findByUserIdAndFriendshipsStatus(Integer userId, FriendshipStatus status);
 
   List<Friendship> findByFriendIdAndFriendshipsStatus(Integer friendId, FriendshipStatus status);
