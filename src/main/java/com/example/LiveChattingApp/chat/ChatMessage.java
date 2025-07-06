@@ -12,7 +12,7 @@ import lombok.*;
 
 public class ChatMessage {
 
-  private User sender;
+  private String sender;
   private String content;
   private MessageType type;
 
