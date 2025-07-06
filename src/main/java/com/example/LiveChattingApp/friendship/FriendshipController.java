@@ -127,12 +127,12 @@ public class FriendshipController {
   @GetMapping("friendship-status/{friendId}")
   public ResponseEntity<String> getFriendshipStatus(
     @Valid Authentication authentication,
-    @PathVariable FriendshipRequestDTO friendId){
+    @PathVariable Integer friendId){
     User user = (User) authentication.getPrincipal();
     Integer userId = user.getId();
 
     String response = String.valueOf(FriendshipStatus.valueOf(
-      service.getFriendshipStatus(userId, friendId.getFriendId())
+      service.getFriendshipStatus(userId, friendId)
     ));
 
     return ResponseEntity.ok(response);
