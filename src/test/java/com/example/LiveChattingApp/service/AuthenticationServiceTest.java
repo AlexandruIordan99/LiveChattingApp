@@ -33,7 +33,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -167,17 +166,14 @@ public class AuthenticationServiceTest {
 
   @Test
   void authenticate_ShouldReturnAuthenticationResponse() {
-    // Given
     Authentication mockAuth = mock(Authentication.class);
     when(mockAuth.getPrincipal()).thenReturn(user);
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
       .thenReturn(mockAuth);
     when(jwtService.generateToken(anyMap(), eq(user))).thenReturn("jwt-token");
 
-    // When
     AuthenticationResponse response = authenticationService.authenticate(authenticationRequest);
 
-    // Then
     assertNotNull(response);
     assertEquals("jwt-token", response.getToken());
     verify(authenticationManager).authenticate(argThat(token ->
