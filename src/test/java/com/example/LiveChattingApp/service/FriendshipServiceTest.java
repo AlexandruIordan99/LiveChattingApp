@@ -140,7 +140,7 @@ public class FriendshipServiceTest {
     }
 
     @Test
-    void acceptFriendRequest_Success(){
+    void testAcceptFriendRequest_Success(){
       when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
       when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
 
@@ -155,7 +155,7 @@ public class FriendshipServiceTest {
     }
 
   @Test
-  void acceptFriendRequest_WrongRecipientException(){
+  void testAcceptFriendRequest_IllegalArgumentException(){
     when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
 
     assertThatThrownBy(() -> friendshipService.acceptFriendRequest(3, 1))
@@ -167,7 +167,7 @@ public class FriendshipServiceTest {
   }
 
   @Test
-  void acceptFriendRequest_IllegalArgumentException(){
+  void testAcceptFriendRequest_IllegalStateException(){
     friendship.setFriendshipsStatus(FriendshipStatus.ACCEPTED);
     when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
 
@@ -179,7 +179,40 @@ public class FriendshipServiceTest {
 
   }
 
+  @Test
+  void testRejectFriendRequest(){
+    when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
+    when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
 
+    assertThatCode(() -> friendshipService.rejectFriendRequest(2, 1))
+      .doesNotThrowAnyException();
+
+    verify(friendshipRepository).save(argThat(f -> f.getFriendshipsStatus() == FriendshipStatus.REJECTED));
+  }
+
+  @Test
+  void testRejectFriendRequest_IllegalArgumentException(){
+    when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
+
+    assertThatThrownBy(() -> friendshipService.rejectFriendRequest(3,1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("You can only reject requests sent to you.");
+
+    verify(friendshipRepository, never()).save(any(Friendship.class));
+
+  }
+
+  @Test
+  void testRejectFriendRequest_IllegalStateException(){
+    when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
+    friendship.setFriendshipsStatus(FriendshipStatus.ACCEPTED);
+
+    assertThatThrownBy(() -> friendshipService.rejectFriendRequest(2, 1))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("You can only reject pending requests.");
+
+    verify(friendshipRepository, never()).save(any(Friendship.class));
+  }
 
 
 }
