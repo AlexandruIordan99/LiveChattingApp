@@ -1,14 +1,18 @@
 package com.example.LiveChattingApp.service;
 
+import com.example.LiveChattingApp.friendship.DTOs.FriendshipResponseDTO;
 import com.example.LiveChattingApp.friendship.Friendship;
 import com.example.LiveChattingApp.friendship.FriendshipRepository;
 import com.example.LiveChattingApp.friendship.FriendshipService;
+import com.example.LiveChattingApp.friendship.FriendshipStatus;
 import com.example.LiveChattingApp.user.User;
 import com.example.LiveChattingApp.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
@@ -18,6 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 @Testcontainers
 public class FriendshipServiceTest {
 
@@ -35,7 +40,7 @@ public class FriendshipServiceTest {
   private User user2;
   private User user3;
   private Friendship friendship;
-  private LocalDateTime testTime;
+  private final LocalDateTime testTime = LocalDateTime.now();
 
 
   @BeforeEach
@@ -43,46 +48,76 @@ public class FriendshipServiceTest {
       user1 = User.builder()
         .firstname("Alexandru")
         .lastname("Iordan")
-        .username("Jordan299")
+        .displayName("Jordan299")
         .password("alunemari1234")
         .dateOfBirth("30.11.1999")
         .email("alexandru.iordan99@gmail.com")
         .accountLocked(false)
         .enabled(true)
-        .createdDate(LocalDateTime.now())
+        .createdDate(testTime)
         .build();
+
+      user1.setId(1);
 
       user2 = User.builder()
         .firstname("Vlad")
         .lastname("Loghin")
-        .username("gtgmycatisonfire")
+        .displayName("gtgmycatisonfire")
         .password("doomguy2000")
         .dateOfBirth("23.02.1996")
         .email("vladloghin00@gmail.com")
         .accountLocked(false)
         .enabled(true)
-        .createdDate(LocalDateTime.now())
+        .createdDate(testTime)
         .build();
+      user2.setId(2);
 
       user3 = User.builder()
         .firstname("Matei")
         .lastname("Paulet")
-        .username("copilcoiot")
+        .displayName("copilcoiot")
         .password("coiot9000")
         .dateOfBirth("17.07.1995")
         .email("mateipaulet1999@gmail.com")
         .accountLocked(false)
         .enabled(true)
-        .createdDate(LocalDateTime.now())
+        .createdDate(testTime)
         .build();
+        user3.setId(3);
 
-      user1= userRepository.save(user1);
-      user2 = userRepository.save(user2);
-      user3 = userRepository.save(user3);
+      friendship = new Friendship();
+      friendship.setId(1);
+      friendship.setUser(user1);
+      friendship.setFriend(user2);
+      friendship.setFriendshipsStatus(FriendshipStatus.PENDING);
+      friendship.setCreatedAt(testTime);
+
+    }
+
+
+    @Test
+    void testSendFriendRequestSuccess(){
+      when(userRepository.findById(1)).thenReturn(Optional.of(user1));
+      when(userRepository.findById(2)).thenReturn(Optional.of(user2));
+      when(friendshipRepository.existsFriendshipBetweenUsers(1, 2)).thenReturn(false);
+      when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
+
+
+      FriendshipResponseDTO result = friendshipService.sendFriendRequest(1, 2);
+
+      assertThat(result).isNotNull();
+      assertThat(result.getId()).isEqualTo(1);
+      assertThat(result.getUserId()).isEqualTo(2);
+      assertThat(result.getDisplayName()).isEqualTo("gtgmycatisonfire");
+      assertThat(result.getEmail()).isEqualTo("vladloghin00@gmail.com");
+      assertThat(result.getStatus()).isEqualTo("PENDING");
+      assertThat(result.isRequester()).isTrue();
+
+      verify(friendshipRepository).save(any(Friendship.class));
     }
 
     @Test
-    void testSendFriendRequest(){
+    void testSendFriendRequest_throwsException(){
       when(userRepository.findById(1)).thenReturn(Optional.of(user1));
 
       assertThatThrownBy(() -> friendshipService.sendFriendRequest(1, 1))
