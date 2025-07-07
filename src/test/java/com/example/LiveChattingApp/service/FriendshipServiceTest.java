@@ -128,6 +128,58 @@ public class FriendshipServiceTest {
 
     }
 
+    @Test
+    void testSendFriendRequest_UserNotFound_ThrowsException(){
+      when(userRepository.findById(1)).thenReturn(Optional.empty());
+
+      assertThatThrownBy(() -> friendshipService.sendFriendRequest(1, 2))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("User not found with ID: 1");
+
+      verify(friendshipRepository, never()).save(any(Friendship.class));
+    }
+
+    @Test
+    void acceptFriendRequest_Success(){
+      when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
+      when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
+
+      FriendshipResponseDTO result = friendshipService.acceptFriendRequest(2, 1);
+
+      assertThat(result).isNotNull();
+      assertThat(result.getStatus()).isEqualTo("ACCEPTED");
+      assertThat(result.isRequester()).isFalse();
+
+      verify(friendshipRepository).save(argThat(f-> f.getFriendshipsStatus() == FriendshipStatus.ACCEPTED));
+
+    }
+
+  @Test
+  void acceptFriendRequest_WrongRecipientException(){
+    when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
+
+    assertThatThrownBy(() -> friendshipService.acceptFriendRequest(3, 1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("You can only accept requests sent to you.");
+
+    verify(friendshipRepository, never()).save(any(Friendship.class));
+
+  }
+
+  @Test
+  void acceptFriendRequest_IllegalArgumentException(){
+    friendship.setFriendshipsStatus(FriendshipStatus.ACCEPTED);
+    when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
+
+    assertThatThrownBy(() -> friendshipService.acceptFriendRequest(2, 1))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("You can only accept pending requests.");
+
+    verify(friendshipRepository, never()).save(any(Friendship.class));
+
+  }
+
+
 
 
 }
