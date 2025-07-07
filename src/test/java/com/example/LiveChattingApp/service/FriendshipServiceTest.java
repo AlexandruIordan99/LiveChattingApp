@@ -361,6 +361,36 @@ public class FriendshipServiceTest {
     assertThat(result).isEqualTo("NONE");
   }
 
+  @Test
+  void testFindFriendshipById_NotFound_ThrowsException() {
+    when(friendshipRepository.findById(999)).thenReturn(Optional.empty());
 
+    assertThatThrownBy(() -> friendshipService.acceptFriendRequest(2, 999))
+      .isInstanceOf(FriendshipNotFoundException.class)
+      .hasMessage("Friendship not found with ID: 999");
+  }
+
+  @Test
+  void testMapToResponseDto_CurrentUserIsFriend_MapsCorrectly() {
+    when(friendshipRepository.findAcceptedFriendships(2))
+      .thenReturn(Arrays.asList(friendship));
+
+    List<FriendshipResponseDTO> result = friendshipService.getFriends(2);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.getFirst().getUserId()).isEqualTo(1);
+    assertThat(result.getFirst().getDisplayName()).isEqualTo("Jordan299");
+    assertThat(result.getFirst().isRequester()).isFalse();
+  }
+
+  @Test
+  void testGetFriends_NoFriends_ReturnsEmptyList() {
+    when(friendshipRepository.findAcceptedFriendships(1))
+      .thenReturn(Arrays.asList());
+
+    List<FriendshipResponseDTO> result = friendshipService.getFriends(1);
+
+    assertThat(result).isEmpty();
+  }
 
 }
