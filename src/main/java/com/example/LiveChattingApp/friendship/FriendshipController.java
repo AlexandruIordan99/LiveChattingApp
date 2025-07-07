@@ -22,7 +22,7 @@ public class FriendshipController {
   @PostMapping("/request")
   public ResponseEntity<FriendshipResponseDTO> sendFriendRequest(
     @Valid Authentication authentication,
-    @RequestBody FriendshipRequestDTO friendDTO){
+    @Valid @RequestBody FriendshipRequestDTO friendDTO){
     User user = (User) authentication.getPrincipal();
     Integer userId = user.getId();
 
