@@ -11,7 +11,7 @@ public class FriendshipResponseDTO {
 
   private Integer id;
   private Integer userId;
-  private String username;
+  private String displayName;
   private String email;
   private String status;
   private String createdAt;

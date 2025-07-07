@@ -161,7 +161,7 @@ public class FriendshipService {
      .builder()
      .id(friendship.getId())
      .userId(otherUser.getId())
-     .username(otherUser.getUsername())
+     .displayName(otherUser.getDisplayName())
      .email(otherUser.getEmail())
      .status(friendship.getFriendshipsStatus().toString())
      .createdAt(friendship.getCreatedAt().toString())

@@ -40,7 +40,7 @@ public class UserRepositoryTest {
     User testUser = User.builder()
       .firstname("Alexandru")
       .lastname("Iordan")
-      .username("Jordan299")
+      .displayName("Jordan299")
       .password("alunemari1234")
       .dateOfBirth("30.09.1999")
       .email("alexandru.iordan99@gmail.com")
