@@ -18,6 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -268,6 +269,78 @@ public class FriendshipServiceTest {
       f.getFriendshipsStatus() == FriendshipStatus.BLOCKED &&
         f.getFriend().getId().equals(2)));
   }
+
+
+  @Test
+  void testGetFriends_Success() {
+    Friendship acceptedFriendship = new Friendship();
+    acceptedFriendship.setId(1);
+    acceptedFriendship.setUser(user1);
+    acceptedFriendship.setFriend(user2);
+    acceptedFriendship.setFriendshipsStatus(FriendshipStatus.ACCEPTED);
+    acceptedFriendship.setCreatedAt(testTime);
+
+    when(friendshipRepository.findAcceptedFriendships(1))
+      .thenReturn(List.of(acceptedFriendship));
+
+    List<FriendshipResponseDTO> result = friendshipService.getFriends(1);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.getFirst().getUserId()).isEqualTo(2);
+    assertThat(result.getFirst().getDisplayName()).isEqualTo("gtgmycatisonfire");
+    assertThat(result.getFirst().getStatus()).isEqualTo("ACCEPTED");
+    assertThat(result.getFirst().isRequester()).isTrue();
+  }
+
+  @Test
+  void testGetReceivedPendingRequests_Success() {
+    when(friendshipRepository.findPendingReceivedRequests(2))
+      .thenReturn(Collections.singletonList(friendship));
+
+    List<FriendshipResponseDTO> result = friendshipService.getReceivedPendingRequests(2);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.getFirst().getUserId()).isEqualTo(1);
+    assertThat(result.getFirst().getDisplayName()).isEqualTo("Jordan299");
+    assertThat(result.getFirst().getStatus()).isEqualTo("PENDING");
+    assertThat(result.getFirst().isRequester()).isFalse();
+  }
+
+  @Test
+  void testGetSentPendingRequests_Success() {
+    when(friendshipRepository.findPendingSentRequests(1))
+      .thenReturn(Collections.singletonList(friendship));
+
+    List<FriendshipResponseDTO> result = friendshipService.getSentPendingRequests(1);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.getFirst().getUserId()).isEqualTo(2);
+    assertThat(result.getFirst().getDisplayName()).isEqualTo("gtgmycatisonfire");
+    assertThat(result.getFirst().getStatus()).isEqualTo("PENDING");
+    assertThat(result.getFirst().isRequester()).isTrue();
+  }
+
+  @Test
+  void testGetBlockedUsers_Success() {
+    Friendship blockedFriendship = new Friendship();
+    blockedFriendship.setId(1);
+    blockedFriendship.setUser(user1);
+    blockedFriendship.setFriend(user2);
+    blockedFriendship.setFriendshipsStatus(FriendshipStatus.BLOCKED);
+    blockedFriendship.setCreatedAt(testTime);
+
+    when(friendshipRepository.findBlockedUsers(1))
+      .thenReturn(List.of(blockedFriendship));
+
+    List<FriendshipResponseDTO> result = friendshipService.getBlockedUsers(1);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.getFirst().getUserId()).isEqualTo(2);
+    assertThat(result.getFirst().getDisplayName()).isEqualTo("gtgmycatisonfire");
+    assertThat(result.getFirst().getStatus()).isEqualTo("BLOCKED");
+    assertThat(result.getFirst().isRequester()).isTrue();
+  }
+
 
 
 }
