@@ -17,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -237,5 +239,35 @@ public class FriendshipServiceTest {
 
     verify(friendshipRepository, never()).delete(any(Friendship.class));
   }
+
+  @Test
+  void testBlockUser_ExistingFriendship_Success() {
+    when(userRepository.findById(2)).thenReturn(Optional.of(user2));
+    when(friendshipRepository.findFriendshipBetweenUsers(1, 2))
+      .thenReturn(Optional.of(friendship));
+    when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
+
+    assertThatCode(() -> friendshipService.blockUser(1, 2))
+      .doesNotThrowAnyException();
+
+    verify(friendshipRepository).save(argThat(f ->
+      f.getFriendshipsStatus() == FriendshipStatus.BLOCKED));
+  }
+
+  @Test
+  void testBlockUser_NoExistingFriendship_Success() {
+    when(userRepository.findById(2)).thenReturn(Optional.of(user2));
+    when(friendshipRepository.findFriendshipBetweenUsers(1, 2))
+      .thenReturn(Optional.empty());
+    when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
+
+    assertThatCode(() -> friendshipService.blockUser(1, 2))
+      .doesNotThrowAnyException();
+
+    verify(friendshipRepository).save(argThat(f ->
+      f.getFriendshipsStatus() == FriendshipStatus.BLOCKED &&
+        f.getFriend().getId().equals(2)));
+  }
+
 
 }
