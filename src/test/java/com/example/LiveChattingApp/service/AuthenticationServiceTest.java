@@ -4,6 +4,7 @@ import com.example.LiveChattingApp.authentication.AuthenticationRequest;
 import com.example.LiveChattingApp.authentication.AuthenticationService;
 import com.example.LiveChattingApp.authentication.RegistrationRequest;
 import com.example.LiveChattingApp.email.EmailService;
+import com.example.LiveChattingApp.email.EmailTemplateName;
 import com.example.LiveChattingApp.role.Role;
 import com.example.LiveChattingApp.role.RoleRepository;
 import com.example.LiveChattingApp.security.JwtService;
@@ -11,8 +12,10 @@ import com.example.LiveChattingApp.user.Token;
 import com.example.LiveChattingApp.user.TokenRepository;
 import com.example.LiveChattingApp.user.User;
 import com.example.LiveChattingApp.user.UserRepository;
+import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -24,6 +27,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 
 @Testcontainers
 @ExtendWith(MockitoExtension.class)
@@ -103,6 +112,38 @@ public class AuthenticationServiceTest {
     ReflectionTestUtils.setField(authenticationService, "activationUrl", "http://localhost:8090/activate");
   }
 
+  @Test
+  void test_registerCreatesAndSendsValidationEmail() throws MessagingException {
+
+    when(roleRepository.findByName("USER")).thenReturn(Optional.of(userRole));
+    when(passwordEncoder.encode("alunemari1234")).thenReturn("encodedPassword");
+    when(userRepository.save(any(User.class))).thenReturn(user);
+    when(tokenRepository.save(any(Token.class))).thenReturn(validToken);
+
+    authenticationService.register(registrationRequest);
+
+
+    verify(roleRepository).findByName("USER");
+    verify(passwordEncoder).encode("alunemari1234");
+    verify(userRepository).save(argThat(user ->
+      user.getFirstname().equals("Alexandru") &&
+      user.getLastname().equals("Iordan") &&
+        user.getEmail().equals("alexandru.iordan99@gmail.com") &&
+        user.getPassword().equals("encodedPassword") &&
+        !user.isAccountLocked() &&
+        !user.isEnabled() &&
+        user.getRoles().contains(userRole)
+    ));
+    verify(tokenRepository).save(any(Token.class));
+    verify(emailService).sendEmail(
+      eq("alexandru.iordan99@gmail.com"),
+      eq("Alexandru Iordan"),
+      eq(EmailTemplateName.ACTIVATE_ACCOUNT),
+      eq("http://localhost:8090/activate"),
+      anyString(),
+      eq("Account activation")
+    );
+  }
 
 
 
