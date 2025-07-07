@@ -1,6 +1,7 @@
 package com.example.LiveChattingApp.service;
 
 import com.example.LiveChattingApp.authentication.AuthenticationRequest;
+import com.example.LiveChattingApp.authentication.AuthenticationResponse;
 import com.example.LiveChattingApp.authentication.AuthenticationService;
 import com.example.LiveChattingApp.authentication.RegistrationRequest;
 import com.example.LiveChattingApp.email.EmailService;
@@ -21,6 +22,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -30,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -145,6 +150,110 @@ public class AuthenticationServiceTest {
     );
   }
 
+  @Test
+  void register_ShouldThrowException_WhenUserRoleNotFound() throws MessagingException {
+    // Given
+    when(roleRepository.findByName("USER")).thenReturn(Optional.empty());
 
+    // When & Then
+    IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+      authenticationService.register(registrationRequest);
+    });
+
+    assertEquals("Role USER not initialized.", exception.getMessage());
+    verify(userRepository, never()).save(any(User.class));
+    verify(emailService, never()).sendEmail(anyString(), anyString(), any(), anyString(), anyString(), anyString());
+  }
+
+  @Test
+  void authenticate_ShouldReturnAuthenticationResponse() {
+    // Given
+    Authentication mockAuth = mock(Authentication.class);
+    when(mockAuth.getPrincipal()).thenReturn(user);
+    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+      .thenReturn(mockAuth);
+    when(jwtService.generateToken(anyMap(), eq(user))).thenReturn("jwt-token");
+
+    // When
+    AuthenticationResponse response = authenticationService.authenticate(authenticationRequest);
+
+    // Then
+    assertNotNull(response);
+    assertEquals("jwt-token", response.getToken());
+    verify(authenticationManager).authenticate(argThat(token ->
+      token.getPrincipal().equals("alexandru.iordan99@gmail.com") &&
+        token.getCredentials().equals("alunemari1234")
+    ));
+    verify(jwtService).generateToken(argThat(claims ->
+      claims.get("fullName").equals("Alexandru Iordan")
+    ), eq(user));
+  }
+
+  @Test
+  void activateAccount_ShouldActivateUser_WhenTokenIsValid() throws MessagingException {
+    when(tokenRepository.findByToken("123456")).thenReturn(Optional.of(validToken));
+    when(userRepository.findById(1)).thenReturn(Optional.of(user));
+
+    authenticationService.activateAccount("123456");
+
+    verify(tokenRepository).findByToken("123456");
+    verify(userRepository).findById(1);
+    verify(userRepository).save(argThat(user -> user.isEnabled()));
+    verify(tokenRepository).save(argThat(token -> token.getValidatedAt() != null));
+  }
+
+  @Test
+  void activateAccount_ShouldThrowException_WhenTokenNotFound() {
+    when(tokenRepository.findByToken("invalid-token")).thenReturn(Optional.empty());
+
+    RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+      authenticationService.activateAccount("invalid-token");
+    });
+
+    assertEquals("Invalid token", exception.getMessage());
+    verify(userRepository, never()).save(any(User.class));
+  }
+
+  @Test
+  void activateAccount_ShouldSendNewTokenAndThrowException_WhenTokenIsExpired() throws MessagingException {
+    Token expiredToken = Token.builder()
+      .id(1)
+      .token("expired-token")
+      .createdAt(LocalDateTime.now().minusMinutes(20))
+      .expiresAt(LocalDateTime.now().minusMinutes(5))
+      .user(user)
+      .build();
+
+    when(tokenRepository.findByToken("expired-token")).thenReturn(Optional.of(expiredToken));
+    when(tokenRepository.save(any(Token.class))).thenReturn(validToken);
+
+    RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+      authenticationService.activateAccount("expired-token");
+    });
+
+    assertTrue(exception.getMessage().contains("Activation token has expired"));
+    verify(emailService).sendEmail(
+      eq("alexandru.iordan99@gmail.com"),
+      eq("Alexandru Iordan"),
+      eq(EmailTemplateName.ACTIVATE_ACCOUNT),
+      eq("http://localhost:8090/activate"),
+      anyString(),
+      eq("Account activation")
+    );
+    verify(userRepository, never()).save(any(User.class));
+  }
+
+  @Test
+  void activateAccount_ShouldThrowException_WhenUserNotFound() {
+    when(tokenRepository.findByToken("123456")).thenReturn(Optional.of(validToken));
+    when(userRepository.findById(1)).thenReturn(Optional.empty());
+
+    UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> {
+      authenticationService.activateAccount("123456");
+    });
+
+    assertEquals("User not found", exception.getMessage());
+    verify(tokenRepository, never()).save(any(Token.class));
+  }
 
 }
