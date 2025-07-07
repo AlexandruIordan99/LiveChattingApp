@@ -5,6 +5,7 @@ import com.example.LiveChattingApp.friendship.Friendship;
 import com.example.LiveChattingApp.friendship.FriendshipRepository;
 import com.example.LiveChattingApp.friendship.FriendshipService;
 import com.example.LiveChattingApp.friendship.FriendshipStatus;
+import com.example.LiveChattingApp.friendship.exceptions.FriendshipNotFoundException;
 import com.example.LiveChattingApp.user.User;
 import com.example.LiveChattingApp.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,118 +45,118 @@ public class FriendshipServiceTest {
 
 
   @BeforeEach
-    void setUp(){
-      user1 = User.builder()
-        .firstname("Alexandru")
-        .lastname("Iordan")
-        .displayName("Jordan299")
-        .password("alunemari1234")
-        .dateOfBirth("30.11.1999")
-        .email("alexandru.iordan99@gmail.com")
-        .accountLocked(false)
-        .enabled(true)
-        .createdDate(testTime)
-        .build();
+  void setUp() {
+    user1 = User.builder()
+      .firstname("Alexandru")
+      .lastname("Iordan")
+      .displayName("Jordan299")
+      .password("alunemari1234")
+      .dateOfBirth("30.11.1999")
+      .email("alexandru.iordan99@gmail.com")
+      .accountLocked(false)
+      .enabled(true)
+      .createdDate(testTime)
+      .build();
 
-      user1.setId(1);
+    user1.setId(1);
 
-      user2 = User.builder()
-        .firstname("Vlad")
-        .lastname("Loghin")
-        .displayName("gtgmycatisonfire")
-        .password("doomguy2000")
-        .dateOfBirth("23.02.1996")
-        .email("vladloghin00@gmail.com")
-        .accountLocked(false)
-        .enabled(true)
-        .createdDate(testTime)
-        .build();
-      user2.setId(2);
+    user2 = User.builder()
+      .firstname("Vlad")
+      .lastname("Loghin")
+      .displayName("gtgmycatisonfire")
+      .password("doomguy2000")
+      .dateOfBirth("23.02.1996")
+      .email("vladloghin00@gmail.com")
+      .accountLocked(false)
+      .enabled(true)
+      .createdDate(testTime)
+      .build();
+    user2.setId(2);
 
-      user3 = User.builder()
-        .firstname("Matei")
-        .lastname("Paulet")
-        .displayName("copilcoiot")
-        .password("coiot9000")
-        .dateOfBirth("17.07.1995")
-        .email("mateipaulet1999@gmail.com")
-        .accountLocked(false)
-        .enabled(true)
-        .createdDate(testTime)
-        .build();
-        user3.setId(3);
+    user3 = User.builder()
+      .firstname("Matei")
+      .lastname("Paulet")
+      .displayName("copilcoiot")
+      .password("coiot9000")
+      .dateOfBirth("17.07.1995")
+      .email("mateipaulet1999@gmail.com")
+      .accountLocked(false)
+      .enabled(true)
+      .createdDate(testTime)
+      .build();
+    user3.setId(3);
 
-      friendship = new Friendship();
-      friendship.setId(1);
-      friendship.setUser(user1);
-      friendship.setFriend(user2);
-      friendship.setFriendshipsStatus(FriendshipStatus.PENDING);
-      friendship.setCreatedAt(testTime);
+    friendship = new Friendship();
+    friendship.setId(1);
+    friendship.setUser(user1);
+    friendship.setFriend(user2);
+    friendship.setFriendshipsStatus(FriendshipStatus.PENDING);
+    friendship.setCreatedAt(testTime);
 
-    }
+  }
 
-
-    @Test
-    void testSendFriendRequestSuccess(){
-      when(userRepository.findById(1)).thenReturn(Optional.of(user1));
-      when(userRepository.findById(2)).thenReturn(Optional.of(user2));
-      when(friendshipRepository.existsFriendshipBetweenUsers(1, 2)).thenReturn(false);
-      when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
-
-
-      FriendshipResponseDTO result = friendshipService.sendFriendRequest(1, 2);
-
-      assertThat(result).isNotNull();
-      assertThat(result.getId()).isEqualTo(1);
-      assertThat(result.getUserId()).isEqualTo(2);
-      assertThat(result.getDisplayName()).isEqualTo("gtgmycatisonfire");
-      assertThat(result.getEmail()).isEqualTo("vladloghin00@gmail.com");
-      assertThat(result.getStatus()).isEqualTo("PENDING");
-      assertThat(result.isRequester()).isTrue();
-
-      verify(friendshipRepository).save(any(Friendship.class));
-    }
-
-    @Test
-    void testSendFriendRequest_throwsException(){
-      when(userRepository.findById(1)).thenReturn(Optional.of(user1));
-
-      assertThatThrownBy(() -> friendshipService.sendFriendRequest(1, 1))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("A user cannot send a friend request to themselves.");
-
-      verify(friendshipRepository, never()).save(any(Friendship.class));
-
-    }
-
-    @Test
-    void testSendFriendRequest_UserNotFound_ThrowsException(){
-      when(userRepository.findById(1)).thenReturn(Optional.empty());
-
-      assertThatThrownBy(() -> friendshipService.sendFriendRequest(1, 2))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("User not found with ID: 1");
-
-      verify(friendshipRepository, never()).save(any(Friendship.class));
-    }
-
-    @Test
-    void testAcceptFriendRequest_Success(){
-      when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
-      when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
-
-      FriendshipResponseDTO result = friendshipService.acceptFriendRequest(2, 1);
-
-      assertThat(result).isNotNull();
-      assertThat(result.getStatus()).isEqualTo("ACCEPTED");
-      assertThat(result.isRequester()).isFalse();
-
-      verify(friendshipRepository).save(argThat(f-> f.getFriendshipsStatus() == FriendshipStatus.ACCEPTED));
-
-    }
 
   @Test
-  void testAcceptFriendRequest_IllegalArgumentException(){
+  void testSendFriendRequestSuccess() {
+    when(userRepository.findById(1)).thenReturn(Optional.of(user1));
+    when(userRepository.findById(2)).thenReturn(Optional.of(user2));
+    when(friendshipRepository.existsFriendshipBetweenUsers(1, 2)).thenReturn(false);
+    when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
+
+
+    FriendshipResponseDTO result = friendshipService.sendFriendRequest(1, 2);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getUserId()).isEqualTo(2);
+    assertThat(result.getDisplayName()).isEqualTo("gtgmycatisonfire");
+    assertThat(result.getEmail()).isEqualTo("vladloghin00@gmail.com");
+    assertThat(result.getStatus()).isEqualTo("PENDING");
+    assertThat(result.isRequester()).isTrue();
+
+    verify(friendshipRepository).save(any(Friendship.class));
+  }
+
+  @Test
+  void testSendFriendRequest_throwsException() {
+    when(userRepository.findById(1)).thenReturn(Optional.of(user1));
+
+    assertThatThrownBy(() -> friendshipService.sendFriendRequest(1, 1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A user cannot send a friend request to themselves.");
+
+    verify(friendshipRepository, never()).save(any(Friendship.class));
+
+  }
+
+  @Test
+  void testSendFriendRequest_UserNotFound_ThrowsException() {
+    when(userRepository.findById(1)).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> friendshipService.sendFriendRequest(1, 2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("User not found with ID: 1");
+
+    verify(friendshipRepository, never()).save(any(Friendship.class));
+  }
+
+  @Test
+  void testAcceptFriendRequest_Success() {
+    when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
+    when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
+
+    FriendshipResponseDTO result = friendshipService.acceptFriendRequest(2, 1);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getStatus()).isEqualTo("ACCEPTED");
+    assertThat(result.isRequester()).isFalse();
+
+    verify(friendshipRepository).save(argThat(f -> f.getFriendshipsStatus() == FriendshipStatus.ACCEPTED));
+
+  }
+
+  @Test
+  void testAcceptFriendRequest_IllegalArgumentException() {
     when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
 
     assertThatThrownBy(() -> friendshipService.acceptFriendRequest(3, 1))
@@ -167,7 +168,7 @@ public class FriendshipServiceTest {
   }
 
   @Test
-  void testAcceptFriendRequest_IllegalStateException(){
+  void testAcceptFriendRequest_IllegalStateException() {
     friendship.setFriendshipsStatus(FriendshipStatus.ACCEPTED);
     when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
 
@@ -180,7 +181,7 @@ public class FriendshipServiceTest {
   }
 
   @Test
-  void testRejectFriendRequest(){
+  void testRejectFriendRequest() {
     when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
     when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
 
@@ -191,10 +192,10 @@ public class FriendshipServiceTest {
   }
 
   @Test
-  void testRejectFriendRequest_IllegalArgumentException(){
+  void testRejectFriendRequest_IllegalArgumentException() {
     when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
 
-    assertThatThrownBy(() -> friendshipService.rejectFriendRequest(3,1))
+    assertThatThrownBy(() -> friendshipService.rejectFriendRequest(3, 1))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("You can only reject requests sent to you.");
 
@@ -203,7 +204,7 @@ public class FriendshipServiceTest {
   }
 
   @Test
-  void testRejectFriendRequest_IllegalStateException(){
+  void testRejectFriendRequest_IllegalStateException() {
     when(friendshipRepository.findById(1)).thenReturn(Optional.of(friendship));
     friendship.setFriendshipsStatus(FriendshipStatus.ACCEPTED);
 
@@ -214,5 +215,27 @@ public class FriendshipServiceTest {
     verify(friendshipRepository, never()).save(any(Friendship.class));
   }
 
+  @Test
+  void removeFriend_Success() {
+    when(friendshipRepository.findFriendshipBetweenUsers(1, 2))
+      .thenReturn(Optional.of(friendship));
+
+    assertThatCode(() -> friendshipService.removeFriend(1, 2))
+      .doesNotThrowAnyException();
+
+    verify(friendshipRepository).delete(friendship);
+  }
+
+  @Test
+  void removeFriend_FriendshipNotFound_ThrowsException() {
+    when(friendshipRepository.findFriendshipBetweenUsers(1, 2))
+      .thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> friendshipService.removeFriend(1, 2))
+      .isInstanceOf(FriendshipNotFoundException.class)
+      .hasMessage("Friendship not found between these users");
+
+    verify(friendshipRepository, never()).delete(any(Friendship.class));
+  }
 
 }
