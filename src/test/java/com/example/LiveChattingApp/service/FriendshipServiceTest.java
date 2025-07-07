@@ -341,6 +341,26 @@ public class FriendshipServiceTest {
     assertThat(result.getFirst().isRequester()).isTrue();
   }
 
+  @Test
+  void testGetFriendshipStatus_ExistingFriendship_ReturnsStatus() {
+    when(friendshipRepository.findFriendshipBetweenUsers(1, 2))
+      .thenReturn(Optional.of(friendship));
+
+    String result = friendshipService.getFriendshipStatus(1, 2);
+
+    assertThat(result).isEqualTo("PENDING");
+  }
+
+  @Test
+  void testGetFriendshipStatus_NoFriendship_ReturnsNone() {
+    when(friendshipRepository.findFriendshipBetweenUsers(1, 2))
+      .thenReturn(Optional.empty());
+
+    String result = friendshipService.getFriendshipStatus(1, 2);
+
+    assertThat(result).isEqualTo("NONE");
+  }
+
 
 
 }
