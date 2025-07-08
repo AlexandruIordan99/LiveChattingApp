@@ -6,6 +6,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pass
       PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: LiveChattingAppDB
     volumes:
       - postgres:/data/postgres
     ports:
@@ -13,6 +14,18 @@ services:
     networks:
       - spring-demo
     restart: unless-stopped
+  keycloak:
+    container_name: keycloak-lvc
+    image: quay.io/keycloak/keycloak:26.3.0
+    ports:
+      - 8090:8080
+    environment:
+      KEYCLOAK_ADMIN:
+      KEYCLOAK_ADMIN_PASSWORD:
+    networks:
+      - spring-demo
+    command:
+      - "start-dev"
 
   mail-dev:
     container_name: mail-dev-lap
