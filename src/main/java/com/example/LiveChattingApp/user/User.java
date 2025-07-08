@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
-
-
 public class User implements UserDetails, Principal {
 
     @Id
