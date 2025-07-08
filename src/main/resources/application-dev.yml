@@ -18,7 +18,11 @@ spring:
           org.hibernate.type.descriptor.sql.BasicBinder: TRACE
       database: postgresql
       database-platform: org.hibernate.dialect.PostgreSQLDialect
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/LiveChattingApp
   mail:
     host: localhost
     port: 1025
@@ -38,10 +42,6 @@ spring:
 
 
 application:
-  security:
-    jwt:
-      secret-key: OXotaGV4I3puMiMmMCgmJmlxZjJ3bD0wYiRkeXIlOW5vZz12bC1kMDdiMHV3Y2VfPWM= #must be in base 64 to be properly decoded later
-      expiration: 86400000  #equivalent to 1 day, measured in miliseconds
   emailing:
     frontend:
       activation-url: http://localhost:4200/activate-account
