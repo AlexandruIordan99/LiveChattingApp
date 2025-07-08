@@ -1,0 +1,44 @@
+services:
+  postgres:
+    container_name: postgres-sql-lap
+    image: postgres #taken from DockerHub
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pass
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: LiveChattingAppDB
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - 5432:5432
+    networks:
+      - spring-demo
+    restart: unless-stopped
+  keycloak:
+    container_name: keycloak-lvc
+    image: quay.io/keycloak/keycloak:26.3.0
+    ports:
+      - 8090:8080
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    networks:
+      - spring-demo
+    command:
+      - "start-dev"
+
+  mail-dev:
+    container_name: mail-dev-lap
+    image: maildev/maildev
+    ports:
+    - 1080:1080 #web service
+    - 1025:1025 #SMTP
+
+
+networks:
+  spring-demo:
+    driver: bridge #bridges connections between containers on this network
+
+volumes:
+  postgres:
+    driver: local
