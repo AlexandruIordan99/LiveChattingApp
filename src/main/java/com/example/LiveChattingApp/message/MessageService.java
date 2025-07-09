@@ -32,9 +32,15 @@ public class MessageService {
       .sender(sender)
       .receiver(receiver)
       .type(messageRequest.getType())
+      .state(MessageState.SENT)
       .build();
 
+    messageRepository.save(message);
+
+    //to do notifs!
 
   }
+
+
 
 }
