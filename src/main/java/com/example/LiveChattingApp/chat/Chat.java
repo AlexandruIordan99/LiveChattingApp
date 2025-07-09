@@ -36,6 +36,7 @@ public class Chat extends BaseAuditingEntity {
 
   private String name;
 
+  @Enumerated
   private ChatType type;
 
   @ManyToMany(fetch = FetchType.LAZY)
@@ -46,9 +47,9 @@ public class Chat extends BaseAuditingEntity {
   )
   private List<User> participants;
 
-  public void setChatName(final User receiver){
-    if(type == ChatType.DIRECT){
-      name = this.receiver.getDisplayName();
+  public void setChatName(final String chatName){
+    if(type == ChatType.GROUP){
+      this.name = chatName;
     }
   }
 
@@ -86,9 +87,9 @@ public class Chat extends BaseAuditingEntity {
   private List<Message> messages;
 
   @Transient
-  public Long getUnreadMessagesCount(){
+  public Long getUnreadMessagesCount(Integer userId){
     return messages.stream()
-      .filter(message -> !message.getReceiver().getId().equals(sender.getId()))
+      .filter(message -> message.getReceiver().getId().equals(userId))
       .filter(message -> message.getState()  ==  MessageState.SENT)
       .count();
   }
