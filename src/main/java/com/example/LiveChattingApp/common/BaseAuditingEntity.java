@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@SuperBuilder
+@SuperBuilder //use super builder in all inheriting classes
 @AllArgsConstructor
 @NoArgsConstructor
 @MappedSuperclass
