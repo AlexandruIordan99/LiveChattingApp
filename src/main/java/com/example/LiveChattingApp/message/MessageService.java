@@ -57,11 +57,15 @@ public class MessageService {
 
   }
 
-  public void setMessagesToSeen(String chatId){
+  public void setMessagesToSeen(String chatId, Authentication authentication){
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException(("Chat not found")));
 
+    final String recipientId = getReceiverId(chat, authentication);
+
     messageRepository.setMessagesToSeen(chat, MessageState.READ);
+
+    //to do: notifications
   }
 
 
