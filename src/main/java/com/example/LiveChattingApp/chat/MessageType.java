@@ -1,7 +1,11 @@
 package com.example.LiveChattingApp.chat;
 
 public enum MessageType {
-  CHAT,
   JOIN,
-  LEAVE
+  LEAVE,
+  TEXT,
+  IMAGE,
+  AUDIO,
+  VIDEO,
+
 }
