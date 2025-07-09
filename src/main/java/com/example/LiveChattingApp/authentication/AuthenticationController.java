@@ -24,14 +24,6 @@ public class AuthenticationController {
         return ResponseEntity.accepted().build();
     }
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticate(@RequestBody @Valid AuthenticationRequest request){
-        try {
-        return ResponseEntity.ok(service.authenticate(request));
-        } catch (RuntimeException invalidCredentialsException){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(invalidCredentialsException);
-    }
-}
 
     @GetMapping("/activate-account")
     public ResponseEntity<?> confirm(@RequestParam String token)
