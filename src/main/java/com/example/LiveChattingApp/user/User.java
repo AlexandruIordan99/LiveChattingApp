@@ -35,6 +35,7 @@ public class User extends BaseAuditingEntity implements UserDetails, Principal {
     private String lastname;
     private String displayName;
     private LocalDateTime lastSeenOnline;
+    private LocalDateTime LastSyncTime;
     private String dateOfBirth;
     @Column(unique = true)
     private String email;
