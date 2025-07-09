@@ -29,4 +29,17 @@ public class UserMapper {
 
     return user;
   }
+
+  public UserResponse toUserResponse(User user){
+    return UserResponse.builder()
+      .id(user.getId())
+      .firstName(user.getFirstname())
+      .lastName(user.getLastname())
+      .displayName(user.getDisplayName())
+      .email(user.getEmail())
+      .lastSeen(user.getLastSeenOnline())
+      .isOnline(user.isUserOnline())
+      .build();
+
+  }
 }
