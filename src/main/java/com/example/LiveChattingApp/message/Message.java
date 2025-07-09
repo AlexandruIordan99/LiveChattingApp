@@ -1,5 +1,6 @@
-package com.example.LiveChattingApp.chat;
+package com.example.LiveChattingApp.message;
 
+import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.common.BaseAuditingEntity;
 import com.example.LiveChattingApp.user.User;
 import jakarta.persistence.*;
@@ -13,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @Entity
-@Table(name = "messages")
+@Table(name = "message")
 public class Message extends BaseAuditingEntity {
 
   @Id
