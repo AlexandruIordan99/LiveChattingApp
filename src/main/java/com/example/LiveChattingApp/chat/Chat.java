@@ -4,13 +4,15 @@ import com.example.LiveChattingApp.common.BaseAuditingEntity;
 import com.example.LiveChattingApp.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -19,7 +21,7 @@ public class Chat extends BaseAuditingEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
-  private Integer id;
+  private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "sender_id")
