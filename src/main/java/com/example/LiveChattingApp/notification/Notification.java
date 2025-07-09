@@ -18,6 +18,6 @@ public class Notification {
   private String chatName;
   private MessageType messageType;
   private NotificationType type;
-  private byte[] image;
+  private byte[] media;
 
 }
