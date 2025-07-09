@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 public class Chat extends BaseAuditingEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private Integer id;
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private String id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "sender_id")
@@ -54,7 +54,7 @@ public class Chat extends BaseAuditingEntity {
   }
 
   @Transient
-  public String getChatName(final Integer userId){
+  public String getChatName(final String userId){
     if(type == ChatType.DIRECT){
       return participants.stream()
         .filter(p -> !p.getId().equals(userId))
@@ -87,7 +87,7 @@ public class Chat extends BaseAuditingEntity {
   private List<Message> messages;
 
   @Transient
-  public Long getUnreadMessagesCount(Integer userId){
+  public Long getUnreadMessagesCount(String userId){
     return messages.stream()
       .filter(message -> message.getReceiver().getId().equals(userId))
       .filter(message -> message.getState()  ==  MessageState.SENT)

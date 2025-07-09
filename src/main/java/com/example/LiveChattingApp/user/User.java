@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 public class User extends BaseAuditingEntity implements UserDetails, Principal {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id; //keycloak stores ids as strings in the form of UUIDs
     private String firstname;
     private String lastname;
     private String displayName;

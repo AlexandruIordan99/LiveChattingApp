@@ -13,6 +13,6 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     where message.chat.id = :chatId
     order by message.createdDate
 """)
-  Optional<Message> findMessageByChatId(@Param("chatId") Integer chatId);
+  Optional<Message> findMessageByChatId(@Param("chatId") String chatId);
 
 }

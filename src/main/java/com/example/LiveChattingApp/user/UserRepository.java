@@ -15,6 +15,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     select user from User user\s
     where user.id != :userId
 """)
-    List<User> findAllUsersExceptSelf(@Param("userId") Integer userId);
+    List<User> findAllUsersExceptSelf(@Param("userId") String userId);
 
 }
