@@ -1,23 +1,26 @@
 package com.example.LiveChattingApp.user;
 
+import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.common.BaseAuditingEntity;
 import com.example.LiveChattingApp.friendship.Friendship;
 import com.example.LiveChattingApp.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -31,13 +34,24 @@ public class User extends BaseAuditingEntity implements UserDetails, Principal {
     private String firstname;
     private String lastname;
     private String displayName;
+    private LocalDateTime lastSeenOnline;
     private String dateOfBirth;
     @Column(unique = true)
     private String email;
     private String password;
     private boolean accountLocked;
     private boolean enabled;
+    private static final int LAST_ACTIVE_INTERVAL = 2;
 
+    @OneToMany(mappedBy = "sender")
+    private List<Chat> chatsAsSender;
+    @OneToMany(mappedBy = "receiver")
+    private List<Chat> chatsAsReceiver;
+
+    @Transient
+    public boolean isUserOnline(){
+        return lastSeenOnline !=null && lastSeenOnline.isAfter(LocalDateTime.now().plusMinutes(LAST_ACTIVE_INTERVAL));
+    }
 
     @ManyToMany(fetch= FetchType.EAGER) //when you fetch the user, do so eagerly
     @JoinTable(
