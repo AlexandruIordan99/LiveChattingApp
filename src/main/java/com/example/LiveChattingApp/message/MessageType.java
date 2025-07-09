@@ -1,4 +1,4 @@
-package com.example.LiveChattingApp.chat;
+package com.example.LiveChattingApp.message;
 
 public enum MessageType {
   JOIN,
