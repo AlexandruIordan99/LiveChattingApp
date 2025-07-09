@@ -15,7 +15,7 @@ public class NotificationService {
 
   private final SimpMessagingTemplate messagingTemplate;
   public void sendNotification(String userId, Notification notification){
-    log.info("Sending WS notification to {} with payload {}", userId,notification);
+    log.info("Sending WS notification to {} with payload {}", userId, notification);
     messagingTemplate.convertAndSendToUser(
       "topic/notification" + userId,
       "/chat", notification);
