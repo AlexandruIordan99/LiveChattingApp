@@ -4,6 +4,10 @@ package com.example.LiveChattingApp.message;
 import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.chat.ChatRepository;
 import com.example.LiveChattingApp.file.FileService;
+import com.example.LiveChattingApp.file.FileUtils;
+import com.example.LiveChattingApp.notification.Notification;
+import com.example.LiveChattingApp.notification.NotificationService;
+import com.example.LiveChattingApp.notification.NotificationType;
 import com.example.LiveChattingApp.user.User;
 import com.example.LiveChattingApp.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -23,6 +27,7 @@ public class MessageService {
   private final ChatRepository chatRepository;
   private final MessageMapper mapper;
   private final FileService fileService;
+  private final NotificationService notificationService;
 
   public void saveMessage(MessageRequest messageRequest){
     Chat chat = chatRepository.findById(messageRequest.getChatId())
@@ -45,7 +50,17 @@ public class MessageService {
 
     messageRepository.save(message);
 
-    //to do notifs!
+    Notification notification = Notification.builder()
+      .chatId(chat.getId())
+      .messageType(messageRequest.getType())
+      .content(messageRequest.getContent())
+      .senderId(messageRequest.getSenderId())
+      .receiverId(messageRequest.getReceiverId())
+      .type(NotificationType.MESSAGE)
+      .chatName(chat.getChatName(message.getSender().getId()))
+      .build();
+
+    notificationService.sendNotification(receiver.getId(), notification);
 
   }
 
@@ -61,11 +76,20 @@ public class MessageService {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException(("Chat not found")));
 
-    final String recipientId = getReceiverId(chat, authentication);
+    final String receiverId = getReceiverId(chat, authentication);
 
     messageRepository.setMessagesToSeen(chat, MessageState.READ);
 
-    //to do: notifications
+    Notification notification = Notification.builder()
+      .chatId(chat.getId())
+      .chatId(chat.getId())
+      .type(NotificationType.SEEN)
+      .receiverId(receiverId)
+      .senderId(getSenderId(chat, authentication))
+      .build();
+
+    notificationService.sendNotification(receiverId, notification);
+
   }
 
 
@@ -107,6 +131,18 @@ public class MessageService {
       .chat(chat)
       .build();
     messageRepository.save(message);
+
+    Notification notification = Notification.builder()
+      .chatId(chat.getId())
+      .type(NotificationType.IMAGE)
+      .senderId(senderId)
+      .receiverId(receiverId)
+      .messageType(MessageType.IMAGE)
+      .media(FileUtils.readFileFromLocation(filePath))
+      .build();
+
+    notificationService.sendNotification(receiverId, notification);
+
 
   }
 
