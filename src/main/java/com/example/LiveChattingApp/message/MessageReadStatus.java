@@ -2,13 +2,16 @@ package com.example.LiveChattingApp.message;
 
 import com.example.LiveChattingApp.user.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@RequiredArgsConstructor
 @Entity
 @Table(name = "message_read_status")
 public class MessageReadStatus {
