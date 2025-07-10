@@ -29,6 +29,9 @@ public class MessageReadStatus {
   @Column(name = "read_at")
   private LocalDateTime readAt;
 
+  @Enumerated(EnumType.STRING)
+  private MessageState state; // SENT, DELIVERED, READ
+
   @Column(name = "is_read")
   private boolean isRead = false;
 
