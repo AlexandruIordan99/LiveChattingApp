@@ -1,5 +1,6 @@
 package com.example.LiveChattingApp.chat;
 
+import com.example.LiveChattingApp.ChatParticipant.ChatParticipant;
 import com.example.LiveChattingApp.common.BaseAuditingEntity;
 import com.example.LiveChattingApp.message.Message;
 import com.example.LiveChattingApp.message.MessageState;
@@ -11,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -27,69 +28,57 @@ public class Chat extends BaseAuditingEntity {
   private String id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "sender_id")
-  private User sender;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "receiver_id")
-  private User receiver;
-
+  @JoinColumn(name = "creator_id")
+  private User creator;
   private String name;
 
   @Enumerated
   private ChatType type;
 
-  @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(
-    name = "chat_participants",
-    joinColumns = @JoinColumn(name = "chat_id"),
-    inverseJoinColumns = @JoinColumn(name = "user_id")
-  )
-  private List<User> participants;
+  @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private Set<ChatParticipant> participants;
 
-  public void setChatName(final String chatName){
-    if(type == ChatType.GROUP){
-      this.name = chatName;
-    }
-  }
+  @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
+  private List<Message> messages;
 
-  @Transient
-  public String getChatName(final String userId){
-    if(type == ChatType.DIRECT){
+  private LocalDateTime lastModifiedDate;
+
+  public String getChatName(String userId) {
+    if (type == ChatType.GROUP) {
+      return name != null ? name : "Group Chat";
+    } else {
       return participants.stream()
-        .filter(p -> !p.getId().equals(userId))
+        .filter(participant -> !participant.getUser().getId().equals(userId))
+        .map(participant -> participant.getUser().getDisplayName())
         .findFirst()
-        .map(User::getDisplayName)
         .orElse("Unknown");
     }
-    return name !=null ? name: generateDefaultGroupName();
   }
 
-  @Transient
-  private String generateDefaultGroupName() {
-    if (participants.size() <= 3){
-      return participants.stream()
-        .map(User::getDisplayName)
-        .collect(Collectors.joining(", "));
+  public boolean isParticipant(String userId) {
+    return participants.stream()
+      .anyMatch(p -> p.getUser().getId().equals(userId));
+  }
+
+  public User getOtherParticipant(String userId) {
+    if (type != ChatType.DIRECT) {
+      throw new IllegalStateException("This method is only for direct chats");
     }
     return participants.stream()
-      .limit(2)
-      .map(User::getDisplayName)
-      .collect(Collectors.joining(", ")) + " and " + (participants.size() - 2) + " others";
+      .map(ChatParticipant::getUser)
+      .filter(user -> !user.getId().equals(userId))
+      .findFirst()
+      .orElse(null);
   }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by")
   private User createdBy;
 
-  @OneToMany(mappedBy = "chat", fetch = FetchType.EAGER)
-  @OrderBy("createdDate DESC")
-  private List<Message> messages;
-
   @Transient
   public Long getUnreadMessagesCount(String userId){
     return messages.stream()
-      .filter(message -> message.getReceiver().getId().equals(userId))
+      .filter(message -> message.getSender().getId().equals(userId))
       .filter(message -> message.getState()  ==  MessageState.SENT)
       .count();
   }
