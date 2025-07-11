@@ -30,7 +30,7 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
   @Query("""
         select cp from ChatParticipant cp
         where cp.chat.id = :chatId
-        and cp.role = com.example.LiveChattingApp.chat.ParticipantRole.ADMIN
+        and cp.role = com.example.LiveChattingApp.ChatParticipant.ParticipantRole.ADMIN
         and cp.isActive = true
     """)
   List<ChatParticipant> findAdminsByChatId(@Param("chatId") String chatId);
