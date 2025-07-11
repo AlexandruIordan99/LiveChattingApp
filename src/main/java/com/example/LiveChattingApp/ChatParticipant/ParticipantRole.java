@@ -1,4 +1,4 @@
-package com.example.LiveChattingApp.chat;
+package com.example.LiveChattingApp.ChatParticipant;
 
 public enum ParticipantRole {
 
