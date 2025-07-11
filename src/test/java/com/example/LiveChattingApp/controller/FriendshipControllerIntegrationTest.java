@@ -2,7 +2,6 @@ package com.example.LiveChattingApp.controller;
 
 import com.example.LiveChattingApp.friendship.DTOs.FriendshipRequestDTO;
 import com.example.LiveChattingApp.friendship.FriendshipService;
-import com.example.LiveChattingApp.security.JwtService;
 import com.example.LiveChattingApp.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,9 +34,6 @@ public class FriendshipControllerIntegrationTest {
   @Autowired
   private FriendshipService friendshipService;
 
-  @Autowired
-  private JwtService jwtService;
-
   private MockMvc mockMvc;
   private ObjectMapper objectMapper;
   private User mockUser;
@@ -52,7 +48,7 @@ public class FriendshipControllerIntegrationTest {
     objectMapper = new ObjectMapper();
 
     mockUser = User.builder()
-      .id(1)
+      .id(String.valueOf(1))
       .displayName("Jordan299")
       .email("alexandru.iordan99@gmail.com")
       .build();
@@ -96,7 +92,7 @@ public class FriendshipControllerIntegrationTest {
   @WithMockUser
   void handleMissingContentType() throws Exception {
     FriendshipRequestDTO request = new FriendshipRequestDTO();
-    request.setFriendId(2);
+    request.setFriendId(String.valueOf(2));
 
     mockMvc.perform(post("/friend/request")
         .with(authentication(new MockAuthentication(mockUser)))
