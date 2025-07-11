@@ -1,5 +1,7 @@
-package com.example.LiveChattingApp.message;
+package com.example.LiveChattingApp.MessageReadStatus;
 
+import com.example.LiveChattingApp.message.Message;
+import com.example.LiveChattingApp.message.MessageState;
 import com.example.LiveChattingApp.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +13,6 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
 @Entity
 @Table(name = "message_read_status")
 public class MessageReadStatus {
@@ -36,7 +37,7 @@ public class MessageReadStatus {
   private MessageState state; // SENT, DELIVERED, READ
 
   @Column(name = "is_read")
-  private boolean isRead = false;
+  private boolean isRead;
 
 
 }

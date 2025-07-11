@@ -1,5 +1,6 @@
 package com.example.LiveChattingApp.message;
 
+import com.example.LiveChattingApp.MessageReadStatus.MessageReadStatus;
 import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.common.BaseAuditingEntity;
 import com.example.LiveChattingApp.user.User;

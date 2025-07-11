@@ -2,7 +2,6 @@ package com.example.LiveChattingApp.ChatParticipant;
 
 
 import com.example.LiveChattingApp.chat.Chat;
-import com.example.LiveChattingApp.chat.ParticipantRole;
 import com.example.LiveChattingApp.common.BaseAuditingEntity;
 import com.example.LiveChattingApp.user.User;
 import jakarta.persistence.*;
@@ -26,7 +25,7 @@ public class ChatParticipant extends BaseAuditingEntity {
 
 
   @Id
-  private Long id;
+  private String id;
   @ManyToOne
   @JoinColumn(name = "chat_id")
   private Chat chat;
@@ -45,6 +44,6 @@ public class ChatParticipant extends BaseAuditingEntity {
   @JoinColumn(name = "added_by_id")
   private User addedBy;
 
-  private boolean isActive = true;
+  private boolean isActive;
 }
 

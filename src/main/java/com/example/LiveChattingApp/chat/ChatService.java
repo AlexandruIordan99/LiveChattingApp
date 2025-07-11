@@ -2,6 +2,7 @@ package com.example.LiveChattingApp.chat;
 
 import com.example.LiveChattingApp.ChatParticipant.ChatParticipant;
 import com.example.LiveChattingApp.ChatParticipant.ChatParticipantRepository;
+import com.example.LiveChattingApp.ChatParticipant.ParticipantRole;
 import com.example.LiveChattingApp.user.UserRepository;
 import com.example.LiveChattingApp.user.User;
 import jakarta.persistence.EntityNotFoundException;
@@ -147,6 +148,17 @@ public class ChatService {
     participant.setActive(false);
     participantRepository.save(participant);
   }
+
+  @Transactional(readOnly = true)
+  public List<ChatParticipant> getChatParticipants(String chatId) {
+    return participantRepository.findActiveParticipantsByChatId(chatId);
+  }
+
+  @Transactional(readOnly = true)
+  public boolean isUserParticipant(String chatId, String userId) {
+    return participantRepository.findByChatIdAndUserId(chatId, userId).isPresent();
+  }
+
 
 
 }

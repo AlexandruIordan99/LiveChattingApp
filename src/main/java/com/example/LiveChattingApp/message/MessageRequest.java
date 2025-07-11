@@ -14,5 +14,5 @@ public class MessageRequest {
   private String receiverId;
   private String content;
   private MessageType type;
-
+  private String replyToId;
 }

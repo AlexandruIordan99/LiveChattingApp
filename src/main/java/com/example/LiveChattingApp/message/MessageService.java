@@ -1,6 +1,10 @@
 package com.example.LiveChattingApp.message;
 
 
+import com.example.LiveChattingApp.ChatParticipant.ChatParticipant;
+import com.example.LiveChattingApp.ChatParticipant.ChatParticipantRepository;
+import com.example.LiveChattingApp.MessageReadStatus.MessageReadStatus;
+import com.example.LiveChattingApp.MessageReadStatus.MessageReadStatusRepository;
 import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.chat.ChatRepository;
 import com.example.LiveChattingApp.file.FileService;
@@ -14,9 +18,12 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,125 +32,172 @@ public class MessageService {
   private final UserRepository userRepository;
   private final MessageRepository messageRepository;
   private final ChatRepository chatRepository;
+  private final ChatParticipantRepository participantRepository;
+  private final MessageReadStatusRepository readStatusRepository;
   private final MessageMapper mapper;
   private final FileService fileService;
   private final NotificationService notificationService;
 
-  public void saveMessage(MessageRequest messageRequest){
+  public void saveMessage(MessageRequest messageRequest, Authentication authentication) {
     Chat chat = chatRepository.findById(messageRequest.getChatId())
       .orElseThrow(() -> new RuntimeException("Chat not found"));
 
     User sender = userRepository.findById(messageRequest.getSenderId())
       .orElseThrow(() -> new RuntimeException("Sender not found"));
 
-    User receiver = userRepository.findById(messageRequest.getReceiverId())
-      .orElseThrow(() -> new RuntimeException("Receiver not found"));
-
     Message message = Message.builder()
       .content(messageRequest.getContent())
       .chat(chat)
       .sender(sender)
-      .receiver(receiver)
       .type(messageRequest.getType())
       .state(MessageState.SENT)
       .build();
 
-    messageRepository.save(message);
+    Message savedMessage = messageRepository.save(message);
 
-    Notification notification = Notification.builder()
-      .chatId(chat.getId())
-      .messageType(messageRequest.getType())
-      .content(messageRequest.getContent())
-      .senderId(messageRequest.getSenderId())
-      .receiverId(messageRequest.getReceiverId())
-      .type(NotificationType.MESSAGE)
-      .chatName(chat.getChatName(message.getSender().getId()))
-      .build();
-
-    notificationService.sendNotification(receiver.getId(), notification);
-
+    createReadStatusesForMessage(savedMessage, sender.getId());
+    sendNotificationsToParticipants(chat, savedMessage, sender);
   }
 
-  public List<MessageResponse> findChatMessages(String chatId){
-    return messageRepository.findMessageByChatId(chatId)
+  @Transactional(readOnly = true)
+  public List<MessageResponse> findChatMessages(String chatId, Authentication authentication) {
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+    if (!chat.isParticipant(authentication.getName())) {
+      throw new RuntimeException("User is not a participant of this chat");
+    }
+
+    return messageRepository.findMessagesByChatId(chatId)
       .stream()
-      .map(mapper::toMessageResponse)
+      .map(message -> mapper.toMessageResponse(message, authentication.getName()))
       .toList();
-
   }
 
-  public void setMessagesToSeen(String chatId, Authentication authentication){
+  private void createReadStatusesForMessage(Message message, String senderId) {
+    List<ChatParticipant> participants = participantRepository
+      .findActiveParticipantsByChatId(message.getChat().getId());
+
+    List<MessageReadStatus> readStatuses = participants.stream()
+      .filter(p -> !p.getUser().getId().equals(senderId))
+      .map(p -> MessageReadStatus.builder()
+        .message(message)
+        .user(p.getUser())
+        .isRead(false)
+        .build())
+      .collect(Collectors.toList());
+
+    readStatusRepository.saveAll(readStatuses);
+  }
+
+  private void sendNotificationsToParticipants(Chat chat, Message message, User sender) {
+    List<ChatParticipant> participants = participantRepository
+      .findActiveParticipantsByChatId(chat.getId());
+
+    participants.stream()
+      .filter(p -> !p.getUser().getId().equals(sender.getId()))
+      .forEach(p -> {
+        Notification notification = Notification.builder()
+          .chatId(chat.getId())
+          .messageType(message.getType())
+          .content(message.getContent())
+          .senderId(sender.getId())
+          .receiverId(p.getUser().getId())
+          .type(NotificationType.MESSAGE)
+          .chatName(chat.getChatName(p.getUser().getId()))
+          .build();
+
+        notificationService.sendNotification(p.getUser().getId(), notification);
+      });
+  }
+
+  @Transactional
+  public void setMessagesToRead(String chatId, Authentication authentication) {
     Chat chat = chatRepository.findById(chatId)
-      .orElseThrow(() -> new EntityNotFoundException(("Chat not found")));
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
-    final String receiverId = getReceiverId(chat, authentication);
+    String userId = authentication.getName();
 
-    messageRepository.setMessagesToSeen(chat, MessageState.READ);
-
-    Notification notification = Notification.builder()
-      .chatId(chat.getId())
-      .chatId(chat.getId())
-      .type(NotificationType.SEEN)
-      .receiverId(receiverId)
-      .senderId(getSenderId(chat, authentication))
-      .build();
-
-    notificationService.sendNotification(receiverId, notification);
-
-  }
-
-
-  private String getReceiverId(Chat chat, Authentication authentication){
-    if(chat.getSender().getId().equals(authentication.getName())){
-     return chat.getReceiver().getId();
+    if (!chat.isParticipant(userId)) {
+      throw new RuntimeException("User is not a participant of this chat");
     }
-    return chat.getSender().getId();
+
+    // Use the repository method to mark messages as read
+    readStatusRepository.markMessagesAsRead(chatId, userId, LocalDateTime.now());
+
+    // Send notifications to other participants
+    sendSeenNotifications(chat, userId);
   }
 
-  private String getSenderId(Chat chat, Authentication authentication){
-    if(chat.getSender().getId().equals(authentication.getName())){
-      return chat.getSender().getId();
-    }
-    return chat.getReceiver().getId();
+  private void sendSeenNotifications(Chat chat, String userId) {
+    List<ChatParticipant> participants = participantRepository
+      .findActiveParticipantsByChatId(chat.getId());
+
+    participants.stream()
+      .filter(p -> !p.getUser().getId().equals(userId))
+      .forEach(p -> {
+        Notification notification = Notification.builder()
+          .chatId(chat.getId())
+          .type(NotificationType.SEEN)
+          .receiverId(p.getUser().getId())
+          .senderId(userId)
+          .build();
+
+        notificationService.sendNotification(p.getUser().getId(), notification);
+      });
   }
 
-
-  public void uploadMediaMessage(String chatId, MultipartFile file, Authentication authentication){
+  public void uploadMediaMessage(String chatId, MultipartFile file, Authentication authentication) {
     Chat chat = chatRepository.findById(chatId)
-      .orElseThrow(() -> new EntityNotFoundException(("Chat not found")));
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
-    final String senderId = getSenderId(chat, authentication);
-    final String receiverId = getReceiverId(chat, authentication);
-    final String filePath = fileService.saveFile(file, senderId);
-
+    final String senderId = authentication.getName();
     User sender = userRepository.findById(senderId)
       .orElseThrow(() -> new EntityNotFoundException("Sender not found"));
 
-    User receiver = userRepository.findById(receiverId)
-      .orElseThrow(() -> new EntityNotFoundException("Receiver not found"));
+    final String filePath = fileService.saveFile(file, senderId);
 
     Message message = Message.builder()
       .sender(sender)
-      .receiver(receiver)
       .state(MessageState.SENT)
       .type(MessageType.IMAGE)
       .mediaFilePath(filePath)
       .chat(chat)
       .build();
-    messageRepository.save(message);
 
-    Notification notification = Notification.builder()
-      .chatId(chat.getId())
-      .type(NotificationType.IMAGE)
-      .senderId(senderId)
-      .receiverId(receiverId)
-      .messageType(MessageType.IMAGE)
-      .media(FileUtils.readFileFromLocation(filePath))
-      .build();
+    Message savedMessage = messageRepository.save(message);
 
-    notificationService.sendNotification(receiverId, notification);
+    createReadStatusesForMessage(savedMessage, senderId);
 
+    List<ChatParticipant> participants = participantRepository
+      .findActiveParticipantsByChatId(chatId);
 
+    participants.stream()
+      .filter(p -> !p.getUser().getId().equals(senderId))
+      .forEach(p -> {
+        Notification notification = Notification.builder()
+          .chatId(chat.getId())
+          .type(NotificationType.IMAGE)
+          .senderId(senderId)
+          .receiverId(p.getUser().getId())
+          .messageType(MessageType.IMAGE)
+          .media(FileUtils.readFileFromLocation(filePath))
+          .build();
+
+        notificationService.sendNotification(p.getUser().getId(), notification);
+      });
+  }
+
+  @Transactional(readOnly = true)
+  public long getUnreadMessageCount(String chatId, String userId) {
+    return messageRepository.countUnreadMessagesByChatIdAndUserId(chatId, userId);
+  }
+
+  @Transactional(readOnly = true)
+  public List<MessageReadStatus> getMessageReadStatuses(String messageId) {
+    return readStatusRepository.findReadStatusesByMessageId(messageId);
   }
 
 }
+
+
