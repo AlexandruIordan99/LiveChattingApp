@@ -8,14 +8,16 @@ spring:
     hibernate:
       ddl-auto: update #only for dev, never in prod
     properties:
-      format-sql: true
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      show-sql: true
+      hibernate:
+        format-sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show-sql: true
       logging:
         level:
           org.springframework.boot.autoconfigure: DEBUG
           org.hibernate.SQL: DEBUG
           org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+          com.example.LiveChattingApp: DEBUG
       database: postgresql
       database-platform: org.hibernate.dialect.PostgreSQLDialect
   security:
@@ -46,8 +48,8 @@ application:
     frontend:
       activation-url: http://localhost:4200/activate-account
   file:
-    upload:
-      photos-output-path: ./uploads
+    uploads:
+      media-output-path: ./uploads
 
 server:
-  port: 8090
+  port: 8100
