@@ -2,7 +2,9 @@ package com.example.LiveChattingApp.handler;
 
 import com.example.LiveChattingApp.friendship.exceptions.FriendshipAlreadyExistsException;
 import com.example.LiveChattingApp.friendship.exceptions.FriendshipNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -23,4 +25,11 @@ public class GlobalExceptionHandler {
   public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
     return ResponseEntity.badRequest().body(ex.getMessage());
   }
+
+  @ExceptionHandler(JwtValidationException.class)
+  public ResponseEntity<String> handleJwtValidation(JwtValidationException ex) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+  }
+
+
 }
