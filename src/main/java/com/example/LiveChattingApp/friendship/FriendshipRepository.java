@@ -7,15 +7,15 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface FriendshipRepository extends JpaRepository<Friendship, Integer> {
+public interface FriendshipRepository extends JpaRepository<Friendship, String > {
 
   @Query("""
     Select f from Friendship f
     where (f.user.id = :userId and f.friend.id= :friendId)\s
     or (f.user.id = :friendId and f.friend.id =:userId)
    \s""")
-  Optional<Friendship> findFriendshipBetweenUsers(@Param("userId") Integer userId,
-                                              @Param("friendId") Integer friendId);
+  Optional<Friendship> findFriendshipBetweenUsers(@Param("userId") String  userId,
+                                              @Param("friendId") String  friendId);
 
   @Query("""
         SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END\s
@@ -23,22 +23,22 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
         WHERE (f.user.id = :userId AND f.friend.id = :friendId)\s
            OR (f.user.id = :friendId AND f.friend.id = :userId)
        \s""")
-  boolean existsFriendshipBetweenUsers(@Param("userId") Integer userId,
-                                       @Param("friendId") Integer friendId);
+  boolean existsFriendshipBetweenUsers(@Param("userId") String  userId,
+                                       @Param("friendId") String  friendId);
 
   @Query("""
     select f from Friendship f
     where (f.user.id= :userId or f.friend.id= :userId)
     and f.friendshipsStatus = 'ACCEPTED'
 """)
-  List<Friendship> findAcceptedFriendships(@Param("userId") Integer userId);
+  List<Friendship> findAcceptedFriendships(@Param("userId") String userId);
 
   @Query("""
     select f from Friendship f
     where f.user.id =:userId
     and f.friendshipsStatus = 'PENDING'
 """)
-    List<Friendship> findPendingSentRequests(@Param("userId") Integer userId);
+    List<Friendship> findPendingSentRequests(@Param("userId") String  userId);
 
 
   @Query("""
@@ -46,17 +46,17 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Integer>
         WHERE f.friend.id = :userId\s
           AND f.friendshipsStatus = 'PENDING'
        \s""")
-  List<Friendship> findPendingReceivedRequests(@Param("userId") Integer userId);
+  List<Friendship> findPendingReceivedRequests(@Param("userId") String  userId);
 
   @Query("""
         SELECT f FROM Friendship f
         WHERE f.user.id = :userId\s
          AND f.friendshipsStatus = 'BLOCKED'
        \s""")
-  List<Friendship> findBlockedUsers(@Param("userId") Integer userId);
+  List<Friendship> findBlockedUsers(@Param("userId") String userId);
 
-  List<Friendship> findByUserIdAndFriendshipsStatus(Integer userId, FriendshipStatus status);
+  List<Friendship> findByUserIdAndFriendshipsStatus(String  userId, FriendshipStatus status);
 
-  List<Friendship> findByFriendIdAndFriendshipsStatus(Integer friendId, FriendshipStatus status);
+  List<Friendship> findByFriendIdAndFriendshipsStatus(String friendId, FriendshipStatus status);
 
 }

@@ -9,8 +9,8 @@ import lombok.*;
 @AllArgsConstructor
 public class FriendshipResponseDTO {
 
-  private Integer id;
-  private Integer userId;
+  private String id;
+  private String userId;
   private String displayName;
   private String email;
   private String status;

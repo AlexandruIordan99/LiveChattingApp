@@ -24,7 +24,7 @@ public class FriendshipController {
     @Valid Authentication authentication,
     @Valid @RequestBody FriendshipRequestDTO friendDTO){
     User user = (User) authentication.getPrincipal();
-    Integer userId = user.getId();
+    String  userId = user.getId();
 
     return ResponseEntity.ok(service.sendFriendRequest(userId, friendDTO.getFriendId()));
   }
@@ -32,10 +32,10 @@ public class FriendshipController {
   @PutMapping("{friendshipId}/accept")
   public ResponseEntity<?> acceptFriendRequest(
     @Valid Authentication authentication,
-    @PathVariable Integer friendshipId){
+    @PathVariable String friendshipId){
 
     User user = (User) authentication.getPrincipal();
-    Integer userId = user.getId();
+    String userId = user.getId();
     FriendshipResponseDTO response = service.acceptFriendRequest(userId, friendshipId);
 
     return  ResponseEntity.ok(response);
@@ -45,10 +45,10 @@ public class FriendshipController {
   @PutMapping("{friendshipId}/reject")
   public ResponseEntity<Void> rejectFriendRequest
     (@Valid Authentication authentication,
-     @PathVariable Integer friendshipId) {
+     @PathVariable String  friendshipId) {
 
     User user = (User) authentication.getPrincipal();
-    Integer userId = user.getId();
+    String userId = user.getId();
 
     service.rejectFriendRequest(userId, friendshipId);
     return ResponseEntity.ok().build();
@@ -58,10 +58,10 @@ public class FriendshipController {
   @DeleteMapping("friends/{friendId}")
   public ResponseEntity<Void> removeFriend
     (@Valid Authentication authentication,
-     @PathVariable Integer friendId){
+     @PathVariable String  friendId){
 
     User user = (User) authentication.getPrincipal();
-    Integer userId = user.getId();
+    String  userId = user.getId();
 
     service.removeFriend(userId, friendId);
 
@@ -71,9 +71,9 @@ public class FriendshipController {
 
   @PostMapping("block/{userToBlockId}")
   public ResponseEntity<Void> blockUser(@Valid Authentication authentication,
-  @PathVariable Integer userToBlockId){
+  @PathVariable String  userToBlockId){
     User user = (User) authentication.getPrincipal();
-    Integer userId = user.getId();
+    String  userId = user.getId();
 
     service.blockUser(userId, userToBlockId);
     return ResponseEntity.ok().build();
@@ -83,7 +83,7 @@ public class FriendshipController {
   public ResponseEntity<List<FriendshipResponseDTO>> getFriends(
     @Valid Authentication authentication){
     User user = (User) authentication.getPrincipal();
-    Integer userId = user.getId();
+    String  userId = user.getId();
 
     List<FriendshipResponseDTO> response = service.getFriends(userId);
 
@@ -94,7 +94,7 @@ public class FriendshipController {
   public ResponseEntity<List<FriendshipResponseDTO>> getSentPendingRequests (
     @Valid Authentication authentication){
     User user = (User) authentication.getPrincipal();
-    Integer userId = user.getId();
+    String  userId = user.getId();
 
     List<FriendshipResponseDTO> response = service.getSentPendingRequests(userId);
 
@@ -105,7 +105,7 @@ public class FriendshipController {
   public ResponseEntity<List<FriendshipResponseDTO>> getReceivedPendingRequests(
     @Valid Authentication authentication){
     User user = (User) authentication.getPrincipal();
-    Integer userId  = user.getId();
+    String  userId  = user.getId();
 
     List<FriendshipResponseDTO> response = service.getReceivedPendingRequests(userId);
 
@@ -117,7 +117,7 @@ public class FriendshipController {
   public ResponseEntity<List<FriendshipResponseDTO>> getBlockedUsers(
     @Valid Authentication authentication){
     User user = (User) authentication.getPrincipal();
-    Integer userId = user.getId();
+    String userId = user.getId();
 
     List<FriendshipResponseDTO> response = service.getBlockedUsers(userId);
 
@@ -127,9 +127,9 @@ public class FriendshipController {
   @GetMapping("friendship-status/{friendId}")
   public ResponseEntity<String> getFriendshipStatus(
     @Valid Authentication authentication,
-    @PathVariable Integer friendId){
+    @PathVariable String  friendId){
     User user = (User) authentication.getPrincipal();
-    Integer userId = user.getId();
+    String  userId = user.getId();
 
     String response = String.valueOf(FriendshipStatus.valueOf(
       service.getFriendshipStatus(userId, friendId)
