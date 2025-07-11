@@ -10,12 +10,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 
 //Need this class to tell spring to fetch auditors
-public class ApplicationAuditAware implements AuditorAware<Integer> {
+public class ApplicationAuditAware implements AuditorAware<String> {
 
 
     @NotNull
     @Override
-    public Optional<Integer> getCurrentAuditor() {
+    public Optional<String> getCurrentAuditor() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null || !authentication.isAuthenticated() ||
