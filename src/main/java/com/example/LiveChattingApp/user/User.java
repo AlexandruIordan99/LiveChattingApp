@@ -44,11 +44,6 @@ public class User extends BaseAuditingEntity implements UserDetails, Principal {
     private boolean enabled;
     private static final int LAST_ACTIVE_INTERVAL = 2;
 
-    @OneToMany(mappedBy = "sender")
-    private List<Chat> chatsAsSender;
-    @OneToMany(mappedBy = "receiver")
-    private List<Chat> chatsAsReceiver;
-
     @Transient
     public boolean isUserOnline(){
         return lastSeenOnline !=null && lastSeenOnline.isAfter(LocalDateTime.now().plusMinutes(LAST_ACTIVE_INTERVAL));
