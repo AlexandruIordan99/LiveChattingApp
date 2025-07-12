@@ -23,6 +23,4 @@ public class MessageResponse {
   private String mediaFilePath;
   private byte[] media;
   private MessageResponse replyTo;
-  private List<MessageReadStatusResponse> readStatuses;
-
 }
