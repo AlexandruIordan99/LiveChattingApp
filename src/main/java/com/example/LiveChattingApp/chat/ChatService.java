@@ -1,8 +1,6 @@
 package com.example.LiveChattingApp.chat;
 
-import com.example.LiveChattingApp.ChatParticipant.ChatParticipant;
-import com.example.LiveChattingApp.ChatParticipant.ChatParticipantRepository;
-import com.example.LiveChattingApp.ChatParticipant.ParticipantRole;
+
 import com.example.LiveChattingApp.user.UserRepository;
 import com.example.LiveChattingApp.user.User;
 import jakarta.persistence.EntityNotFoundException;
@@ -12,10 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +21,6 @@ public class ChatService {
 
   private final ChatRepository chatRepository;
   private final UserRepository userRepository;
-  private final ChatParticipantRepository participantRepository;
   private final ChatMapper mapper;
 
   @Transactional(readOnly = true)
@@ -36,7 +33,6 @@ public class ChatService {
   }
 
   public String createDirectChat(String senderId, String receiverId) {
-
     Optional<Chat> existingChat = chatRepository.findDirectChatBetweenUsers(senderId, receiverId);
     if (existingChat.isPresent()) {
       return existingChat.get().getId();
@@ -50,53 +46,35 @@ public class ChatService {
     Chat chat = Chat.builder()
       .type(ChatType.DIRECT)
       .creator(sender)
+      .participants(Set.of(sender, receiver))
       .build();
 
-    Chat savedChat = chatRepository.save(chat);
-
-    addParticipant(savedChat, sender, ParticipantRole.MEMBER, sender);
-    addParticipant(savedChat, receiver, ParticipantRole.MEMBER, sender);
-
-    return savedChat.getId();
+    return chatRepository.save(chat).getId();
   }
 
-  private void addParticipant(Chat chat, User user, ParticipantRole role, User addedBy) {
-    ChatParticipant participant = ChatParticipant.builder()
-      .chat(chat)
-      .user(user)
-      .role(role)
-      .addedBy(addedBy)
-      .joinedAt(LocalDateTime.now())
-      .isActive(true)
-      .build();
-
-    participantRepository.save(participant);
-  }
-
-  public String createGroupChat(String creatorId, String chatName, String description, Set<String> participantIds) {
+  public String createGroupChat(String creatorId, String chatName, Set<String> participantIds) {
     User creator = userRepository.findById(creatorId)
       .orElseThrow(() -> new EntityNotFoundException("Creator not found"));
+
+    Set<User> participants = participantIds.stream()
+      .map(id -> userRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("User not found: " + id)))
+      .collect(Collectors.toSet());
+
+
+    participants.add(creator);
 
     Chat chat = Chat.builder()
       .name(chatName)
       .type(ChatType.GROUP)
       .creator(creator)
+      .participants(participants)
+      .adminUserIds(Set.of(creatorId))
       .build();
 
-    Chat savedChat = chatRepository.save(chat);
-
-    addParticipant(savedChat, creator, ParticipantRole.ADMIN, creator);
-
-    participantIds.stream()
-      .filter(id -> !id.equals(creatorId))
-      .forEach(userId -> {
-        User user = userRepository.findById(userId)
-          .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
-        addParticipant(savedChat, user, ParticipantRole.MEMBER, creator);
-      });
-
-    return savedChat.getId();
+    return chatRepository.save(chat).getId();
   }
+
 
   @Transactional
   public void addParticipantToGroup(String chatId, String userId, String addedByUserId) {
@@ -107,21 +85,19 @@ public class ChatService {
       throw new IllegalArgumentException("Can only add participants to group chats");
     }
 
-    ChatParticipant addedBy = participantRepository.findByChatIdAndUserId(chatId, addedByUserId)
-      .orElseThrow(() -> new EntityNotFoundException("User not found in chat"));
-
-    if (addedBy.getRole() != ParticipantRole.ADMIN) {
+    if (!chat.isAdmin(addedByUserId)) {
       throw new IllegalArgumentException("Only admins can add participants");
+    }
+
+    if (chat.isParticipant(userId)) {
+      throw new IllegalArgumentException("User is already a participant");
     }
 
     User userToAdd = userRepository.findById(userId)
       .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-    if (participantRepository.findByChatIdAndUserId(chatId, userId).isPresent()) {
-      throw new IllegalArgumentException("User is already a participant");
-    }
-
-    addParticipant(chat, userToAdd, ParticipantRole.MEMBER, addedBy.getUser());
+    chat.getParticipants().add(userToAdd);
+    chatRepository.save(chat);
   }
 
   @Transactional
@@ -133,30 +109,65 @@ public class ChatService {
       throw new IllegalArgumentException("Can only remove participants from group chats");
     }
 
-    ChatParticipant participant = participantRepository.findByChatIdAndUserId(chatId, userId)
-      .orElseThrow(() -> new EntityNotFoundException("User not found in chat"));
-
-    if (!userId.equals(removedByUserId)) {
-      ChatParticipant removedBy = participantRepository.findByChatIdAndUserId(chatId, removedByUserId)
-        .orElseThrow(() -> new EntityNotFoundException("User not found in chat"));
-
-      if (removedBy.getRole() != ParticipantRole.ADMIN) {
-        throw new IllegalArgumentException("Only admins can remove other participants");
-      }
+    // Allow self-removal or admin removal
+    if (!userId.equals(removedByUserId) && !chat.isAdmin(removedByUserId)) {
+      throw new IllegalArgumentException("Only admins can remove other participants");
     }
 
-    participant.setActive(false);
-    participantRepository.save(participant);
+    User userToRemove = userRepository.findById(userId)
+      .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+    chat.getParticipants().remove(userToRemove);
+    chat.getAdminUserIds().remove(userId); // Remove admin privileges if they had them
+    chatRepository.save(chat);
   }
 
   @Transactional(readOnly = true)
-  public List<ChatParticipant> getChatParticipants(String chatId) {
-    return participantRepository.findActiveParticipantsByChatId(chatId);
+  public Set<User> getChatParticipants(String chatId) {
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+    return chat.getParticipants();
   }
 
   @Transactional(readOnly = true)
   public boolean isUserParticipant(String chatId, String userId) {
-    return participantRepository.findByChatIdAndUserId(chatId, userId).isPresent();
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+    return chat.isParticipant(userId);
+  }
+
+  @Transactional
+  public void makeUserAdmin(String chatId, String userId, String requestedByUserId) {
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+    if (!chat.isAdmin(requestedByUserId)) {
+      throw new IllegalArgumentException("Only admins can make other users admin");
+    }
+
+    if (!chat.isParticipant(userId)) {
+      throw new IllegalArgumentException("User must be a participant to become admin");
+    }
+
+    chat.getAdminUserIds().add(userId);
+    chatRepository.save(chat);
+  }
+
+  @Transactional
+  public void removeAdminRole(String chatId, String userId, String requestedByUserId) {
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+    if (!chat.isAdmin(requestedByUserId)) {
+      throw new IllegalArgumentException("Only admins can remove admin privileges");
+    }
+
+    if (chat.getCreator().getId().equals(userId)) {
+      throw new IllegalArgumentException("Cannot remove admin role from chat creator");
+    }
+
+    chat.getAdminUserIds().remove(userId);
+    chatRepository.save(chat);
   }
 
 

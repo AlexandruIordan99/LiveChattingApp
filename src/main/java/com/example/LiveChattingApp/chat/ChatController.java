@@ -1,6 +1,6 @@
 package com.example.LiveChattingApp.chat;
-import com.example.LiveChattingApp.ChatParticipant.ChatParticipant;
 import com.example.LiveChattingApp.message.Message;
+import com.example.LiveChattingApp.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
+import java.util.Set;
 
 @Controller
 @RequiredArgsConstructor
@@ -42,7 +43,6 @@ public class ChatController {
     String chatId = chatService.createGroupChat(
       authentication.getName(),
       request.getName(),
-      request.getDescription(),
       request.getParticipantIds()
     );
     return ResponseEntity.ok(chatId);
@@ -67,14 +67,14 @@ public class ChatController {
   }
 
   @GetMapping("/{chatId}/participants")
-  public ResponseEntity<List<ChatParticipant>> getChatParticipants(
+  public ResponseEntity<Set<User>> getChatParticipants(
     @PathVariable String chatId,
     Authentication authentication) {
     if (!chatService.isUserParticipant(chatId, authentication.getName())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    List<ChatParticipant> participants = chatService.getChatParticipants(chatId);
+    Set<User> participants = chatService.getChatParticipants(chatId);
     return ResponseEntity.ok(participants);
   }
 

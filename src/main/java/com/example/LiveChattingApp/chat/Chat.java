@@ -1,6 +1,5 @@
 package com.example.LiveChattingApp.chat;
 
-import com.example.LiveChattingApp.ChatParticipant.ChatParticipant;
 import com.example.LiveChattingApp.common.BaseAuditingEntity;
 import com.example.LiveChattingApp.message.Message;
 import com.example.LiveChattingApp.message.MessageState;
@@ -32,11 +31,15 @@ public class Chat extends BaseAuditingEntity {
   private User creator;
   private String name;
 
+  @ManyToMany
+  private Set<User> participants;
+
+  @ElementCollection
+  private Set<String> adminUserIds; // Simple set of admin IDs
+
   @Enumerated
   private ChatType type;
 
-  @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private Set<ChatParticipant> participants;
 
   @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
   private List<Message> messages;
@@ -48,8 +51,8 @@ public class Chat extends BaseAuditingEntity {
       return name != null ? name : "Group Chat";
     } else {
       return participants.stream()
-        .filter(participant -> !participant.getUser().getId().equals(userId))
-        .map(participant -> participant.getUser().getDisplayName())
+        .filter(participant -> !participant.getId().equals(userId))
+        .map(User::getDisplayName)
         .findFirst()
         .orElse("Unknown");
     }
@@ -57,7 +60,7 @@ public class Chat extends BaseAuditingEntity {
 
   public boolean isParticipant(String userId) {
     return participants.stream()
-      .anyMatch(p -> p.getUser().getId().equals(userId));
+      .anyMatch(p -> p.getId().equals(userId));
   }
 
   public User getOtherParticipant(String userId) {
@@ -65,15 +68,10 @@ public class Chat extends BaseAuditingEntity {
       throw new IllegalStateException("This method is only for direct chats");
     }
     return participants.stream()
-      .map(ChatParticipant::getUser)
       .filter(user -> !user.getId().equals(userId))
       .findFirst()
       .orElse(null);
   }
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by")
-  private User createdBy;
 
   @Transient
   public Long getUnreadMessagesCount(String userId){
@@ -100,6 +98,10 @@ public class Chat extends BaseAuditingEntity {
       return messages.getFirst().getCreatedDate();
     }
     return null;
+  }
+
+  public boolean isAdmin(String userId) {
+    return adminUserIds.contains(userId) || creator.getId().equals(userId);
   }
 
 }
