@@ -1,5 +1,4 @@
 package com.example.LiveChattingApp.chat;
-import com.example.LiveChattingApp.ChatParticipant.AddParticipantRequest;
 import com.example.LiveChattingApp.ChatParticipant.ChatParticipant;
 import com.example.LiveChattingApp.message.Message;
 import lombok.RequiredArgsConstructor;
@@ -52,9 +51,9 @@ public class ChatController {
   @PostMapping("/{chatId}/participants")
   public ResponseEntity<Void> addParticipant(
     @PathVariable String chatId,
-    @RequestBody AddParticipantRequest request,
+    @RequestBody String userId,
     Authentication authentication) {
-    chatService.addParticipantToGroup(chatId, request.getUserId(), authentication.getName());
+    chatService.addParticipantToGroup(chatId, userId, authentication.getName());
     return ResponseEntity.ok().build();
   }
 
