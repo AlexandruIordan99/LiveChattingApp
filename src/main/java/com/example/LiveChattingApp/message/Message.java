@@ -1,6 +1,5 @@
 package com.example.LiveChattingApp.message;
 
-import com.example.LiveChattingApp.MessageReadStatus.MessageReadStatus;
 import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.common.BaseAuditingEntity;
 import com.example.LiveChattingApp.user.User;
@@ -30,9 +29,6 @@ public class Message extends BaseAuditingEntity {
   @ManyToOne(fetch =FetchType.LAZY)
   @JoinColumn(name ="sender_id", nullable = false)
   private User sender;
-
-  @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
-  private Set<MessageReadStatus> readStatuses;
 
   @ManyToOne
   @JoinColumn(name = "reply_to_id")

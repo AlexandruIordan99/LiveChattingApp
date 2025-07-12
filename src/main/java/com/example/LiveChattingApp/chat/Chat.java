@@ -10,7 +10,9 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -103,5 +105,10 @@ public class Chat extends BaseAuditingEntity {
   public boolean isAdmin(String userId) {
     return adminUserIds.contains(userId) || creator.getId().equals(userId);
   }
+
+  @ElementCollection
+  @MapKeyColumn(name = "user_id")
+  @Column(name = "last_read_at")
+  private Map<String, LocalDateTime> lastReadTimestamps = new HashMap<>();
 
 }

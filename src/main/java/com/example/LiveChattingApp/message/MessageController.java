@@ -1,6 +1,5 @@
 package com.example.LiveChattingApp.message;
 
-import com.example.LiveChattingApp.MessageReadStatus.MessageReadStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -32,11 +31,11 @@ public class MessageController {
     return ResponseEntity.ok(messages);
   }
 
-  @PostMapping("/chat/{chatId}/read")
+  @PostMapping("/chat/{chatId}/{userId}/read")
   public ResponseEntity<Void> markMessagesAsRead(
     @PathVariable String chatId,
-    Authentication authentication) {
-    messageService.setMessagesToRead(chatId, authentication);
+    String userId){
+    messageService.markAsRead(chatId, userId);
     return ResponseEntity.ok().build();
   }
 
@@ -49,19 +48,19 @@ public class MessageController {
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("/{messageId}/read-status")
-  public ResponseEntity<List<MessageReadStatus>> getMessageReadStatus(
-    @PathVariable String messageId,
+  @GetMapping("/chat/{chatId}/is-read")
+  public ResponseEntity<Boolean> isChatRead(
+    @PathVariable String chatId,
     Authentication authentication) {
-    List<MessageReadStatus> readStatuses = messageService.getMessageReadStatuses(messageId);
-    return ResponseEntity.ok(readStatuses);
+    boolean isRead = messageService.isChatRead(chatId, authentication.getName());
+    return ResponseEntity.ok(isRead);
   }
 
   @GetMapping("/chat/{chatId}/unread-count")
   public ResponseEntity<Long> getUnreadMessageCount(
     @PathVariable String chatId,
     Authentication authentication) {
-    long unreadCount = messageService.getUnreadMessageCount(chatId, authentication.getName());
+    long unreadCount = messageService.getUnreadCount(chatId, authentication.getName());
     return ResponseEntity.ok(unreadCount);
   }
 

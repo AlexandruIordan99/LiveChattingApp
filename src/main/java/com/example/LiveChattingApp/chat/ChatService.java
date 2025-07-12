@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -170,6 +171,21 @@ public class ChatService {
     chatRepository.save(chat);
   }
 
+  public void markAsRead(String chatId, String userId) {
+    Chat chat = chatRepository.findById(chatId).orElseThrow();
+    chat.getLastReadTimestamps().put(userId, LocalDateTime.now());
+    chatRepository.save(chat);
+  }
 
+  public long getUnreadCount(String chatId, String userId) {
+    Chat chat = chatRepository.findById(chatId).orElseThrow();
+    LocalDateTime lastRead = chat.getLastReadTimestamps().get(userId);
+    if (lastRead == null) return chat.getMessages().size();
+
+    return chat.getMessages().stream()
+      .filter(m -> m.getCreatedDate().isAfter(lastRead))
+      .filter(m -> !m.getSender().getId().equals(userId)) // Don't count own messages
+      .count();
+  }
 
 }
