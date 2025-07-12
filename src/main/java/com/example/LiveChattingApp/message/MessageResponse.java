@@ -1,10 +1,8 @@
 package com.example.LiveChattingApp.message;
 
-import com.example.LiveChattingApp.MessageReadStatus.MessageReadStatusResponse;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Setter
 @AllArgsConstructor
