@@ -1,6 +1,7 @@
 package com.example.LiveChattingApp.chat;
 import com.example.LiveChattingApp.message.Message;
 import com.example.LiveChattingApp.user.User;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/chats")
 @RestController
+@Tag(name="Chat")
 public class ChatController {
 
   private final ChatService chatService;

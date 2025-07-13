@@ -1,5 +1,7 @@
 package com.example.LiveChattingApp.message;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -11,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/messages")
 @RequiredArgsConstructor
+@Tag(name = "Message")
 public class MessageController {
 
   private final MessageService messageService;
@@ -42,6 +45,7 @@ public class MessageController {
   @PostMapping("/chat/{chatId}/media")
   public ResponseEntity<Void> uploadMediaMessage(
     @PathVariable String chatId,
+    @Parameter()
     @RequestParam("file") MultipartFile file,
     Authentication authentication) {
     messageService.uploadMediaMessage(chatId, file, authentication);
