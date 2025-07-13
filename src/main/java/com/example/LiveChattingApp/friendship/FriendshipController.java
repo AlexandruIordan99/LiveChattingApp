@@ -1,8 +1,6 @@
 package com.example.LiveChattingApp.friendship;
 
 
-import com.example.LiveChattingApp.friendship.DTOs.FriendshipRequestDTO;
-import com.example.LiveChattingApp.friendship.DTOs.FriendshipResponseDTO;
 import com.example.LiveChattingApp.user.User;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

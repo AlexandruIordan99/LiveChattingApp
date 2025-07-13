@@ -1,4 +1,4 @@
-package com.example.LiveChattingApp.friendship.DTOs;
+package com.example.LiveChattingApp.friendship;
 
 import lombok.*;
 

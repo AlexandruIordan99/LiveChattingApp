@@ -1,6 +1,5 @@
 package com.example.LiveChattingApp.friendship;
 
-import com.example.LiveChattingApp.friendship.DTOs.FriendshipResponseDTO;
 import com.example.LiveChattingApp.friendship.exceptions.FriendshipAlreadyExistsException;
 import com.example.LiveChattingApp.friendship.exceptions.FriendshipNotFoundException;
 import com.example.LiveChattingApp.user.User;
