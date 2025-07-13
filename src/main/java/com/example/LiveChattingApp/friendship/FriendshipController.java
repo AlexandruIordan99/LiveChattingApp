@@ -69,7 +69,7 @@ public class FriendshipController {
 
   }
 
-  @PostMapping("block/{userToBlockId}")
+  @PostMapping("/block/{userToBlockId}")
   public ResponseEntity<Void> blockUser(@Valid Authentication authentication,
   @PathVariable String  userToBlockId){
     User user = (User) authentication.getPrincipal();
@@ -79,7 +79,7 @@ public class FriendshipController {
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("friendlist")
+  @GetMapping("/friendlist")
   public ResponseEntity<List<FriendshipResponseDTO>> getFriends(
     @Valid Authentication authentication){
     User user = (User) authentication.getPrincipal();
@@ -90,7 +90,7 @@ public class FriendshipController {
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("sent-pending-requests")
+  @GetMapping("/sent-pending-requests")
   public ResponseEntity<List<FriendshipResponseDTO>> getSentPendingRequests (
     @Valid Authentication authentication){
     User user = (User) authentication.getPrincipal();
@@ -101,7 +101,7 @@ public class FriendshipController {
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("received-pending-requests")
+  @GetMapping("/received-pending-requests")
   public ResponseEntity<List<FriendshipResponseDTO>> getReceivedPendingRequests(
     @Valid Authentication authentication){
     User user = (User) authentication.getPrincipal();
@@ -113,7 +113,7 @@ public class FriendshipController {
 
   }
 
-  @GetMapping("blocked-users")
+  @GetMapping("/blocked-users")
   public ResponseEntity<List<FriendshipResponseDTO>> getBlockedUsers(
     @Valid Authentication authentication){
     User user = (User) authentication.getPrincipal();
@@ -124,7 +124,7 @@ public class FriendshipController {
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("friendship-status/{friendId}")
+  @GetMapping("/friendship-status/{friendId}")
   public ResponseEntity<String> getFriendshipStatus(
     @Valid Authentication authentication,
     @PathVariable String  friendId){
