@@ -20,4 +20,35 @@ export class KeycloakService {
     }
     return this._keycloak;
   }
+
+  async init(){
+    const authenticated = await this.keycloak.init({
+      onLoad: 'login-required'
+    })
+  }
+
+  async login(){
+    await this.keycloak.login()
+  }
+
+  get userId(): string {
+    return this.keycloak?.tokenParsed?.sub as string
+  }
+
+  get isTokenValid(): boolean{
+    return !this.keycloak.isTokenExpired();
+  }
+
+  get displayName(): string {
+    return this.keycloak.tokenParsed?.['name'] as string
+  }
+
+  logout(){
+    return this.keycloak.login({redirectUri: 'http://localhost:4200'})
+  }
+
+  accountManagement(){
+    return this.keycloak.accountManagement(); //user can update their own info
+  }
+
 }
