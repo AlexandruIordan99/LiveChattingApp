@@ -951,27 +951,27 @@
           "username": {
             "type": "string"
           },
-          "credentialsNonExpired": {
-            "type": "boolean"
-          },
-          "accountNonExpired": {
-            "type": "boolean"
-          },
-          "accountNonLocked": {
-            "type": "boolean"
-          },
           "authorities": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/GrantedAuthority"
             }
           },
-          "userOnline": {
-            "type": "boolean"
-          },
           "lastSyncTime": {
             "type": "string",
             "format": "date-time"
+          },
+          "userOnline": {
+            "type": "boolean"
+          },
+          "accountNonLocked": {
+            "type": "boolean"
+          },
+          "credentialsNonExpired": {
+            "type": "boolean"
+          },
+          "accountNonExpired": {
+            "type": "boolean"
           }
         }
       }
