@@ -13,8 +13,8 @@ export class KeycloakService {
   get keycloak(){
     if(!this._keycloak){
       this._keycloak = new Keycloak({
-        clientId: "LiveChattingApp",
-        url: "https://localhost:8090",
+        clientId: "live-chatting-app",
+        url: "http://localhost:8090",
         realm: "LiveChattingApp"
       })
     }
