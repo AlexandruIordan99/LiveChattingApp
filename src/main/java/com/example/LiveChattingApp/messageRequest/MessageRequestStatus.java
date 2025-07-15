@@ -1,4 +1,4 @@
-package com.example.LiveChattingApp.message;
+package com.example.LiveChattingApp.messageRequest;
 
 public enum MessageRequestStatus {
 
