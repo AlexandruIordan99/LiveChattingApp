@@ -1,6 +1,5 @@
 package com.example.LiveChattingApp.user;
 
-import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.common.BaseAuditingEntity;
 import com.example.LiveChattingApp.friendship.Friendship;
 import com.example.LiveChattingApp.role.Role;
@@ -33,6 +32,7 @@ public class User extends BaseAuditingEntity implements UserDetails, Principal {
     private String id; //keycloak stores ids as strings in the form of UUIDs
     private String firstname;
     private String lastname;
+    @Column(unique = true)
     private String displayName;
     private LocalDateTime lastSeenOnline;
     private LocalDateTime LastSyncTime;
