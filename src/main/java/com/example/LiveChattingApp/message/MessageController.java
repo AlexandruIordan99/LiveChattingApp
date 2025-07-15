@@ -1,5 +1,8 @@
 package com.example.LiveChattingApp.message;
 
+import com.example.LiveChattingApp.friendship.FriendshipService;
+import com.example.LiveChattingApp.messageRequest.MessageRequest;
+import com.example.LiveChattingApp.messageRequest.MessageRequestService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +20,23 @@ import java.util.List;
 public class MessageController {
 
   private final MessageService messageService;
+  private final FriendshipService friendshipService;
+  private final MessageRequestService messageRequestService;
 
   @PostMapping
   public ResponseEntity<Void> sendMessage(
     @RequestBody MessageRequest request,
     Authentication authentication) {
+    String senderId = authentication.getName();
+    String receiverId = request.getReceiverId();
+
+    boolean areFriends = friendshipService.existsFriendshipBetweenUsers(senderId, receiverId);
+
+    if (!areFriends) {
+      messageRequestService.getOrCreateMessageRequest(request, senderId, receiverId);
+      return ResponseEntity.ok().build();
+    }
+
     messageService.saveMessage(request, authentication);
     return ResponseEntity.ok().build();
   }
