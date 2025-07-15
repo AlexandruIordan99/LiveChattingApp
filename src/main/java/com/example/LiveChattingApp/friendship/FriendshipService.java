@@ -139,6 +139,9 @@ public class FriendshipService {
       .orElse("NONE");
   }
 
+  public boolean existsFriendshipBetweenUsers(String userId, String friendId){
+    return friendshipRepository.existsFriendshipBetweenUsers(userId, friendId);
+  }
 
   private User findUserById(String userId){
     return userRepository.findById(userId)
