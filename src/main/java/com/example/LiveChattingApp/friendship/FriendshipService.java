@@ -29,7 +29,7 @@ public class FriendshipService {
       throw new IllegalArgumentException("A user cannot send a friend request to themselves.");
     }
 
-    if(friendshipRepository.existsFriendshipBetweenUsers(currentUserId, friendId)){
+    if(friendshipRepository.existsFriendshipBetweenUsers(currentUserId, friendId, FriendshipStatus.ACCEPTED)){
       throw new FriendshipAlreadyExistsException("Friendship already exists between these users.");
     }
 
@@ -140,7 +140,7 @@ public class FriendshipService {
   }
 
   public boolean existsFriendshipBetweenUsers(String userId, String friendId){
-    return friendshipRepository.existsFriendshipBetweenUsers(userId, friendId);
+    return friendshipRepository.existsFriendshipBetweenUsers(userId, friendId, FriendshipStatus.ACCEPTED);
   }
 
   private User findUserById(String userId){

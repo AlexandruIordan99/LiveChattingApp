@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface FriendshipRepository extends JpaRepository<Friendship, String > {
 
   @Query("""
-    Select f from Friendship f
+    select f from Friendship f
     where (f.user.id = :userId and f.friend.id= :friendId)\s
     or (f.user.id = :friendId and f.friend.id =:userId)
    \s""")
@@ -18,13 +18,15 @@ public interface FriendshipRepository extends JpaRepository<Friendship, String >
                                               @Param("friendId") String  friendId);
 
   @Query("""
-        SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END\s
-        FROM Friendship f\s
-        WHERE (f.user.id = :userId AND f.friend.id = :friendId)\s
-           OR (f.user.id = :friendId AND f.friend.id = :userId)
+        select count(f) > 0 \s
+       from Friendship f\s
+        where (f.user.id = :userId and f.friend.id = :friendId)\s
+           or (f.user.id = :friendId and f.friend.id = :userId)
+       and f.friendshipsStatus = :status
        \s""")
   boolean existsFriendshipBetweenUsers(@Param("userId") String  userId,
-                                       @Param("friendId") String  friendId);
+                                       @Param("friendId") String  friendId,
+                                        @Param("friendshipStatus") FriendshipStatus status);
 
   @Query("""
     select f from Friendship f
@@ -42,16 +44,16 @@ public interface FriendshipRepository extends JpaRepository<Friendship, String >
 
 
   @Query("""
-        SELECT f FROM Friendship f
-        WHERE f.friend.id = :userId\s
-          AND f.friendshipsStatus = 'PENDING'
+       select f from Friendship f
+        where f.friend.id = :userId\s
+          and f.friendshipsStatus = 'PENDING'
        \s""")
   List<Friendship> findPendingReceivedRequests(@Param("userId") String  userId);
 
   @Query("""
-        SELECT f FROM Friendship f
-        WHERE f.user.id = :userId\s
-         AND f.friendshipsStatus = 'BLOCKED'
+        select f from Friendship f
+        where f.user.id = :userId\s
+         and f.friendshipsStatus = 'BLOCKED'
        \s""")
   List<Friendship> findBlockedUsers(@Param("userId") String userId);
 
