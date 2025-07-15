@@ -2,8 +2,12 @@ package com.example.LiveChattingApp.message;
 
 import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.chat.ChatRepository;
+import com.example.LiveChattingApp.chat.ChatService;
 import com.example.LiveChattingApp.file.FileService;
 import com.example.LiveChattingApp.file.FileUtils;
+import com.example.LiveChattingApp.friendship.FriendshipService;
+import com.example.LiveChattingApp.messageRequest.MessageRequest;
+import com.example.LiveChattingApp.messageRequest.MessageRequestService;
 import com.example.LiveChattingApp.notification.Notification;
 import com.example.LiveChattingApp.notification.NotificationService;
 import com.example.LiveChattingApp.notification.NotificationType;
@@ -30,8 +34,21 @@ public class MessageService {
   private final MessageMapper mapper;
   private final FileService fileService;
   private final NotificationService notificationService;
+  private final FriendshipService friendshipService;
+  private final MessageRequestService messageRequestService;
+  private final ChatService chatService;
 
   public void saveMessage(MessageRequest messageRequest, Authentication authentication) {
+    String senderId = authentication.getName();
+    String receiverId = chatService.resolveReceiverIdFromChat(messageRequest.getChatId(), senderId);
+
+    boolean areFriends = friendshipService.existsFriendshipBetweenUsers(senderId, receiverId);
+
+    if (!areFriends) {
+      messageRequestService.getOrCreateMessageRequest(messageRequest, senderId, receiverId);
+      return;
+    }
+
     Chat chat = chatRepository.findById(messageRequest.getChatId())
       .orElseThrow(() -> new RuntimeException("Chat not found"));
 
@@ -39,7 +56,7 @@ public class MessageService {
       .orElseThrow(() -> new RuntimeException("Sender not found"));
 
     Message message = Message.builder()
-      .content(messageRequest.getContent())
+      .content(messageRequest.getFirstMessages().toString())
       .chat(chat)
       .sender(sender)
       .type(messageRequest.getType())

@@ -14,18 +14,26 @@ public class MessageRequestService {
 
   private final MessageRequestRepository messageRequestRepository;
 
-  public MessageRequest createMessageRequest(MessageRequest request) {
+  public MessageRequest getOrCreateMessageRequest(MessageRequest request, String senderId, String receiverId) {
     Optional<MessageRequest> existingRequest =
       messageRequestRepository.findBySenderIdAndReceiverIdAndMessageRequestStatus(
         request.getSenderId(), request.getReceiverId(), MessageRequestStatus.PENDING);
 
     if (existingRequest.isPresent()) {
-      existingRequest.get().setFirstMessages(request.getFirstMessages());
-      return messageRequestRepository.save(existingRequest.get());
+      MessageRequest existing = existingRequest.get();
+      existing.getFirstMessages().addAll(request.getFirstMessages());
+      return messageRequestRepository.save(existing);
     }
 
-    request.setStatus(MessageRequestStatus.PENDING);
-    return messageRequestRepository.save(request);
+    MessageRequest newRequest = MessageRequest.builder()
+      .senderId(senderId)
+      .receiverId(receiverId)
+      .status(MessageRequestStatus.PENDING)
+      .firstMessages(request.getFirstMessages())
+      .type(request.getType())
+      .build();
+
+    return messageRequestRepository.save(newRequest);
   }
 
   }
