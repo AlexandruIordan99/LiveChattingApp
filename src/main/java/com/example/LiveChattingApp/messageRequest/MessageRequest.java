@@ -24,16 +24,15 @@ public class MessageRequest {
   private String chatId;
   private String senderId;
   private String receiverId;
+  private MessageType type;
 
+  @Enumerated(EnumType.STRING)
+  private MessageRequestStatus status;
   @OneToMany(cascade = CascadeType.ALL)
   @JoinColumn(name = "message_request_id")
   private List<Message> firstMessages;
 
-  private MessageType type;
-  private String replyToId;
 
-  @Enumerated(EnumType.STRING)
-  private MessageRequestStatus status;
 
 
 }
