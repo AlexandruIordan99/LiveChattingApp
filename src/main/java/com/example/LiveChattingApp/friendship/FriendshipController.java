@@ -12,7 +12,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/friend")
+@RequestMapping("/api/v1/friendship")
 @RequiredArgsConstructor
 @Tag(name="Friendship")
 public class FriendshipController {
@@ -79,7 +79,7 @@ public class FriendshipController {
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("/friendlist")
+  @GetMapping("/friendslist")
   public ResponseEntity<List<FriendshipResponseDTO>> getFriends(
     @Valid Authentication authentication){
     User user = (User) authentication.getPrincipal();
