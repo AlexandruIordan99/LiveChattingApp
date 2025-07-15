@@ -17,4 +17,11 @@ public interface UserRepository extends JpaRepository<User, String> {
 """)
     List<User> findAllUsersExceptSelf(@Param("userId") String userId);
 
+
+    @Query("""
+     select user from User user
+     where user.displayName = :displayName
+""")
+    Optional<User> findByDisplayName(@Param("displayName") String displayName);
+
 }
