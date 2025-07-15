@@ -33,6 +33,17 @@ public class ChatService {
       .toList();
   }
 
+  public String resolveReceiverIdFromChat(String chatId, String senderId){
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+    return chat.getParticipants().stream()
+      .filter(user-> user.getId().equals(senderId))
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("Receiver not found"))
+      .getId();
+  }
+
   public String createDirectChat(String senderId, String receiverId) {
     Optional<Chat> existingChat = chatRepository.findDirectChatBetweenUsers(senderId, receiverId);
     if (existingChat.isPresent()) {
