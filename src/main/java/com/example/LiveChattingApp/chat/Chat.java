@@ -114,4 +114,16 @@ public class Chat extends BaseAuditingEntity {
   @Column(name = "last_read_at")
   private Map<String, LocalDateTime> lastReadTimestamps = new HashMap<>();
 
+
+  @PrePersist
+  @PreUpdate
+  private void validateChatType(){
+    if(type == ChatType.DIRECT && participants != null && participants.size() != 2){
+      throw new IllegalArgumentException("Direct chats must have exactly 2 participants.");
+    }
+    if(type == ChatType.GROUP && participants != null && participants.size() < 3){
+      throw new IllegalArgumentException("Group chats must have at least 3 participants.");
+    }
+  }
+
 }
