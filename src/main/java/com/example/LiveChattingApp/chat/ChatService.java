@@ -33,10 +33,7 @@ public class ChatService {
       .toList();
   }
 
-  public String resolveReceiverIdFromChat(String chatId, String senderId){
-    Chat chat = chatRepository.findById(chatId)
-      .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
-
+  public String resolveReceiverIdFromChat(Chat chat, String senderId){
     return chat.getParticipants().stream()
       .filter(user-> user.getId().equals(senderId))
       .findFirst()
@@ -121,7 +118,6 @@ public class ChatService {
       throw new IllegalArgumentException("Can only remove participants from group chats");
     }
 
-    // Allow self-removal or admin removal
     if (!userId.equals(removedByUserId) && !chat.isAdmin(removedByUserId)) {
       throw new IllegalArgumentException("Only admins can remove other participants");
     }
@@ -197,6 +193,11 @@ public class ChatService {
       .filter(m -> m.getCreatedDate().isAfter(lastRead))
       .filter(m -> !m.getSender().getId().equals(userId)) // Don't count own messages
       .count();
+  }
+
+  public Chat findChatById(String chatId){
+    return chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found."));
   }
 
 }
