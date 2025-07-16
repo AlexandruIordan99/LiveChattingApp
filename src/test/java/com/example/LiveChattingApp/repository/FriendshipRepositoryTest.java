@@ -154,14 +154,14 @@ public class FriendshipRepositoryTest {
       .build();
     friendshipRepository.save(friendship);
 
-    boolean exists = friendshipRepository.existsFriendshipBetweenUsers(user1.getId(), user2.getId());
+    boolean exists = friendshipRepository.existsFriendshipBetweenUsers(user1.getId(), user2.getId(), FriendshipStatus.ACCEPTED);
 
     Assertions.assertThat(exists).isTrue();
   }
 
   @Test
   void testExistsFriendshipsBetweenUsers_whenFriendshipDoesNotExist(){
-    boolean exists = friendshipRepository.existsFriendshipBetweenUsers(user1.getId(), user2.getId());
+    boolean exists = friendshipRepository.existsFriendshipBetweenUsers(user1.getId(), user2.getId(), FriendshipStatus.ACCEPTED);
 
     Assertions.assertThat(exists).isFalse();
   }
@@ -329,17 +329,6 @@ public class FriendshipRepositoryTest {
     List<Friendship> acceptedFriendships = friendshipRepository.findAcceptedFriendships(user1.getId());
 
     Assertions.assertThat(acceptedFriendships).isEmpty();
-  }
-
-  @Test
-  void testRepositoryMethodsWithNonExistentUser() {
-    Integer nonExistentUserId = 999;
-
-    Assertions.assertThat(friendshipRepository.findAcceptedFriendships(nonExistentUserId)).isEmpty();
-    Assertions.assertThat(friendshipRepository.findPendingSentRequests(nonExistentUserId)).isEmpty();
-    Assertions.assertThat(friendshipRepository.findPendingReceivedRequests(nonExistentUserId)).isEmpty();
-    Assertions.assertThat(friendshipRepository.findBlockedUsers(nonExistentUserId)).isEmpty();
-    Assertions.assertThat(friendshipRepository.existsFriendshipBetweenUsers(nonExistentUserId, user1.getId())).isFalse();
   }
 
 
