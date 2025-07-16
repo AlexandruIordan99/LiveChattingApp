@@ -32,18 +32,18 @@ public class ChatController {
   }
 
   @PostMapping("/direct")
-  public ResponseEntity<String> createDirectChat(
+  public ResponseEntity<Long> createDirectChat(
     @RequestParam String receiverId,
     Authentication authentication) {
-    String chatId = chatService.createDirectChat(authentication.getName(), receiverId);
+    Long chatId = chatService.createDirectChat(authentication.getName(), receiverId);
     return ResponseEntity.ok(chatId);
   }
 
   @PostMapping("/group")
-  public ResponseEntity<String> createGroupChat(
+  public ResponseEntity<Long> createGroupChat(
     @RequestBody CreateGroupChatRequest request,
     Authentication authentication) {
-    String chatId = chatService.createGroupChat(
+    Long chatId = chatService.createGroupChat(
       authentication.getName(),
       request.getName(),
       request.getParticipantIds()
@@ -53,7 +53,7 @@ public class ChatController {
 
   @PostMapping("/{chatId}/participants")
   public ResponseEntity<Void> addParticipant(
-    @PathVariable String chatId,
+    @PathVariable Long chatId,
     @RequestBody String userId,
     Authentication authentication) {
     chatService.addParticipantToGroup(chatId, userId, authentication.getName());
@@ -62,7 +62,7 @@ public class ChatController {
 
   @DeleteMapping("/{chatId}/participants/{userId}")
   public ResponseEntity<Void> removeParticipant(
-    @PathVariable String chatId,
+    @PathVariable Long chatId,
     @PathVariable String userId,
     Authentication authentication) {
     chatService.removeParticipantFromGroup(chatId, userId, authentication.getName());
@@ -71,7 +71,7 @@ public class ChatController {
 
   @GetMapping("/{chatId}/participants")
   public ResponseEntity<Set<User>> getChatParticipants(
-    @PathVariable String chatId,
+    @PathVariable Long chatId,
     Authentication authentication) {
     if (!chatService.isUserParticipant(chatId, authentication.getName())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -83,7 +83,7 @@ public class ChatController {
 
   @PostMapping("/{chatId}/leave")
   public ResponseEntity<Void> leaveChat(
-    @PathVariable String chatId,
+    @PathVariable Long chatId,
     Authentication authentication) {
     chatService.removeParticipantFromGroup(chatId, authentication.getName(), authentication.getName());
     return ResponseEntity.ok().build();

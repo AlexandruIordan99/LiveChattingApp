@@ -108,7 +108,7 @@ public class FriendshipServiceTest {
     FriendshipResponseDTO result = friendshipService.sendFriendRequest("1", "2");
 
     assertThat(result).isNotNull();
-    assertThat(result.getId()).isEqualTo("1");
+    assertThat(result.getId()).isEqualTo(1L);
     assertThat(result.getUserId()).isEqualTo("2");
     assertThat(result.getDisplayName()).isEqualTo("gtgmycatisonfire");
     assertThat(result.getEmail()).isEqualTo("vladloghin00@gmail.com");

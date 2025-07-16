@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatResponse {
 
-  private String id;
+  private Long id;
   private String name;
   private long unreadCount;
   private String lastMessage;

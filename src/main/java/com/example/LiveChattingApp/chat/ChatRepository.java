@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ChatRepository extends JpaRepository<Chat, String> {
+public interface ChatRepository extends JpaRepository<Chat, Long> {
 
   @Query("""
          select chat from Chat chat
