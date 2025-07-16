@@ -1,5 +1,8 @@
 package com.example.LiveChattingApp.repository;
 
+import com.example.LiveChattingApp.chat.Chat;
+import com.example.LiveChattingApp.chat.ChatRepository;
+import com.example.LiveChattingApp.chat.ChatType;
 import com.example.LiveChattingApp.message.MessageRepository;
 import com.example.LiveChattingApp.user.User;
 import com.example.LiveChattingApp.user.UserRepository;
@@ -13,6 +16,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @DataJpaTest
 @Testcontainers
@@ -23,6 +27,10 @@ public class MessageRepositoryTest {
 
   @Autowired
   private UserRepository userRepository;
+
+  @Autowired
+  private ChatRepository chatRepository;
+
 
   private User user1;
   private User user2;
@@ -85,6 +93,21 @@ public class MessageRepositoryTest {
     user2 = userRepository.save(user2);
     user3 = userRepository.save(user3);
 
+    Chat directChat = Chat.builder()
+      .participants(Set.of(user1, user2))
+      .type(ChatType.DIRECT)
+      .build();
+
+    Chat groupChat = Chat.builder()
+      .participants(Set.of(user1, user2, user3))
+      .type(ChatType.GROUP)
+      .build();
+
+    directChat = chatRepository.save(directChat);
+    groupChat = chatRepository.save(groupChat);
+
   }
+
+
 
 }
