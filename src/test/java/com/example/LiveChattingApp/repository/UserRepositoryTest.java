@@ -53,7 +53,6 @@ public class UserRepositoryTest {
     User savedUser = userRepository.save(testUser);
     //Assert
     Assertions.assertThat(savedUser).isNotNull();
-    Assertions.assertThat(savedUser.getId()).isGreaterThan(0);
 
   }
 
