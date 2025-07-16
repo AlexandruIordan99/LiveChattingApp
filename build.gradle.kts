@@ -25,6 +25,8 @@ repositories {
 	mavenCentral()
 }
 
+val mockitoAgent = configurations.create("mockitoAgent")
+
 dependencies {
 	implementation("org.postgresql:postgresql")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -57,6 +59,7 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter:1.21.3")
 	testImplementation("org.testcontainers:postgresql:1.21.3")
 	testImplementation("org.mockito:mockito-core:5.18.0")
+	mockitoAgent("org.mockito:mockito-core") { isTransitive = false }
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.springframework.integration:spring-integration-test")
@@ -78,4 +81,5 @@ allOpen {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	jvmArgs("-javaagent:${mockitoAgent.asPath}")
 }
