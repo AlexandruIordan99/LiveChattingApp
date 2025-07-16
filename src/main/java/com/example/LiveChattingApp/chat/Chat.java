@@ -4,6 +4,7 @@ import com.example.LiveChattingApp.common.BaseAuditingEntity;
 import com.example.LiveChattingApp.message.Message;
 import com.example.LiveChattingApp.message.MessageState;
 import com.example.LiveChattingApp.message.MessageType;
+import com.example.LiveChattingApp.messageRequest.MessageRequest;
 import com.example.LiveChattingApp.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -42,6 +43,8 @@ public class Chat extends BaseAuditingEntity {
   @Enumerated
   private ChatType type;
 
+  @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
+  private List<MessageRequest> messageRequests;
 
   @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
   private List<Message> messages;

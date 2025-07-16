@@ -1,6 +1,7 @@
 package com.example.LiveChattingApp.messageRequest;
 
 
+import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.message.Message;
 import com.example.LiveChattingApp.message.MessageType;
 import jakarta.persistence.*;
@@ -19,9 +20,14 @@ import java.util.List;
 public class MessageRequest {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
+  @SequenceGenerator(name = "msg_seq", sequenceName = "msg_seq", allocationSize = 1)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "msg_seq")
   private String id;
-  private String chatId;
+
+  @ManyToOne
+  @JoinColumn(name="chat_id")
+  private Chat chat;
+
   private String senderId;
   private String receiverId;
   private MessageType type;
