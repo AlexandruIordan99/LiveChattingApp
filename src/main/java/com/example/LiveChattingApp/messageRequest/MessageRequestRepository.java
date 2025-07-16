@@ -1,5 +1,6 @@
 package com.example.LiveChattingApp.messageRequest;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,17 +11,18 @@ import java.util.Optional;
 @Repository
 public interface MessageRequestRepository extends JpaRepository<MessageRequest, Long> {
 
-  Optional<MessageRequest> findById(Long messageRequestId);
+  @NotNull
+  Optional<MessageRequest> findById(@NotNull Long messageRequestId);
 
   @Query("""
       SELECT mr FROM MessageRequest mr
-        WHERE ((mr.senderId = :user1 AND mr.receiverId = :user2)
-           OR (mr.senderId = :user2 AND mr.receiverId = :user1))
+        WHERE ((mr.senderId = :senderId AND mr.receiverId = :receiverId)
+           OR (mr.senderId = :receiverId AND mr.receiverId = :senderId))
           AND mr.status = :status
 """)
   Optional<MessageRequest> findBySenderIdAndReceiverIdAndMessageRequestStatus(
     @Param("senderId") String senderId,
     @Param("receiverId") String receiverId,
-    @Param("messageRequestStatus") MessageRequestStatus status);
+    @Param("status") MessageRequestStatus status);
 
 }
