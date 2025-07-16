@@ -8,14 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-public interface MessageRepository extends JpaRepository<Message, String> {
+public interface MessageRepository extends JpaRepository<Message, Long> {
 
   @Query("""
-        select message from Message message 
+        select message from Message message\s
         where message.chat.id = :chatId
         order by message.createdDate
-    """)
-  List<Message> findMessagesByChatId(@Param("chatId") String chatId);
+   \s""")
+  List<Message> findMessagesByChatId(@Param("chatId") Long chatId);
 
   @Query("""
         select count(message) from Message message
@@ -23,7 +23,7 @@ public interface MessageRepository extends JpaRepository<Message, String> {
         and message.sender.id != :userId
         and message.state != com.example.LiveChattingApp.message.MessageState.READ
     """)
-  long countUnreadMessagesByChatIdAndUserId(@Param("chatId") String chatId,
+  long countUnreadMessagesByChatIdAndUserId(@Param("chatId") Long chatId,
                                             @Param("userId") String userId);
 
 
@@ -32,19 +32,22 @@ public interface MessageRepository extends JpaRepository<Message, String> {
         where message.id = :messageId
         and message.state = com.example.LiveChattingApp.message.MessageState.READ
     """)
-  List<Message> findReadMessagesByMessageId(@Param("messageId") String messageId);
+  List<Message> findReadMessagesByMessageId(@Param("messageId") Long messageId);
 
   @Transactional
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query("""
         update Message message
-        set message.state = com.example.LiveChattingApp.message.MessageState.READ
+        set message.state = :readState
         where message.chat.id = :chatId
         and message.sender.id != :userId
-        and message.state != com.example.LiveChattingApp.message.MessageState.READ
+        and message.state != :readState
     """)
-  void markMessagesAsRead(@Param("chatId") String chatId,
-                          @Param("userId") String userId);
+  void markMessagesAsRead(@Param("chatId") Long chatId,
+                          @Param("userId") String userId,
+                          @Param("readState") MessageState readState);
+                          //need to pass the state explicitly in the service
+
 
 }
 
