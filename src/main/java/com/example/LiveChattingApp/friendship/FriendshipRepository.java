@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface FriendshipRepository extends JpaRepository<Friendship, String > {
+public interface FriendshipRepository extends JpaRepository<Friendship, Long > {
 
   @Query("""
     select f from Friendship f

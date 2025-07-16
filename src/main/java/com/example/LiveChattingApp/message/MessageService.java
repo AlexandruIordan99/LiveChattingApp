@@ -95,7 +95,7 @@ public class MessageService {
   }
 
   @Transactional(readOnly = true)
-  public List<MessageResponse> findChatMessages(String chatId, Authentication authentication) {
+  public List<MessageResponse> findChatMessages(Long chatId, Authentication authentication) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
@@ -147,7 +147,7 @@ public class MessageService {
       });
   }
 
-  public void uploadMediaMessage(String chatId, MultipartFile file, Authentication authentication) {
+  public void uploadMediaMessage(Long chatId, MultipartFile file, Authentication authentication) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
@@ -186,14 +186,14 @@ public class MessageService {
       });
   }
 
-  public void markAsRead(String chatId, String userId) {
+  public void markAsRead(Long chatId, String userId) {
     Chat chat = chatRepository.findById(chatId).orElseThrow();
     chat.getLastReadTimestamps().put(userId, LocalDateTime.now());
 
     chatRepository.save(chat);
   }
 
-  public long getUnreadCount(String chatId, String userId) {
+  public long getUnreadCount(Long chatId, String userId) {
     Chat chat = chatRepository.findById(chatId).orElseThrow();
     LocalDateTime lastRead = chat.getLastReadTimestamps().get(userId);
 
@@ -207,7 +207,7 @@ public class MessageService {
 
 
   @Transactional(readOnly = true)
-  public boolean isChatRead(String chatId, String userId) {
+  public boolean isChatRead(Long chatId, String userId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 

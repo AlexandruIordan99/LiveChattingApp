@@ -30,7 +30,7 @@ public class MessageController {
   public ResponseEntity<Void> sendMessage(
     @RequestBody MessageRequest request,
     Authentication authentication,
-    @PathVariable String chatId) {
+    @PathVariable Long chatId) {
     String senderId = authentication.getName();
     String receiverId = request.getReceiverId();
 
@@ -49,7 +49,7 @@ public class MessageController {
 
   @GetMapping("/chat/{chatId}")
   public ResponseEntity<List<MessageResponse>> getChatMessages(
-    @PathVariable String chatId,
+    @PathVariable Long chatId,
     Authentication authentication) {
     List<MessageResponse> messages = messageService.findChatMessages(chatId, authentication);
     return ResponseEntity.ok(messages);
@@ -57,7 +57,7 @@ public class MessageController {
 
   @PostMapping("/chat/{chatId}/{userId}/read")
   public ResponseEntity<Void> markMessagesAsRead(
-    @PathVariable String chatId,
+    @PathVariable Long chatId,
     String userId){
     messageService.markAsRead(chatId, userId);
     return ResponseEntity.ok().build();
@@ -65,7 +65,7 @@ public class MessageController {
 
   @PostMapping("/chat/{chatId}/media")
   public ResponseEntity<Void> uploadMediaMessage(
-    @PathVariable String chatId,
+    @PathVariable Long chatId,
     @Parameter()
     @RequestParam("file") MultipartFile file,
     Authentication authentication) {
@@ -75,7 +75,7 @@ public class MessageController {
 
   @GetMapping("/chat/{chatId}/is-read")
   public ResponseEntity<Boolean> isChatRead(
-    @PathVariable String chatId,
+    @PathVariable Long chatId,
     Authentication authentication) {
     boolean isRead = messageService.isChatRead(chatId, authentication.getName());
     return ResponseEntity.ok(isRead);
@@ -83,7 +83,7 @@ public class MessageController {
 
   @GetMapping("/chat/{chatId}/unread-count")
   public ResponseEntity<Long> getUnreadMessageCount(
-    @PathVariable String chatId,
+    @PathVariable Long chatId,
     Authentication authentication) {
     long unreadCount = messageService.getUnreadCount(chatId, authentication.getName());
     return ResponseEntity.ok(unreadCount);

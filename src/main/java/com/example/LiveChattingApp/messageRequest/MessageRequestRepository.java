@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface MessageRequestRepository extends JpaRepository<MessageRequest, String> {
+public interface MessageRequestRepository extends JpaRepository<MessageRequest, Long> {
 
-  Optional<MessageRequest> findById(MessageRequest messageRequest);
+  Optional<MessageRequest> findById(Long messageRequestId);
 
   @Query("""
       SELECT mr FROM MessageRequest mr

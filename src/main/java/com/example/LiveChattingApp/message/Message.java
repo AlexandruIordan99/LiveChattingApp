@@ -22,7 +22,7 @@ public class Message extends BaseAuditingEntity {
   @Id
   @SequenceGenerator(name = "msg_seq", sequenceName = "msg_seq", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "msg_seq")
-  private String id;
+  private Long id;
   @Column(columnDefinition = "TEXT")
   private String content;
 

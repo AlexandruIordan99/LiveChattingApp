@@ -44,7 +44,7 @@ public class MessageRequestService {
     return messageRequestRepository.save(newRequest);
   }
 
-  public void processMessageRequest(MessageRequest request, String chatId) {
+  public void processMessageRequest(MessageRequest request, Long chatId) {
     if (request.getStatus() == MessageRequestStatus.ACCEPTED) {
       Message message = new Message().builder()
         .sender(userRepository.findById(request.getSenderId())

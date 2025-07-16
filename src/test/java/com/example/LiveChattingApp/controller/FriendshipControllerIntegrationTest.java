@@ -1,6 +1,6 @@
 package com.example.LiveChattingApp.controller;
 
-import com.example.LiveChattingApp.friendship.DTOs.FriendshipRequestDTO;
+import com.example.LiveChattingApp.friendship.FriendshipRequestDTO;
 import com.example.LiveChattingApp.friendship.FriendshipService;
 import com.example.LiveChattingApp.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;

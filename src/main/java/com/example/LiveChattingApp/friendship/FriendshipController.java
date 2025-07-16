@@ -32,7 +32,7 @@ public class FriendshipController {
   @PutMapping("{friendshipId}/accept")
   public ResponseEntity<?> acceptFriendRequest(
     @Valid Authentication authentication,
-    @PathVariable String friendshipId){
+    @PathVariable Long friendshipId){
 
     User user = (User) authentication.getPrincipal();
     String userId = user.getId();
@@ -45,7 +45,7 @@ public class FriendshipController {
   @PutMapping("{friendshipId}/reject")
   public ResponseEntity<Void> rejectFriendRequest
     (@Valid Authentication authentication,
-     @PathVariable String  friendshipId) {
+     @PathVariable Long friendshipId) {
 
     User user = (User) authentication.getPrincipal();
     String userId = user.getId();

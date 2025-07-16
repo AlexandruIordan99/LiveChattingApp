@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class FriendshipResponseDTO {
 
-  private String id;
+  private Long id;
   private String userId;
   private String displayName;
   private String email;

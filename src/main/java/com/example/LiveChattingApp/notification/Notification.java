@@ -11,7 +11,7 @@ import lombok.*;
 
 public class Notification {
 
-  private String chatId;
+  private Long chatId;
   private String content;
   private String senderId;
   private String receiverId;

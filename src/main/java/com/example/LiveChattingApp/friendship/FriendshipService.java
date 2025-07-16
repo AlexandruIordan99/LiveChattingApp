@@ -44,7 +44,7 @@ public class FriendshipService {
   }
 
 
-  public  FriendshipResponseDTO acceptFriendRequest(String  currentUserId, String  friendshipId){
+  public  FriendshipResponseDTO acceptFriendRequest(String  currentUserId, Long  friendshipId){
     Friendship friendship = findFriendshipById(friendshipId);
 
     if(!friendship.getFriend().getId().equals(currentUserId)){
@@ -60,7 +60,7 @@ public class FriendshipService {
     return mapToResponseDto(savedFriendship, currentUserId);
   }
 
-  public void rejectFriendRequest(String  currentUserId, String  friendshipId){
+  public void rejectFriendRequest(String  currentUserId, Long  friendshipId){
     Friendship friendship = findFriendshipById(friendshipId);
 
     if(!friendship.getFriend().getId().equals(currentUserId)){
@@ -148,7 +148,7 @@ public class FriendshipService {
       .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
   }
 
-  private Friendship findFriendshipById(String friendshipId){
+  private Friendship findFriendshipById(Long friendshipId){
     return friendshipRepository.findById(friendshipId)
       .orElseThrow(() -> new FriendshipNotFoundException("Friendship not found with ID: " + friendshipId));
   }

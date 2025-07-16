@@ -20,8 +20,8 @@ import java.time.LocalDateTime;
 public class Friendship {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private String id;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
   @ManyToOne
   @JoinColumn(name = "users_id")
