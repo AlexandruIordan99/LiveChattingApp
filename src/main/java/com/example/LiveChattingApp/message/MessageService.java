@@ -3,6 +3,7 @@ package com.example.LiveChattingApp.message;
 import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.chat.ChatRepository;
 import com.example.LiveChattingApp.chat.ChatService;
+import com.example.LiveChattingApp.chat.ChatType;
 import com.example.LiveChattingApp.file.FileService;
 import com.example.LiveChattingApp.file.FileUtils;
 import com.example.LiveChattingApp.friendship.FriendshipService;
@@ -21,8 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,19 +38,18 @@ public class MessageService {
   private final MessageRequestService messageRequestService;
   private final ChatService chatService;
 
-  public void saveMessage(MessageRequest messageRequest, Authentication authentication) {
+  public void sendMessage(MessageRequest messageRequest, Authentication authentication, Chat chat) {
     String senderId = authentication.getName();
-    String receiverId = chatService.resolveReceiverIdFromChat(messageRequest.getChatId(), senderId);
+    String receiverId = chatService.resolveReceiverIdFromChat(messageRequest.getChat(), senderId);
+    Optional<User> receiver = userRepository.findById(receiverId);
 
-    boolean areFriends = friendshipService.existsFriendshipBetweenUsers(senderId, receiverId);
+    if (chat.getType() == ChatType.DIRECT) {
+      boolean areFriends = friendshipService.existsFriendshipBetweenUsers(senderId, receiverId);
 
-    if (!areFriends) {
-      messageRequestService.getOrCreateMessageRequest(messageRequest, senderId, receiverId);
-      return;
-    }
-
-    Chat chat = chatRepository.findById(messageRequest.getChatId())
-      .orElseThrow(() -> new RuntimeException("Chat not found"));
+      if (!areFriends) {
+        messageRequestService.getOrCreateMessageRequest(messageRequest, senderId, receiverId);
+        return;
+      }
 
     User sender = userRepository.findById(messageRequest.getSenderId())
       .orElseThrow(() -> new RuntimeException("Sender not found"));
@@ -67,6 +66,32 @@ public class MessageService {
 
     markAsRead(chat.getId(), sender.getId());
     sendNotificationsToParticipants(chat, savedMessage, sender);
+  }
+
+    Set<User> chatParticipants = chat.getParticipants();
+    User chatCreator = chat.getCreator();
+    String chatCreatorId = chatCreator.getId();
+
+    for(User currentParticipant: chatParticipants){
+      if (!friendshipService.existsFriendshipBetweenUsers(chatCreatorId, currentParticipant.getId())){
+        messageRequestService.getOrCreateMessageRequest(messageRequest, chatCreatorId, currentParticipant.getId());
+    } else{
+        Message message = Message.builder()
+          .content(messageRequest.getFirstMessages().toString())
+          .chat(chat)
+          .sender(chatCreator)
+          .type(messageRequest.getType())
+          .state(MessageState.SENT)
+          .build();
+
+        Message savedMessage = messageRepository.save(message);
+
+        markAsRead(chat.getId(), currentParticipant.getId());
+        sendNotificationsToParticipants(chat, savedMessage, chatCreator);
+      }
+
+    }
+
   }
 
   @Transactional(readOnly = true)

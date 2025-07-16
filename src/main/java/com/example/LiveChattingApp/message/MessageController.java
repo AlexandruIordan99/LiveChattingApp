@@ -1,5 +1,7 @@
 package com.example.LiveChattingApp.message;
 
+import com.example.LiveChattingApp.chat.Chat;
+import com.example.LiveChattingApp.chat.ChatService;
 import com.example.LiveChattingApp.friendship.FriendshipService;
 import com.example.LiveChattingApp.messageRequest.MessageRequest;
 import com.example.LiveChattingApp.messageRequest.MessageRequestService;
@@ -22,11 +24,13 @@ public class MessageController {
   private final MessageService messageService;
   private final FriendshipService friendshipService;
   private final MessageRequestService messageRequestService;
+  private final ChatService chatService;
 
-  @PostMapping
+  @PostMapping("/chat/{chatId}")
   public ResponseEntity<Void> sendMessage(
     @RequestBody MessageRequest request,
-    Authentication authentication) {
+    Authentication authentication,
+    @PathVariable String chatId) {
     String senderId = authentication.getName();
     String receiverId = request.getReceiverId();
 
@@ -37,7 +41,9 @@ public class MessageController {
       return ResponseEntity.ok().build();
     }
 
-    messageService.saveMessage(request, authentication);
+    Chat chat = chatService.findChatById(chatId);
+
+    messageService.sendMessage(request, authentication, chat);
     return ResponseEntity.ok().build();
   }
 
