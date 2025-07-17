@@ -24,6 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -52,7 +53,6 @@ public class MessageRequestServiceTest {
   private User user2;
   private User user3;
   private Chat directChat;
-  private Chat groupChat;
   private final LocalDateTime testTime = LocalDateTime.now();
   private MessageRequest pendingRequest;
   private MessageRequest acceptedRequest;
@@ -110,33 +110,11 @@ public class MessageRequestServiceTest {
       .messages(new ArrayList<>())
       .build();
 
-    groupChat = Chat.builder()
-      .id(2L)
-      .name("Test Group")
-      .type(ChatType.GROUP)
-      .creator(user1)
-      .participants(Set.of(user1, user2, user3))
-      .adminUserIds(Set.of("1"))
-      .lastReadTimestamps(new HashMap<>())
-      .messages(new ArrayList<>())
-      .build();
-
     directChat = Chat.builder()
       .id(1L)
       .type(ChatType.DIRECT)
       .creator(user1)
       .participants(Set.of(user1, user2))
-      .lastReadTimestamps(new HashMap<>())
-      .messages(new ArrayList<>())
-      .build();
-
-    groupChat = Chat.builder()
-      .id(2L)
-      .name("Test Group")
-      .type(ChatType.GROUP)
-      .creator(user1)
-      .participants(Set.of(user1, user2, user3))
-      .adminUserIds(Set.of("1"))
       .lastReadTimestamps(new HashMap<>())
       .messages(new ArrayList<>())
       .build();
@@ -253,7 +231,7 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void processMessageRequest_WhenRequestIsAccepted_ShouldCreateMessageAndDeleteRequest() {
+  void extractMessageRequestContent_WhenRequestIsAccepted_ShouldCreateMessageAndDeleteRequest() {
     // Act
     Long chatId = 1L;
     when(userRepository.findById("1")).thenReturn(Optional.of(user1));
@@ -263,7 +241,7 @@ public class MessageRequestServiceTest {
     when(messageRepository.save(messageCaptor.capture())).thenReturn(new Message());
 
     // Arrange
-    messageRequestService.processMessageRequest(acceptedRequest, chatId);
+    messageRequestService.extractMessageRequestContent(acceptedRequest, chatId);
 
     //Assert
     Message savedMessage = messageCaptor.getValue();
@@ -274,17 +252,17 @@ public class MessageRequestServiceTest {
 
     verify(userRepository).findById("1");
     verify(chatRepository).findById(chatId);
-    verify(messageRepository).save(any(Message.class));
+    verify(messageRepository, times(2)).save(any(Message.class));
     verify(messageRequestRepository).delete(acceptedRequest);
   }
 
   @Test
-  void processMessageRequest_WhenRequestIsDeclined_ShouldDeleteRequest() {
+  void extractMessageRequestContent_WhenRequestIsDeclined_ShouldDeleteRequest() {
     //Act
     Long chatId = 1L;
 
     //Arrange
-    messageRequestService.processMessageRequest(declinedRequest, chatId);
+    messageRequestService.declineMessageRequest(declinedRequest, chatId);
 
     // Assert
     verify(messageRequestRepository).delete(declinedRequest);
@@ -294,29 +272,26 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void processMessageRequest_WhenRequestIsPending_ShouldDoNothing() {
+  void extractMessageRequestContent_WhenRequestIsPending_ShouldThrowException() {
     //Act
     Long chatId = 1L;
 
-    //Arrange
-    messageRequestService.processMessageRequest(pendingRequest, chatId);
+    //Arrange & Assert
+    assertThatThrownBy(()-> messageRequestService.extractMessageRequestContent(pendingRequest, chatId))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Can only process accepted requests.");
 
-    //Assert
-    verify(messageRequestRepository, never()).delete(any(MessageRequest.class));
-    verify(userRepository, never()).findById(anyString());
-    verify(chatRepository, never()).findById(anyLong());
-    verify(messageRepository, never()).save(any(Message.class));
   }
 
   @Test
-  void processMessageRequest_WhenAcceptedButSenderNotFound_ShouldThrowException() {
+  void extractMessageRequestContent_WhenAcceptedButSenderNotFound_ShouldThrowException() {
     //Arrange
     Long chatId = 1L;
     when(userRepository.findById("1")).thenReturn(Optional.empty());
 
     //Act & Assert
     EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-      messageRequestService.processMessageRequest(acceptedRequest, chatId);
+      messageRequestService.extractMessageRequestContent(acceptedRequest, chatId);
     });
 
     assertEquals("Sender not found.", exception.getMessage());
@@ -327,7 +302,7 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void processMessageRequest_WhenAcceptedButChatNotFound_ShouldThrowException() {
+  void extractMessageRequestContent_WhenAcceptedButChatNotFound_ShouldThrowException() {
     // Arrange
     Long chatId = 1L;
     when(userRepository.findById("1")).thenReturn(Optional.of(user1));
@@ -335,7 +310,7 @@ public class MessageRequestServiceTest {
 
     // Act & Assert
     EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-      messageRequestService.processMessageRequest(acceptedRequest, chatId);
+      messageRequestService.extractMessageRequestContent(acceptedRequest, chatId);
     });
 
     assertEquals("Chat not found.", exception.getMessage());
@@ -346,34 +321,25 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void processMessageRequest_WhenAcceptedWithValidData_ShouldCreateMessageWithCorrectContent() {
-    //Act
-    Long chatId = 1L;
-    List<String> messages = List.of("Hello!", "How are you?", "Nice to meet you!");
-    MessageRequest customRequest = MessageRequest.builder()
-      .id(4L)
-      .senderId("1")
-      .receiverId("2")
-      .status(MessageRequestStatus.ACCEPTED)
+  void test_extractMessageRequestContent() {
+    //Arrange
+    ArrayList<Message> messages = new ArrayList<>(List.of(
+      Message.builder().content("Hello!").sender(user1).build(),
+      Message.builder().content("How are you?").sender(user1).build()
+    ));
+
+    String senderId = "1";
+    String receiverId = "2";
+    MessageRequest newRequest = MessageRequest.builder()
+      .senderId(senderId)
+      .receiverId(receiverId)
+      .status(MessageRequestStatus.PENDING)
       .type(MessageType.TEXT)
-      .firstMessages(new ArrayList<>(List.of(
-        Message.builder().content("Hello!").sender(user1).build(),
-        Message.builder().content("How are you?").sender(user1).build())))
+      .firstMessages(messages)
       .build();
 
-    when(userRepository.findById("1")).thenReturn(Optional.of(user1));
-    when(chatRepository.findById(chatId)).thenReturn(Optional.of(directChat));
-
-    ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
-    when(messageRepository.save(messageCaptor.capture())).thenReturn(new Message());
-
-    //Arrange
-    messageRequestService.processMessageRequest(customRequest, chatId);
-
-    //Assert
-    Message savedMessage = messageCaptor.getValue();
-    assertEquals(messages.toString(), savedMessage.getContent());
-    verify(messageRequestRepository).delete(customRequest);
+    //Act & Assert
+    assertTrue(newRequest.getFirstMessages().containsAll(messages));
   }
 
   @Test
