@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -105,6 +106,10 @@ public class ChatService {
     User userToAdd = userRepository.findById(userId)
       .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+    Set<User> participants = new HashSet<>(chat.getParticipants());
+    participants.add(userToAdd);
+    chat.setParticipants(participants);
+
     chat.getParticipants().add(userToAdd);
     chatRepository.save(chat);
   }
@@ -125,8 +130,14 @@ public class ChatService {
     User userToRemove = userRepository.findById(userId)
       .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-    chat.getParticipants().remove(userToRemove);
-    chat.getAdminUserIds().remove(userId); // Remove admin privileges if they had them
+    Set<User> participants = new HashSet<>(chat.getParticipants());
+    participants.remove(userToRemove);
+    chat.setParticipants(participants);
+
+    Set<String> adminUserIds = new HashSet<>(chat.getAdminUserIds());
+    adminUserIds.remove(userId);
+    chat.setAdminUserIds(adminUserIds);
+
     chatRepository.save(chat);
   }
 
@@ -157,7 +168,10 @@ public class ChatService {
       throw new IllegalArgumentException("User must be a participant to become admin");
     }
 
-    chat.getAdminUserIds().add(userId);
+    Set<String> adminUserIds = new HashSet<>(chat.getAdminUserIds());
+    adminUserIds.add(userId);
+    chat.setAdminUserIds(adminUserIds);
+
     chatRepository.save(chat);
   }
 

@@ -11,10 +11,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -34,11 +31,16 @@ public class Chat extends BaseAuditingEntity {
   private User creator;
   private String name;
 
-  @ManyToMany
-  private Set<User> participants;
+  @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinTable(
+    name = "chat_participants",
+    joinColumns = @JoinColumn(name = "chat_id"),
+    inverseJoinColumns = @JoinColumn(name = "user_id")
+  )
+  private Set<User> participants = new HashSet<>();
 
   @ElementCollection
-  private Set<String> adminUserIds; // Simple set of admin IDs
+  private Set<String> adminUserIds = new HashSet<>(); // Simple set of admin IDs
 
   @Enumerated
   private ChatType type;
