@@ -7,7 +7,7 @@ import com.example.LiveChattingApp.message.MessageType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
+import java.util.ArrayList;
 
 
 @Getter
@@ -36,7 +36,7 @@ public class MessageRequest {
   private MessageRequestStatus status;
   @OneToMany(cascade = CascadeType.ALL)
   @JoinColumn(name = "message_request_id")
-  private List<Message> firstMessages;
+  private ArrayList<Message> firstMessages;
 
 
 
