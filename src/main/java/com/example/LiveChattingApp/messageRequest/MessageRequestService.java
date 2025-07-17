@@ -1,9 +1,11 @@
 package com.example.LiveChattingApp.messageRequest;
 
 
+import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.chat.ChatRepository;
 import com.example.LiveChattingApp.message.Message;
 import com.example.LiveChattingApp.message.MessageRepository;
+import com.example.LiveChattingApp.user.User;
 import com.example.LiveChattingApp.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -44,23 +46,39 @@ public class MessageRequestService {
     return messageRequestRepository.save(newRequest);
   }
 
-  public void processMessageRequest(MessageRequest request, Long chatId) {
-    if (request.getStatus() == MessageRequestStatus.ACCEPTED) {
-      Message message = new Message().builder()
-        .sender(userRepository.findById(request.getSenderId())
-          .orElseThrow(() -> new EntityNotFoundException("Sender not found.")))
-        .chat(chatRepository.findById(chatId)
-          .orElseThrow(() -> new EntityNotFoundException("Chat not found.")))
+  public void extractMessageRequestContent(MessageRequest request, Long chatId) {
+    if(request.getStatus() != MessageRequestStatus.ACCEPTED){
+      throw new IllegalArgumentException("Can only process accepted requests.");
+    }
+
+    User sender = userRepository.findById(request.getSenderId())
+      .orElseThrow(() -> new EntityNotFoundException("Sender not found."));
+    Chat chat =  chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found."));
+
+    for(Message m : request.getFirstMessages()) {
+      Message message = Message.builder()
+        .sender(sender)
+        .chat(chat)
         .content(request.getFirstMessages().toString())
         .build();
 
       messageRepository.save(message);
-      messageRequestRepository.delete(request);
-    } else if (request.getStatus() == MessageRequestStatus.DECLINED) {
-      messageRequestRepository.delete(request);
-    }
 
+    }
+    messageRequestRepository.delete(request);
   }
+
+  public void acceptMessageRequest(MessageRequest request, Long chatId){
+    request.setStatus(MessageRequestStatus.ACCEPTED);
+    messageRequestRepository.save(request);
+  }
+
+  public void declineMessageRequest(MessageRequest request, Long chatId){
+    request.setStatus(MessageRequestStatus.DECLINED);
+    messageRequestRepository.delete(request);
+  }
+
 }
 
 
