@@ -485,7 +485,7 @@ public class ChatServiceTest {
     // Arrange
     Long chatId = 2L;
     String userId = "2";
-    String requestedByUserId = "3"; // not admin
+    String requestedByUserId = "3";
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(groupChat));
 
@@ -503,7 +503,7 @@ public class ChatServiceTest {
 
     Chat testChat = new Chat();
     testChat.setId(chatId);
-    testChat.setAdminUserIds(new HashSet<>(Arrays.asList("2"))); // Mutable set
+    testChat.setAdminUserIds(new HashSet<>(Arrays.asList("2")));
 
     User creator = new User();
     creator.setId("1");
@@ -523,7 +523,7 @@ public class ChatServiceTest {
   void removeAdminRole_ShouldThrowException_WhenTryingToRemoveCreator() {
     // Arrange
     Long chatId = 2L;
-    String userId = "1"; // creator
+    String userId = "1";
     String requestedByUserId = "1";
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(groupChat));
