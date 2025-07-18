@@ -26,24 +26,24 @@ public class MessageController {
   private final MessageRequestService messageRequestService;
   private final ChatService chatService;
 
-  @PostMapping("/chat/{chatId}")
-  public ResponseEntity<Void> sendMessage(
-    @RequestBody MessageRequest request,
+  @PostMapping("/direct-chats/{chatId}")
+  public ResponseEntity<Void> sendDirectMessage(
     Authentication authentication,
     @PathVariable Long chatId) {
     String senderId = authentication.getName();
-    String receiverId = request.getReceiverId();
+    String receiverId = messageService.getMessageReceiverId(senderId, chatId);
 
-    boolean areFriends = friendshipService.existsFriendshipBetweenUsers(senderId, receiverId);
+    messageService.sendDirectMessage(senderId, receiverId, chatId);
+    return ResponseEntity.ok().build();
+  }
 
-    if (!areFriends) {
-      messageRequestService.getOrCreateMessageRequest(request, senderId, receiverId);
-      return ResponseEntity.ok().build();
-    }
+  @PostMapping("/group-chats/{chatId}")
+  public ResponseEntity<Void> sendGroupMessage(
+    Authentication authentication,
+    @PathVariable Long chatId) {
+    String senderId = authentication.getName();
 
-    Chat chat = chatService.findChatById(chatId);
-
-    messageService.sendMessage(request, authentication, chat);
+    messageService.sendGroupMessage(senderId, chatId);
     return ResponseEntity.ok().build();
   }
 
