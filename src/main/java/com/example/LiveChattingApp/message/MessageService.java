@@ -39,7 +39,11 @@ public class MessageService {
   private final MessageRequestService messageRequestService;
   private final ChatService chatService;
 
-  public void sendDirectMessage(String senderId, String receiverId, Long chatId) {
+  public void sendDirectMessage(String senderId, String receiverId, Long chatId, String content) {
+    if (content == null || content.trim().isEmpty()) {
+      throw new IllegalArgumentException("Message content cannot be empty.");
+    }
+
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found."));
 
@@ -55,6 +59,7 @@ public class MessageService {
     Message message = Message.builder()
       .chat(chat)
       .sender(sender)
+      .content(content)
       .type(MessageType.TEXT)
       .state(MessageState.SENT)
       .build();
@@ -80,7 +85,11 @@ public class MessageService {
 
   }
 
-  public void sendGroupMessage(String senderId, Long chatId) {
+  public void sendGroupMessage(String senderId, Long chatId, String content) {
+    if (content == null || content.trim().isEmpty()) {
+      throw new IllegalArgumentException("Message content cannot be empty.");
+    }
+
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(()-> new EntityNotFoundException("Chat not found."));
 
@@ -94,21 +103,32 @@ public class MessageService {
     Set<User> chatParticipants = chat.getParticipants();
     User chatCreator = chat.getCreator();
     String chatCreatorId = chatCreator.getId();
+
+    boolean senderIsParticipant = chatParticipants.stream()
+      .anyMatch(participant -> participant.getId().equals(senderId));
+
+    if (!senderIsParticipant) {
+      throw new RuntimeException("Sender is not a participant in this chat.");
+    }
+
     boolean senderIsCreator = chat.getCreator().getId().equals(senderId);
+
+    Message message = Message.builder()
+      .chat(chat)
+      .sender(sender)
+      .content(content)
+      .type(MessageType.TEXT)
+      .state(MessageState.SENT)
+      .build();
+
+    Message savedMessage = messageRepository.save(message);
+
+    markAsRead(chat.getId(), senderId);
 
     for (User currentParticipant : chatParticipants) {
       if(Objects.equals(currentParticipant.getId(), senderId)){
         continue;
       }
-      Message message = Message.builder()
-        .chat(chat)
-        .sender(sender)
-        .type(MessageType.TEXT)
-        .state(MessageState.SENT)
-        .build();
-
-      Message savedMessage;
-
 
       boolean areFriends = friendshipService.existsFriendshipBetweenUsers(chatCreatorId, currentParticipant.getId());
 
@@ -120,16 +140,17 @@ public class MessageService {
         messageRequestService.addToFirstMessages(request.getId(), message);
         savedMessage = messageRepository.save(message);
 
-        markAsRead(chat.getId(), chatCreatorId);
-        sendNotificationsToParticipants(chat, savedMessage, chatCreator);
+        markAsRead(chat.getId(), senderId);
 
       } else {
         savedMessage = messageRepository.save(message);
 
         markAsRead(chat.getId(), currentParticipant.getId());
-        sendNotificationsToParticipants(chat, savedMessage, chatCreator);
       }
     }
+
+    sendNotificationsToParticipants(chat, savedMessage, chatCreator);
+
 
   }
 
@@ -239,7 +260,6 @@ public class MessageService {
       .build();
 
     Message savedMessage = messageRepository.save(message);
-
 
     Set<User> participants = chat.getParticipants();
 
