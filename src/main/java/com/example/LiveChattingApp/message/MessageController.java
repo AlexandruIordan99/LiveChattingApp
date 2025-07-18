@@ -1,10 +1,6 @@
 package com.example.LiveChattingApp.message;
 
-import com.example.LiveChattingApp.chat.Chat;
-import com.example.LiveChattingApp.chat.ChatService;
-import com.example.LiveChattingApp.friendship.FriendshipService;
-import com.example.LiveChattingApp.messageRequest.MessageRequest;
-import com.example.LiveChattingApp.messageRequest.MessageRequestService;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +18,6 @@ import java.util.List;
 public class MessageController {
 
   private final MessageService messageService;
-  private final FriendshipService friendshipService;
-  private final MessageRequestService messageRequestService;
-  private final ChatService chatService;
 
   @PostMapping("/direct-chats/{chatId}")
   public ResponseEntity<Void> sendDirectMessage(
