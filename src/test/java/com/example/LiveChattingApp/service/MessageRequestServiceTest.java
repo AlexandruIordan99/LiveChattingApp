@@ -151,7 +151,7 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void getOrCreateMessageRequest_WhenExistingRequestExists_ShouldUpdateExistingRequest() {
+  void addMessagesToExistingRequest_ShouldUpdateExistingRequest() {
     //Arrange
     String senderId = "1";
     String receiverId = "2";
@@ -173,7 +173,7 @@ public class MessageRequestServiceTest {
       .thenReturn(pendingRequest);
 
     //Act
-    MessageRequest result = messageRequestService.getOrCreateMessageRequest(newRequest, senderId, receiverId);
+    MessageRequest result = messageRequestService.createMessageRequest(senderId, directChat.getId());
 
 
     //Assert
@@ -186,7 +186,7 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void getOrCreateMessageRequest_WhenNoExistingRequest_ShouldCreateNewRequest() {
+  void test_createMessageRequest_WhenNoExistingRequest_ShouldCreateNewRequest() {
     //Act
     String senderId = "1";
     String receiverId = "2";
@@ -207,7 +207,7 @@ public class MessageRequestServiceTest {
       .thenReturn(newRequest);
 
     //Arrange
-    MessageRequest result = messageRequestService.getOrCreateMessageRequest(newRequest, senderId, receiverId);
+    MessageRequest result = messageRequestService.createMessageRequest(senderId, directChat.getId());
 
 
     //Assert
@@ -231,7 +231,7 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void extractMessageRequestContent_WhenRequestIsAccepted_ShouldCreateMessageAndDeleteRequest() {
+  void test_extractMessageRequestContent_WhenRequestIsAccepted_ShouldCreateMessageAndDeleteRequest() {
     // Act
     Long chatId = 1L;
     when(userRepository.findById("1")).thenReturn(Optional.of(user1));
@@ -257,12 +257,12 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void extractMessageRequestContent_WhenRequestIsDeclined_ShouldDeleteRequest() {
+  void test_extractMessageRequestContent_WhenRequestIsDeclined_ShouldDeleteRequest() {
     //Act
     Long chatId = 1L;
 
     //Arrange
-    messageRequestService.declineMessageRequest(declinedRequest, chatId);
+    messageRequestService.declineMessageRequest(declinedRequest);
 
     // Assert
     verify(messageRequestRepository).delete(declinedRequest);
@@ -272,7 +272,7 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void extractMessageRequestContent_WhenRequestIsPending_ShouldThrowException() {
+  void test_extractMessageRequestContent_WhenRequestIsPending_ShouldThrowException() {
     //Act
     Long chatId = 1L;
 
@@ -284,7 +284,7 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void extractMessageRequestContent_WhenAcceptedButSenderNotFound_ShouldThrowException() {
+  void test_extractMessageRequestContent_WhenAcceptedButSenderNotFound_ShouldThrowException() {
     //Arrange
     Long chatId = 1L;
     when(userRepository.findById("1")).thenReturn(Optional.empty());
@@ -302,7 +302,7 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void extractMessageRequestContent_WhenAcceptedButChatNotFound_ShouldThrowException() {
+  void test_extractMessageRequestContent_WhenAcceptedButChatNotFound_ShouldThrowException() {
     // Arrange
     Long chatId = 1L;
     when(userRepository.findById("1")).thenReturn(Optional.of(user1));
@@ -343,7 +343,7 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void getOrCreateMessageRequest_WhenRequestHasEmptyFirstMessages_ShouldHandleCorrectly() {
+  void test_createMessageRequest_WhenRequestHasEmptyFirstMessages_ShouldHandleCorrectly() {
     //Act
     String senderId = "1";
     String receiverId = "2";
@@ -364,7 +364,7 @@ public class MessageRequestServiceTest {
       .thenReturn(newRequest);
 
     //Arrange
-    MessageRequest result = messageRequestService.getOrCreateMessageRequest(newRequest, senderId, receiverId);
+    MessageRequest result = messageRequestService.createMessageRequest(senderId, directChat.getId());
 
     //Assert
     assertNotNull(result);
