@@ -53,6 +53,7 @@ public class MessageRequestServiceTest {
   private User user2;
   private User user3;
   private Chat directChat;
+  private Chat groupChat;
   private final LocalDateTime testTime = LocalDateTime.now();
   private MessageRequest pendingRequest;
   private MessageRequest acceptedRequest;
@@ -110,11 +111,11 @@ public class MessageRequestServiceTest {
       .messages(new ArrayList<>())
       .build();
 
-    directChat = Chat.builder()
+    groupChat = Chat.builder()
       .id(1L)
       .type(ChatType.DIRECT)
       .creator(user1)
-      .participants(Set.of(user1, user2))
+      .participants(Set.of(user1, user2, user3))
       .lastReadTimestamps(new HashMap<>())
       .messages(new ArrayList<>())
       .build();
@@ -151,83 +152,181 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void addMessagesToExistingRequest_ShouldUpdateExistingRequest() {
-    //Arrange
+  void test_createMessageRequest_WhenChatExists_ShouldCreateNewRequest() {
+    // Arrange
     String senderId = "1";
-    String receiverId = "2";
-    MessageRequest newRequest = MessageRequest.builder()
-      .senderId(senderId)
-      .receiverId(receiverId)
-      .status(MessageRequestStatus.PENDING)
-      .type(MessageType.TEXT)
-      .firstMessages(new ArrayList<>(List.of(
-        Message.builder().content("Hello!").sender(user1).build(),
-        Message.builder().content("How are you?").sender(user1).build()
-      )))
-      .build();
+    Long chatId = 1L;
 
-    when(messageRequestRepository.findBySenderIdAndReceiverIdAndMessageRequestStatus(
-      senderId, receiverId, MessageRequestStatus.PENDING))
-      .thenReturn(Optional.of(pendingRequest));
-    when(messageRequestRepository.save(any(MessageRequest.class)))
-      .thenReturn(pendingRequest);
-
-    //Act
-    MessageRequest result = messageRequestService.createMessageRequest(senderId, directChat.getId());
-
-
-    //Assert
-    assertNotNull(result);
-    assertEquals(4, result.getFirstMessages().size());
-    assertTrue(result.getFirstMessages().stream().anyMatch(msg -> msg.getContent().equals("Hello!")));
-    verify(messageRequestRepository).save(pendingRequest);
-    verify(messageRequestRepository).findBySenderIdAndReceiverIdAndMessageRequestStatus(
-      senderId, receiverId, MessageRequestStatus.PENDING);
-  }
-
-  @Test
-  void test_createMessageRequest_WhenNoExistingRequest_ShouldCreateNewRequest() {
-    //Act
-    String senderId = "1";
-    String receiverId = "2";
-    MessageRequest newRequest = MessageRequest.builder()
-      .senderId(senderId)
-      .receiverId(receiverId)
-      .status(MessageRequestStatus.PENDING)
-      .type(MessageType.TEXT)
-      .firstMessages(new ArrayList<>(List.of(Message.builder().content("Hello!").sender(user1).build())))
-      .build();
-
-    when(messageRequestRepository.findBySenderIdAndReceiverIdAndMessageRequestStatus(
-      senderId, receiverId, MessageRequestStatus.PENDING))
-      .thenReturn(Optional.empty());
+    when(chatRepository.findById(chatId)).thenReturn(Optional.of(directChat));
 
     ArgumentCaptor<MessageRequest> requestCaptor = ArgumentCaptor.forClass(MessageRequest.class);
-    when(messageRequestRepository.save(requestCaptor.capture()))
-      .thenReturn(newRequest);
+    when(messageRequestRepository.save(requestCaptor.capture())).thenReturn(pendingRequest);
 
-    //Arrange
-    MessageRequest result = messageRequestService.createMessageRequest(senderId, directChat.getId());
+    // Act
+    MessageRequest result = messageRequestService.createMessageRequest(senderId, chatId);
 
-
-    //Assert
+    // Assert
     assertNotNull(result);
     MessageRequest savedRequest = requestCaptor.getValue();
     assertEquals(senderId, savedRequest.getSenderId());
-    assertEquals(receiverId, savedRequest.getReceiverId());
+    assertEquals(directChat, savedRequest.getChat());
     assertEquals(MessageRequestStatus.PENDING, savedRequest.getStatus());
-    assertEquals(MessageType.TEXT, savedRequest.getType());
-    assertEquals(1, savedRequest.getFirstMessages().size());
 
-    List<String> messageContents = savedRequest.getFirstMessages().stream()
-      .map(Message::getContent)
-      .toList();
-
-    assertTrue(messageContents.contains("Hello!"));
-
+    verify(chatRepository).findById(chatId);
     verify(messageRequestRepository).save(any(MessageRequest.class));
-    verify(messageRequestRepository).findBySenderIdAndReceiverIdAndMessageRequestStatus(
-      senderId, receiverId, MessageRequestStatus.PENDING);
+  }
+
+  @Test
+  void test_createMessageRequest_WhenChatNotFound_ShouldThrowException() {
+    // Arrange
+    String senderId = "1";
+    Long chatId = 1L;
+
+    when(chatRepository.findById(chatId)).thenReturn(Optional.empty());
+
+    // Act & Assert
+    assertThatThrownBy(() -> messageRequestService.createMessageRequest(senderId, chatId))
+      .isInstanceOf(EntityNotFoundException.class)
+      .hasMessage("Chat not found.");
+
+    verify(chatRepository).findById(chatId);
+    verify(messageRequestRepository, never()).save(any(MessageRequest.class));
+  }
+
+  @Test
+  void test_addToFirstMessages_WhenRequestExists_ShouldAddMessage() {
+    // Arrange
+    Long requestId = 1L;
+    Message newMessage = Message.builder()
+      .content("New message")
+      .sender(user1)
+      .type(MessageType.TEXT)
+      .build();
+
+    when(messageRequestRepository.findById(requestId)).thenReturn(Optional.of(pendingRequest));
+    when(messageRequestRepository.save(any(MessageRequest.class))).thenReturn(pendingRequest);
+
+    // Act
+    messageRequestService.addToFirstMessages(requestId, newMessage);
+
+    // Assert
+    assertTrue(pendingRequest.getFirstMessages().contains(newMessage));
+    assertEquals(3, pendingRequest.getFirstMessages().size());
+    verify(messageRequestRepository).findById(requestId);
+    verify(messageRequestRepository).save(pendingRequest);
+  }
+
+  @Test
+  void test_addToFirstMessages_WhenRequestNotFound_ShouldThrowException() {
+    // Arrange
+    Long requestId = 1L;
+    Message newMessage = Message.builder()
+      .content("New message")
+      .sender(user1)
+      .type(MessageType.TEXT)
+      .build();
+
+    when(messageRequestRepository.findById(requestId)).thenReturn(Optional.empty());
+
+    // Act & Assert
+    assertThatThrownBy(() -> messageRequestService.addToFirstMessages(requestId, newMessage))
+      .isInstanceOf(EntityNotFoundException.class)
+      .hasMessage("Message request not found.");
+
+    verify(messageRequestRepository).findById(requestId);
+    verify(messageRequestRepository, never()).save(any(MessageRequest.class));
+  }
+
+  @Test
+  void test_addToFirstMessages_WhenMaximumMessagesReached_ShouldThrowException() {
+    // Arrange
+    Long requestId = 1L;
+    Message newMessage = Message.builder()
+      .content("New message")
+      .sender(user1)
+      .type(MessageType.TEXT)
+      .build();
+
+    // Create a request with 15 messages (maximum)
+    ArrayList<Message> maxMessages = new ArrayList<>();
+    for (int i = 0; i < 15; i++) {
+      maxMessages.add(Message.builder()
+        .content("Message " + i)
+        .sender(user1)
+        .type(MessageType.TEXT)
+        .build());
+    }
+
+    MessageRequest fullRequest = MessageRequest.builder()
+      .id(requestId)
+      .senderId("1")
+      .chat(directChat)
+      .status(MessageRequestStatus.PENDING)
+      .firstMessages(maxMessages)
+      .build();
+
+    when(messageRequestRepository.findById(requestId)).thenReturn(Optional.of(fullRequest));
+
+    // Act & Assert
+    assertThatThrownBy(() -> messageRequestService.addToFirstMessages(requestId, newMessage))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("You've reached the maximum number of messages before the user accepts your request.");
+
+    verify(messageRequestRepository).findById(requestId);
+    verify(messageRequestRepository, never()).save(any(MessageRequest.class));
+  }
+
+  @Test
+  void test_findExistingRequest_WhenRequestExists_ShouldReturnRequest() {
+    // Arrange
+    String senderId = "1";
+    String receiverId = "2";
+
+    when(messageRequestRepository.findBySenderIdAndReceiverId(senderId, receiverId))
+      .thenReturn(Optional.of(pendingRequest));
+
+    // Act
+    Optional<MessageRequest> result = messageRequestService.findExistingRequest(senderId, receiverId);
+
+    // Assert
+    assertTrue(result.isPresent());
+    assertEquals(pendingRequest, result.get());
+    verify(messageRequestRepository).findBySenderIdAndReceiverId(senderId, receiverId);
+  }
+
+  @Test
+  void test_findExistingRequest_WhenRequestNotExists_ShouldReturnEmpty() {
+    // Arrange
+    String senderId = "1";
+    String receiverId = "2";
+
+    when(messageRequestRepository.findBySenderIdAndReceiverId(senderId, receiverId))
+      .thenReturn(Optional.empty());
+
+    // Act
+    Optional<MessageRequest> result = messageRequestService.findExistingRequest(senderId, receiverId);
+
+    // Assert
+    assertFalse(result.isPresent());
+    verify(messageRequestRepository).findBySenderIdAndReceiverId(senderId, receiverId);
+  }
+
+  @Test
+  void test_extractMessageRequestContent_WhenChatNotFound_ShouldThrowException() {
+    //Arrange
+    Long chatId = 1L;
+    when(userRepository.findById("1")).thenReturn(Optional.of(user1));
+    when(chatRepository.findById(chatId)).thenReturn(Optional.empty());
+    //Act & Assert
+
+    EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+      () -> messageRequestService.extractMessageRequestContent(acceptedRequest, chatId));
+
+    assertEquals("Chat not found.", exception.getMessage());
+    verify(userRepository).findById("1");
+    verify(chatRepository).findById(chatId);
+    verify(messageRepository, never()).save(any(Message.class));
+    verify(messageRequestRepository, never()).delete(any(MessageRequest.class));
   }
 
   @Test
@@ -254,21 +353,6 @@ public class MessageRequestServiceTest {
     verify(chatRepository).findById(chatId);
     verify(messageRepository, times(2)).save(any(Message.class));
     verify(messageRequestRepository).delete(acceptedRequest);
-  }
-
-  @Test
-  void test_extractMessageRequestContent_WhenRequestIsDeclined_ShouldDeleteRequest() {
-    //Act
-    Long chatId = 1L;
-
-    //Arrange
-    messageRequestService.declineMessageRequest(declinedRequest);
-
-    // Assert
-    verify(messageRequestRepository).delete(declinedRequest);
-    verify(userRepository, never()).findById(anyString());
-    verify(chatRepository, never()).findById(anyLong());
-    verify(messageRepository, never()).save(any(Message.class));
   }
 
   @Test
@@ -302,25 +386,6 @@ public class MessageRequestServiceTest {
   }
 
   @Test
-  void test_extractMessageRequestContent_WhenAcceptedButChatNotFound_ShouldThrowException() {
-    // Arrange
-    Long chatId = 1L;
-    when(userRepository.findById("1")).thenReturn(Optional.of(user1));
-    when(chatRepository.findById(chatId)).thenReturn(Optional.empty());
-
-    // Act & Assert
-    EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-      messageRequestService.extractMessageRequestContent(acceptedRequest, chatId);
-    });
-
-    assertEquals("Chat not found.", exception.getMessage());
-    verify(userRepository).findById("1");
-    verify(chatRepository).findById(chatId);
-    verify(messageRepository, never()).save(any(Message.class));
-    verify(messageRequestRepository, never()).delete(any(MessageRequest.class));
-  }
-
-  @Test
   void test_extractMessageRequestContent() {
     //Arrange
     ArrayList<Message> messages = new ArrayList<>(List.of(
@@ -340,37 +405,6 @@ public class MessageRequestServiceTest {
 
     //Act & Assert
     assertTrue(newRequest.getFirstMessages().containsAll(messages));
-  }
-
-  @Test
-  void test_createMessageRequest_WhenRequestHasEmptyFirstMessages_ShouldHandleCorrectly() {
-    //Act
-    String senderId = "1";
-    String receiverId = "2";
-    MessageRequest newRequest = MessageRequest.builder()
-      .senderId(senderId)
-      .receiverId(receiverId)
-      .status(MessageRequestStatus.PENDING)
-      .type(MessageType.TEXT)
-      .firstMessages(new ArrayList<>())
-      .build();
-
-    when(messageRequestRepository.findBySenderIdAndReceiverIdAndMessageRequestStatus(
-      senderId, receiverId, MessageRequestStatus.PENDING))
-      .thenReturn(Optional.empty());
-
-    ArgumentCaptor<MessageRequest> requestCaptor = ArgumentCaptor.forClass(MessageRequest.class);
-    when(messageRequestRepository.save(requestCaptor.capture()))
-      .thenReturn(newRequest);
-
-    //Arrange
-    MessageRequest result = messageRequestService.createMessageRequest(senderId, directChat.getId());
-
-    //Assert
-    assertNotNull(result);
-    MessageRequest savedRequest = requestCaptor.getValue();
-    assertTrue(savedRequest.getFirstMessages().isEmpty());
-    verify(messageRequestRepository).save(any(MessageRequest.class));
   }
 
 
