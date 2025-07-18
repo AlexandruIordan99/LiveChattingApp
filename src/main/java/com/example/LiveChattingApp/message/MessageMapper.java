@@ -20,11 +20,6 @@ public class MessageMapper {
       .mediaFilePath(message.getMediaFilePath())
       .build();
 
-
-    if (message.getReplyTo() != null) {
-      response.setReplyTo(toMessageResponse(message.getReplyTo(), currentUserId));
-    }
-
     return response;
 
   }
