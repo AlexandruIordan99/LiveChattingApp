@@ -7,8 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Set;
-
 
 @Getter
 @Setter
@@ -29,13 +27,6 @@ public class Message extends BaseAuditingEntity {
   @ManyToOne(fetch =FetchType.LAZY)
   @JoinColumn(name ="sender_id", nullable = false)
   private User sender;
-
-  @ManyToOne
-  @JoinColumn(name = "reply_to_id")
-  private Message replyTo;
-
-  @OneToMany(mappedBy = "replyTo")
-  private Set<Message> replies;
 
   private MessageState state;
   private MessageType type;
