@@ -38,58 +38,96 @@ public class MessageService {
   private final MessageRequestService messageRequestService;
   private final ChatService chatService;
 
-  public void sendMessage(MessageRequest messageRequest, Authentication authentication, Chat chat) {
-    String senderId = authentication.getName();
-    String receiverId = chatService.resolveReceiverIdFromChat(messageRequest.getChat(), senderId);
-    Optional<User> receiver = userRepository.findById(receiverId);
+  public void sendDirectTextMessage(String senderId, String receiverId, Long chatId) {
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found."));
 
-    if (chat.getType() == ChatType.DIRECT) {
-      boolean areFriends = friendshipService.existsFriendshipBetweenUsers(senderId, receiverId);
-
-      if (!areFriends) {
-        messageRequestService.getOrCreateMessageRequest(messageRequest, senderId, receiverId);
-        return;
-      }
-
-    User sender = userRepository.findById(messageRequest.getSenderId())
+    User sender = userRepository.findById(senderId)
       .orElseThrow(() -> new RuntimeException("Sender not found"));
 
+    if (chat.getType() != ChatType.DIRECT) {
+      throw new RuntimeException("Send direct message should only be used for direct chats.");
+    }
+
+    boolean areFriends = friendshipService.existsFriendshipBetweenUsers(senderId, receiverId);
+
     Message message = Message.builder()
-      .content(messageRequest.getFirstMessages().toString())
       .chat(chat)
       .sender(sender)
-      .type(messageRequest.getType())
+      .type(MessageType.TEXT)
       .state(MessageState.SENT)
       .build();
 
-    Message savedMessage = messageRepository.save(message);
+    if (areFriends) {
+      messageRepository.save(message);
+    } else {
+      Optional<MessageRequest> existingRequest = messageRequestService.findExistingRequest(senderId, receiverId);
 
-    markAsRead(chat.getId(), sender.getId());
-    sendNotificationsToParticipants(chat, savedMessage, sender);
+      MessageRequest request;
+      if (existingRequest.isPresent()) {
+        request = existingRequest.get();
+      } else {
+        request = messageRequestService.createMessageRequest(senderId, chatId);
+      }
+
+      messageRequestService.addToFirstMessages(request.getId(), message);
+      Message savedMessage = messageRepository.save(message);
+
+      markAsRead(chat.getId(), sender.getId());
+      sendNotificationsToParticipants(chat, savedMessage, sender);
+    }
+
   }
+
+  public void sendGroupMessage(String senderId, Long chatId) {
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(()-> new EntityNotFoundException("Chat not found."));
+
+    if(chat.getType() != ChatType.GROUP){
+      throw  new RuntimeException("Send group message is only allowed for group chats.");
+    }
+
+    User sender = userRepository.findById(senderId)
+      .orElseThrow(() -> new EntityNotFoundException("Sender not found."));
 
     Set<User> chatParticipants = chat.getParticipants();
     User chatCreator = chat.getCreator();
     String chatCreatorId = chatCreator.getId();
+    boolean senderIsCreator = chat.getCreator().getId().equals(senderId);
 
-    for(User currentParticipant: chatParticipants){
-      if (!friendshipService.existsFriendshipBetweenUsers(chatCreatorId, currentParticipant.getId())){
-        messageRequestService.getOrCreateMessageRequest(messageRequest, chatCreatorId, currentParticipant.getId());
-    } else{
-        Message message = Message.builder()
-          .content(messageRequest.getFirstMessages().toString())
-          .chat(chat)
-          .sender(chatCreator)
-          .type(messageRequest.getType())
-          .state(MessageState.SENT)
-          .build();
+    for (User currentParticipant : chatParticipants) {
+      if(Objects.equals(currentParticipant.getId(), senderId)){
+        continue;
+      }
+      Message message = Message.builder()
+        .chat(chat)
+        .sender(sender)
+        .type(MessageType.TEXT)
+        .state(MessageState.SENT)
+        .build();
 
-        Message savedMessage = messageRepository.save(message);
+      Message savedMessage;
+
+
+      boolean areFriends = friendshipService.existsFriendshipBetweenUsers(chatCreatorId, currentParticipant.getId());
+
+       if (senderIsCreator && !areFriends) {
+        MessageRequest request = messageRequestService
+          .findExistingRequest(chatCreatorId, currentParticipant.getId())
+          .orElseGet(() -> messageRequestService.createMessageRequest(chatCreatorId, chatId));
+
+        messageRequestService.addToFirstMessages(request.getId(), message);
+        savedMessage = messageRepository.save(message);
+
+        markAsRead(chat.getId(), chatCreatorId);
+        sendNotificationsToParticipants(chat, savedMessage, chatCreator);
+
+      } else {
+        savedMessage = messageRepository.save(message);
 
         markAsRead(chat.getId(), currentParticipant.getId());
         sendNotificationsToParticipants(chat, savedMessage, chatCreator);
       }
-
     }
 
   }
