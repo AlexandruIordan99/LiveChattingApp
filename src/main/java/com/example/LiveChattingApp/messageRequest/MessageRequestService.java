@@ -11,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 
@@ -24,26 +25,38 @@ public class MessageRequestService {
   private final MessageRepository messageRepository;
   private final ChatRepository chatRepository;
 
-  public MessageRequest getOrCreateMessageRequest(MessageRequest request, String senderId, String receiverId) {
-    Optional<MessageRequest> existingRequest =
-      messageRequestRepository.findBySenderIdAndReceiverIdAndMessageRequestStatus(
-        request.getSenderId(), request.getReceiverId(), MessageRequestStatus.PENDING);
+  public MessageRequest createMessageRequest(String senderId, Long chatId) {
 
-    if (existingRequest.isPresent()) {
-      MessageRequest existing = existingRequest.get();
-      existing.getFirstMessages().addAll(request.getFirstMessages());
-      return messageRequestRepository.save(existing);
-    }
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found."));
 
     MessageRequest newRequest = MessageRequest.builder()
       .senderId(senderId)
-      .receiverId(receiverId)
+      .chat(chat)
       .status(MessageRequestStatus.PENDING)
-      .firstMessages(request.getFirstMessages())
-      .type(request.getType())
       .build();
 
     return messageRequestRepository.save(newRequest);
+  }
+
+  public void addToFirstMessages(Long requestId, Message message){
+
+    MessageRequest request = messageRequestRepository.findById(requestId)
+      .orElseThrow(()-> new EntityNotFoundException("Message request not found."));
+
+    ArrayList<Message> firstMessages = request.getFirstMessages();
+
+    if (firstMessages.size() >= 15){
+      throw new IllegalStateException("You've reached the maximum number " +
+        "of messages before the user accepts your request.");
+    }
+
+    firstMessages.add(message);
+    messageRequestRepository.save(request);
+  }
+
+  public Optional<MessageRequest> findExistingRequest(String senderId, String receiverId) {
+    return messageRequestRepository.findBySenderIdAndReceiverId(senderId, receiverId);
   }
 
   public void extractMessageRequestContent(MessageRequest request, Long chatId) {
@@ -59,6 +72,9 @@ public class MessageRequestService {
     for(Message m : request.getFirstMessages()) {
       Message message = Message.builder()
         .sender(sender)
+        .content(m.getContent())
+        .type(m.getType())
+        .state(m.getState())
         .chat(chat)
         .content(request.getFirstMessages().toString())
         .build();
@@ -69,12 +85,18 @@ public class MessageRequestService {
     messageRequestRepository.delete(request);
   }
 
-  public void acceptMessageRequest(MessageRequest request, Long chatId){
+  public void acceptMessageRequest(MessageRequest request){
+    if(request.getStatus() == MessageRequestStatus.ACCEPTED){
+      return;
+    }
     request.setStatus(MessageRequestStatus.ACCEPTED);
     messageRequestRepository.save(request);
   }
 
-  public void declineMessageRequest(MessageRequest request, Long chatId){
+  public void declineMessageRequest(MessageRequest request){
+    if(request.getStatus() == MessageRequestStatus.DECLINED){
+      return;
+    }
     request.setStatus(MessageRequestStatus.DECLINED);
     messageRequestRepository.delete(request);
   }
