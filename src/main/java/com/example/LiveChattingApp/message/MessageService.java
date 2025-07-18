@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class MessageService {
   private final MessageRequestService messageRequestService;
   private final ChatService chatService;
 
-  public void sendDirectTextMessage(String senderId, String receiverId, Long chatId) {
+  public void sendDirectMessage(String senderId, String receiverId, Long chatId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found."));
 
@@ -129,6 +130,40 @@ public class MessageService {
         sendNotificationsToParticipants(chat, savedMessage, chatCreator);
       }
     }
+
+  }
+
+  public String getMessageReceiverId(String senderId, Long chatId){
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(()-> new EntityNotFoundException("Chat not found"));
+
+    if(chat.getType() !=ChatType.DIRECT){
+      throw new RuntimeException("Please use the get participants method for group chats.");
+    }
+
+
+    User receiver = chat.getParticipants()
+      .stream()
+      .filter(p -> !p.getId().equals(senderId))
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("Receiver not found in the chat."));
+
+    return receiver.getId();
+  }
+
+  public Set<User> getGroupChatParticipantsExceptSender(Long chatId, String senderId){
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(()-> new EntityNotFoundException("Chat not found"));
+
+    if(chat.getType() !=ChatType.GROUP){
+      throw new RuntimeException("Please use the get receiver method for direct chats.");
+    }
+
+    Set<User> participants = chat.getParticipants();
+
+    return participants.stream()
+      .filter(p -> !p.getId().equals(senderId))
+      .collect(Collectors.toSet());
 
   }
 
