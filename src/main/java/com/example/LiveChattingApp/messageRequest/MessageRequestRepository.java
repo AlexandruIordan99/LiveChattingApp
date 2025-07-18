@@ -14,6 +14,8 @@ public interface MessageRequestRepository extends JpaRepository<MessageRequest, 
   @NotNull
   Optional<MessageRequest> findById(@NotNull Long messageRequestId);
 
+  Optional<MessageRequest> findBySenderIdAndReceiverId(String senderId, String receiverId);
+
   @Query("""
       SELECT mr FROM MessageRequest mr
         WHERE ((mr.senderId = :senderId AND mr.receiverId = :receiverId)
