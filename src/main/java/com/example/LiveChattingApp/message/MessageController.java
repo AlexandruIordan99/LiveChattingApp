@@ -1,6 +1,5 @@
 package com.example.LiveChattingApp.message;
 
-
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,21 +21,23 @@ public class MessageController {
   @PostMapping("/direct-chats/{chatId}")
   public ResponseEntity<Void> sendDirectMessage(
     Authentication authentication,
-    @PathVariable Long chatId) {
+    @PathVariable Long chatId,
+    @RequestBody MessageInputDTO messageInput) {
     String senderId = authentication.getName();
     String receiverId = messageService.getMessageReceiverId(senderId, chatId);
 
-    messageService.sendDirectMessage(senderId, receiverId, chatId);
+    messageService.sendDirectMessage(senderId, receiverId, chatId,messageInput.getContent());
     return ResponseEntity.ok().build();
   }
 
   @PostMapping("/group-chats/{chatId}")
   public ResponseEntity<Void> sendGroupMessage(
     Authentication authentication,
-    @PathVariable Long chatId) {
+    @PathVariable Long chatId,
+    @RequestBody MessageInputDTO messageInput) {
     String senderId = authentication.getName();
 
-    messageService.sendGroupMessage(senderId, chatId);
+    messageService.sendGroupMessage(senderId, chatId, messageInput.getContent());
     return ResponseEntity.ok().build();
   }
 
