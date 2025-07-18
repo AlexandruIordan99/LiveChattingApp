@@ -38,7 +38,4 @@ public class MessageRequest {
   @JoinColumn(name = "message_request_id")
   private ArrayList<Message> firstMessages;
 
-
-
-
 }
