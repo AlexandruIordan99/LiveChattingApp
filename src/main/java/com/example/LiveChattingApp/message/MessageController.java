@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/messages")
+@RequestMapping("/messages")
 @RequiredArgsConstructor
 @Tag(name = "Message")
 public class MessageController {

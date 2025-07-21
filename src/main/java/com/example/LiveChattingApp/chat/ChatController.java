@@ -1,13 +1,9 @@
 package com.example.LiveChattingApp.chat;
-import com.example.LiveChattingApp.message.Message;
 import com.example.LiveChattingApp.user.User;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,19 +13,12 @@ import java.util.Set;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/chats")
+@RequestMapping("/chats")
 @RestController
 @Tag(name="Chat")
 public class ChatController {
 
   private final ChatService chatService;
-
-  @MessageMapping("/chat.sendMessage")
-  @SendTo("/topic/public")
-  public Message sendMessage(
-    @Payload Message message){
-      return message;
-  }
 
   @PostMapping("/direct")
   public ResponseEntity<Long> createDirectChat(
@@ -88,6 +77,5 @@ public class ChatController {
     chatService.removeParticipantFromGroup(chatId, authentication.getName(), authentication.getName());
     return ResponseEntity.ok().build();
   }
-
 
 }
