@@ -182,7 +182,7 @@ public class ChatControllerTest {
     //Act & Assert
     mockMvc.perform(post("/chats/{chatId}/participants", chatId)
         .contentType(MediaType.APPLICATION_JSON)
-        .content(userIdToAdd)) // JSON string format for String parameter
+        .content(userIdToAdd))
       .andExpect(status().isOk());
 
     //Verify
