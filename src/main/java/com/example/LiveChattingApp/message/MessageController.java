@@ -1,7 +1,10 @@
 package com.example.LiveChattingApp.message;
 
+import com.example.LiveChattingApp.user.User;
+import com.example.LiveChattingApp.user.UserRepository;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,16 +20,18 @@ import java.util.List;
 public class MessageController {
 
   private final MessageService messageService;
+  private final UserRepository userRepository;
 
   @PostMapping("/direct-chats/{chatId}")
   public ResponseEntity<Void> sendDirectMessage(
     Authentication authentication,
     @PathVariable Long chatId,
     @RequestBody MessageInputDTO messageInput) {
-    String senderId = authentication.getName();
+    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+      .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
     String receiverId = messageService.getMessageReceiverId(senderId, chatId);
 
-    messageService.sendDirectMessage(senderId, receiverId, chatId,messageInput.getContent());
+    messageService.sendDirectMessage(senderId, receiverId, chatId, messageInput.getContent());
     return ResponseEntity.ok().build();
   }
 
@@ -35,7 +40,8 @@ public class MessageController {
     Authentication authentication,
     @PathVariable Long chatId,
     @RequestBody MessageInputDTO messageInput) {
-    String senderId = authentication.getName();
+    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+      .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
 
     messageService.sendGroupMessage(senderId, chatId, messageInput.getContent());
     return ResponseEntity.ok().build();

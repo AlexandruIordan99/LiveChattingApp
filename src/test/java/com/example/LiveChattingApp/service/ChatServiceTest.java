@@ -292,7 +292,6 @@ public class ChatServiceTest {
     Set<String> participantIds = Set.of("2", "999");
 
     when(userRepository.findById(creatorId)).thenReturn(Optional.of(user1));
-    when(userRepository.findById("2")).thenReturn(Optional.of(user2));
     when(userRepository.findById("999")).thenReturn(Optional.empty());
 
     // Act & Assert

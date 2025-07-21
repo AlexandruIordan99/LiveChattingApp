@@ -24,11 +24,10 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long > {
        from Friendship f\s
         where (f.user.id = :userId and f.friend.id = :friendId)\s
            or (f.user.id = :friendId and f.friend.id = :userId)
-       and f.friendshipsStatus = :status
+       and f.friendshipsStatus = 'ACCEPTED'
        \s""")
   boolean existsFriendshipBetweenUsers(@Param("userId") String  userId,
-                                       @Param("friendId") String  friendId,
-                                        @Param("friendshipStatus") FriendshipStatus status);
+                                       @Param("friendId") String  friendId);
 
   @Query("""
     select f from Friendship f

@@ -101,7 +101,7 @@ public class FriendshipServiceTest {
   void testSendFriendRequestSuccess() {
     when(userRepository.findById("1")).thenReturn(Optional.of(user1));
     when(userRepository.findById("2")).thenReturn(Optional.of(user2));
-    when(friendshipRepository.existsFriendshipBetweenUsers("1", "2", FriendshipStatus.ACCEPTED)).thenReturn(false);
+    when(friendshipRepository.existsFriendshipBetweenUsers("1", "2")).thenReturn(false);
     when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
 
 

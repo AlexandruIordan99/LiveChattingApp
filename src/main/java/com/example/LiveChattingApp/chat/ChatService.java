@@ -71,7 +71,6 @@ public class ChatService {
         .orElseThrow(() -> new EntityNotFoundException("User not found: " + id)))
       .collect(Collectors.toSet());
 
-
     participants.add(creator);
 
     Chat chat = Chat.builder()

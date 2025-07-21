@@ -30,4 +30,5 @@ public class ChatControllerTest {
   private UserSynchronizer userSynchronizer;
 
 
+
 }

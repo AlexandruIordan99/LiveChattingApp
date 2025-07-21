@@ -29,7 +29,7 @@ public class User extends BaseAuditingEntity implements UserDetails, Principal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id; //keycloak stores ids as strings in the form of UUIDs
+    private String id; //TO DO: Switch data type to UUID
     private String firstname;
     private String lastname;
     @Column(unique = true)
@@ -85,22 +85,12 @@ public class User extends BaseAuditingEntity implements UserDetails, Principal {
         return email;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
+  @Override
     public boolean isAccountNonLocked() {
         return !accountLocked;
     }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
+  @Override
     public boolean isEnabled() {
         return enabled;
     }

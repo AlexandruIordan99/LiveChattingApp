@@ -154,14 +154,14 @@ public class FriendshipRepositoryTest {
       .build();
     friendshipRepository.save(friendship);
 
-    boolean exists = friendshipRepository.existsFriendshipBetweenUsers(user1.getId(), user2.getId(), FriendshipStatus.ACCEPTED);
+    boolean exists = friendshipRepository.existsFriendshipBetweenUsers(user1.getId(), user2.getId());
 
     Assertions.assertThat(exists).isTrue();
   }
 
   @Test
   void testExistsFriendshipsBetweenUsers_whenFriendshipDoesNotExist(){
-    boolean exists = friendshipRepository.existsFriendshipBetweenUsers(user1.getId(), user2.getId(), FriendshipStatus.ACCEPTED);
+    boolean exists = friendshipRepository.existsFriendshipBetweenUsers(user1.getId(), user2.getId());
 
     Assertions.assertThat(exists).isFalse();
   }

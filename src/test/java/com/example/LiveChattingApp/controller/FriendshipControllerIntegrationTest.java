@@ -68,7 +68,7 @@ public class FriendshipControllerIntegrationTest {
     FriendshipRequestDTO invalidRequest = new FriendshipRequestDTO();
 
     mockMvc.perform(post("/friendship/request")
-        .with(authentication(new MockAuthentication(mockUser)))
+        .with(authentication(new MockAuthenticationUtils.MockAuthentication(mockUser)))
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(invalidRequest)))
       .andExpect(status().isBadRequest());
@@ -80,7 +80,7 @@ public class FriendshipControllerIntegrationTest {
     String malformedJson = "{ invalid json }";
 
     mockMvc.perform(post("/friendship/request")
-        .with(authentication(new MockAuthentication(mockUser)))
+        .with(authentication(new MockAuthenticationUtils.MockAuthentication(mockUser)))
         .contentType(MediaType.APPLICATION_JSON)
         .content(malformedJson))
       .andExpect(status().isBadRequest());
@@ -93,7 +93,8 @@ public class FriendshipControllerIntegrationTest {
     request.setFriendId(String.valueOf(2));
 
     mockMvc.perform(post("/friendship/request")
-        .with(authentication(new MockAuthentication(mockUser)))
+        .with(authentication
+          (new MockAuthenticationUtils.MockAuthentication(mockUser)))
         .content(objectMapper.writeValueAsString(request)))
       .andExpect(status().isUnsupportedMediaType());
   }
@@ -102,7 +103,7 @@ public class FriendshipControllerIntegrationTest {
   @WithMockUser
   void handleInvalidPathVariables() throws Exception {
     mockMvc.perform(put("/friendship/abc/accept")
-        .with(authentication(new MockAuthentication(mockUser))))
+        .with(authentication(new MockAuthenticationUtils.MockAuthentication(mockUser))))
       .andExpect(status().isBadRequest());
   }
 
@@ -110,7 +111,7 @@ public class FriendshipControllerIntegrationTest {
   @WithMockUser
   void handleEmptyPathVariables() throws Exception {
     mockMvc.perform(put("/friendship/accept")
-        .with(authentication(new MockAuthentication(mockUser))))
+        .with(authentication(new MockAuthenticationUtils.MockAuthentication(mockUser))))
       .andExpect(status().isNotFound());
   }
 
@@ -118,7 +119,7 @@ public class FriendshipControllerIntegrationTest {
   @WithMockUser
   void handleMethodNotAllowed() throws Exception {
     mockMvc.perform(get("/friendship/request")
-        .with(authentication(new MockAuthentication(mockUser))))
+        .with(authentication(new MockAuthenticationUtils.MockAuthentication(mockUser))))
       .andExpect(status().isMethodNotAllowed());
   }
 
@@ -126,50 +127,10 @@ public class FriendshipControllerIntegrationTest {
   @WithMockUser
   void handleInvalidHttpMethods() throws Exception {
     mockMvc.perform(patch("/friendship/friendslist")
-        .with(authentication(new MockAuthentication(mockUser))))
+        .with(authentication(new MockAuthenticationUtils.MockAuthentication(mockUser))))
       .andExpect(status().isMethodNotAllowed());
   }
 
-  private static class MockAuthentication implements org.springframework.security.core.Authentication {
-    private final User user;
 
-    public MockAuthentication(User user) {
-      this.user = user;
-    }
-
-    @Override
-    public java.util.Collection<? extends org.springframework.security.core.GrantedAuthority> getAuthorities() {
-      return java.util.Collections.emptyList();
-    }
-
-    @Override
-    public Object getCredentials() {
-      return null;
-    }
-
-    @Override
-    public Object getDetails() {
-      return null;
-    }
-
-    @Override
-    public Object getPrincipal() {
-      return user;
-    }
-
-    @Override
-    public boolean isAuthenticated() {
-      return true;
-    }
-
-    @Override
-    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-    }
-
-    @Override
-    public String getName() {
-      return user.getUsername();
-    }
-  }
 
 }
