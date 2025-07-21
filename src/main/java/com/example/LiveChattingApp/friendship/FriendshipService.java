@@ -33,11 +33,11 @@ public class FriendshipService {
       throw new FriendshipAlreadyExistsException("Friendship already exists between these users.");
     }
 
-    Friendship friendship = new Friendship();
-    friendship.setUser(currentUser);
-    friendship.setFriend(friendUser);
-
-    friendship.setFriendshipsStatus(FriendshipStatus.PENDING);
+    Friendship friendship = Friendship.builder()
+      .user(currentUser)
+      .friend(friendUser)
+      .friendshipsStatus(FriendshipStatus.PENDING)
+      .build();
     Friendship savedFriendship = friendshipRepository.save(friendship);
 
     return mapToResponseDto(savedFriendship, currentUserId);

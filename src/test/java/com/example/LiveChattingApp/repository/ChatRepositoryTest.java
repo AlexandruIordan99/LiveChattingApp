@@ -5,7 +5,6 @@ import com.example.LiveChattingApp.chat.ChatRepository;
 import com.example.LiveChattingApp.chat.ChatType;
 import com.example.LiveChattingApp.user.User;
 import com.example.LiveChattingApp.user.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

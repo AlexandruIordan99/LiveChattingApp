@@ -150,8 +150,6 @@ public class MessageService {
     }
 
     sendNotificationsToParticipants(chat, savedMessage, chatCreator);
-
-
   }
 
   public String getMessageReceiverId(String senderId, Long chatId){
