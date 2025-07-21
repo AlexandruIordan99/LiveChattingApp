@@ -70,6 +70,12 @@ public class Chat extends BaseAuditingEntity {
       .anyMatch(p -> p.getId().equals(userId));
   }
 
+  public boolean isParticipant(User user){
+    return participants.stream()
+      .anyMatch(p -> p.equals(user));
+  }
+
+
   public User getOtherParticipant(String userId) {
     if (type != ChatType.DIRECT) {
       throw new IllegalStateException("This method is only for direct chats");

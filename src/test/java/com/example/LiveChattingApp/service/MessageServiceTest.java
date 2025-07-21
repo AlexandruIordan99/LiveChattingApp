@@ -417,13 +417,13 @@ public class MessageServiceTest {
     List<Message> messages = Arrays.asList(message);
     MessageResponse messageResponse = new MessageResponse();
 
-    when(authentication.getName()).thenReturn(userId);
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(directChat));
+    when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
     when(messageRepository.findMessagesByChatId(chatId)).thenReturn(messages);
     when(mapper.toMessageResponse(any(Message.class), eq(userId))).thenReturn(messageResponse);
 
     // Act
-    List<MessageResponse> result = messageService.findChatMessages(chatId, authentication);
+    List<MessageResponse> result = messageService.findChatMessages(chatId,"1");
 
     // Assert
     assertEquals(1, result.size());
@@ -437,12 +437,11 @@ public class MessageServiceTest {
     Long chatId = 1L;
     String userId = "999";
 
-    when(authentication.getName()).thenReturn(userId);
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(directChat));
 
     // Act & Assert
     assertThrows(RuntimeException.class, () ->
-      messageService.findChatMessages(chatId, authentication));
+      messageService.findChatMessages(chatId, "1"));
   }
 
   @Test
@@ -452,14 +451,13 @@ public class MessageServiceTest {
     String senderId = "1";
     String filePath = "/path/to/file.jpg";
 
-    when(authentication.getName()).thenReturn(senderId);
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(directChat));
     when(userRepository.findById(senderId)).thenReturn(Optional.of(user1));
     when(fileService.saveFile(multipartFile, senderId)).thenReturn(filePath);
     when(messageRepository.save(any(Message.class))).thenReturn(message);
 
     // Act
-    messageService.uploadMediaMessage(chatId, multipartFile, authentication);
+    messageService.uploadMediaMessage(chatId, multipartFile, senderId);
 
     // Assert
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);

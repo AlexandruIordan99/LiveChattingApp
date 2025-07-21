@@ -187,17 +187,20 @@ public class MessageService {
   }
 
   @Transactional(readOnly = true)
-  public List<MessageResponse> findChatMessages(Long chatId, Authentication authentication) {
+  public List<MessageResponse> findChatMessages(Long chatId, String senderId){
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
-    if (!chat.isParticipant(authentication.getName())) {
+    User user = userRepository.findById(senderId)
+      .orElseThrow(()-> new EntityNotFoundException("User not found."));
+
+    if (!chat.isParticipant(user)) {
       throw new RuntimeException("User is not a participant of this chat");
     }
 
     return messageRepository.findMessagesByChatId(chatId)
       .stream()
-      .map(message -> mapper.toMessageResponse(message, authentication.getName()))
+      .map(message -> mapper.toMessageResponse(message, senderId))
       .toList();
   }
 
@@ -239,11 +242,10 @@ public class MessageService {
       });
   }
 
-  public void uploadMediaMessage(Long chatId, MultipartFile file, Authentication authentication) {
+  public void uploadMediaMessage(Long chatId, MultipartFile file, String senderId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
-    final String senderId = authentication.getName();
     User sender = userRepository.findById(senderId)
       .orElseThrow(() -> new EntityNotFoundException("Sender not found"));
 
@@ -278,22 +280,23 @@ public class MessageService {
   }
 
   public void markAsRead(Long chatId, String userId) {
-    Chat chat = chatRepository.findById(chatId).orElseThrow();
+    Chat chat = chatRepository.findById(chatId)
+      .orElseThrow(() -> new EntityNotFoundException("Chat not found."));
     chat.getLastReadTimestamps().put(userId, LocalDateTime.now());
 
     chatRepository.save(chat);
   }
 
-  public long getUnreadCount(Long chatId, String userId) {
+  public Integer getUnreadCount(Long chatId, String userId) {
     Chat chat = chatRepository.findById(chatId).orElseThrow();
     LocalDateTime lastRead = chat.getLastReadTimestamps().get(userId);
 
     if (lastRead == null) return chat.getMessages().size();
 
-    return chat.getMessages().stream()
+    return Math.toIntExact(chat.getMessages().stream()
       .filter(m -> m.getCreatedDate().isAfter(lastRead))
       .filter(m -> !m.getSender().getId().equals(userId)) // Don't count own messages
-      .count();
+      .count());
   }
 
 

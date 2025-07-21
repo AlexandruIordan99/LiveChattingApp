@@ -51,25 +51,35 @@ public class MessageController {
   public ResponseEntity<List<MessageResponse>> getChatMessages(
     @PathVariable Long chatId,
     Authentication authentication) {
-    List<MessageResponse> messages = messageService.findChatMessages(chatId, authentication);
+    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+      .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
+
+    List<MessageResponse> messages = messageService.findChatMessages(chatId, senderId);
     return ResponseEntity.ok(messages);
   }
 
-  @PostMapping("/chat/{chatId}/{userId}/read")
+  @PostMapping("/chat/{chatId}/read")
   public ResponseEntity<Void> markMessagesAsRead(
     @PathVariable Long chatId,
-    String userId){
-    messageService.markAsRead(chatId, userId);
+    Authentication authentication){
+
+    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+      .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
+
+    messageService.markAsRead(chatId, senderId);
     return ResponseEntity.ok().build();
   }
 
   @PostMapping("/chat/{chatId}/media")
   public ResponseEntity<Void> uploadMediaMessage(
     @PathVariable Long chatId,
-    @Parameter()
     @RequestParam("file") MultipartFile file,
     Authentication authentication) {
-    messageService.uploadMediaMessage(chatId, file, authentication);
+
+    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+      .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
+
+    messageService.uploadMediaMessage(chatId, file, senderId);
     return ResponseEntity.ok().build();
   }
 
@@ -77,15 +87,21 @@ public class MessageController {
   public ResponseEntity<Boolean> isChatRead(
     @PathVariable Long chatId,
     Authentication authentication) {
-    boolean isRead = messageService.isChatRead(chatId, authentication.getName());
+
+    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+      .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
+
+    boolean isRead = messageService.isChatRead(chatId, senderId);
     return ResponseEntity.ok(isRead);
   }
 
   @GetMapping("/chat/{chatId}/unread-count")
-  public ResponseEntity<Long> getUnreadMessageCount(
+  public ResponseEntity<Integer> getUnreadMessageCount(
     @PathVariable Long chatId,
     Authentication authentication) {
-    long unreadCount = messageService.getUnreadCount(chatId, authentication.getName());
+    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+      .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
+    Integer unreadCount = messageService.getUnreadCount(chatId, senderId);
     return ResponseEntity.ok(unreadCount);
   }
 
