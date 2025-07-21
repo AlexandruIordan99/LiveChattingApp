@@ -10,7 +10,7 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface GetUnreadMessageCount$Params {
-  chatId: string;
+  chatId: number;
 }
 
 export function getUnreadMessageCount(http: HttpClient, rootUrl: string, params: GetUnreadMessageCount$Params, context?: HttpContext): Observable<StrictHttpResponse<number>> {
@@ -29,4 +29,4 @@ export function getUnreadMessageCount(http: HttpClient, rootUrl: string, params:
   );
 }
 
-getUnreadMessageCount.PATH = '/api/v1/messages/chat/{chatId}/unread-count';
+getUnreadMessageCount.PATH = '/messages/chat/{chatId}/unread-count';

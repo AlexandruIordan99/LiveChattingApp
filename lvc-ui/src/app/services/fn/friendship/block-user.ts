@@ -29,4 +29,4 @@ export function blockUser(http: HttpClient, rootUrl: string, params: BlockUser$P
   );
 }
 
-blockUser.PATH = '/friend/block/{userToBlockId}';
+blockUser.PATH = '/friendship/block/{userToBlockId}';

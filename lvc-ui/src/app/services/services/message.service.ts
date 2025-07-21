@@ -20,8 +20,10 @@ import { IsChatRead$Params } from '../fn/message/is-chat-read';
 import { markMessagesAsRead } from '../fn/message/mark-messages-as-read';
 import { MarkMessagesAsRead$Params } from '../fn/message/mark-messages-as-read';
 import { MessageResponse } from '../models/message-response';
-import { sendMessage } from '../fn/message/send-message';
-import { SendMessage$Params } from '../fn/message/send-message';
+import { sendDirectMessage } from '../fn/message/send-direct-message';
+import { SendDirectMessage$Params } from '../fn/message/send-direct-message';
+import { sendGroupMessage } from '../fn/message/send-group-message';
+import { SendGroupMessage$Params } from '../fn/message/send-group-message';
 import { uploadMediaMessage } from '../fn/message/upload-media-message';
 import { UploadMediaMessage$Params } from '../fn/message/upload-media-message';
 
@@ -31,33 +33,58 @@ export class MessageService extends BaseService {
     super(config, http);
   }
 
-  /** Path part for operation `sendMessage()` */
-  static readonly SendMessagePath = '/api/v1/messages';
+  /** Path part for operation `sendGroupMessage()` */
+  static readonly SendGroupMessagePath = '/messages/group-chats/{chatId}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `sendMessage()` instead.
+   * To access only the response body, use `sendGroupMessage()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  sendMessage$Response(params: SendMessage$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-    return sendMessage(this.http, this.rootUrl, params, context);
+  sendGroupMessage$Response(params: SendGroupMessage$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+    return sendGroupMessage(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `sendMessage$Response()` instead.
+   * To access the full response (for headers, for example), `sendGroupMessage$Response()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  sendMessage(params: SendMessage$Params, context?: HttpContext): Observable<void> {
-    return this.sendMessage$Response(params, context).pipe(
+  sendGroupMessage(params: SendGroupMessage$Params, context?: HttpContext): Observable<void> {
+    return this.sendGroupMessage$Response(params, context).pipe(
+      map((r: StrictHttpResponse<void>): void => r.body)
+    );
+  }
+
+  /** Path part for operation `sendDirectMessage()` */
+  static readonly SendDirectMessagePath = '/messages/direct-chats/{chatId}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `sendDirectMessage()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  sendDirectMessage$Response(params: SendDirectMessage$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+    return sendDirectMessage(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `sendDirectMessage$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  sendDirectMessage(params: SendDirectMessage$Params, context?: HttpContext): Observable<void> {
+    return this.sendDirectMessage$Response(params, context).pipe(
       map((r: StrictHttpResponse<void>): void => r.body)
     );
   }
 
   /** Path part for operation `markMessagesAsRead()` */
-  static readonly MarkMessagesAsReadPath = '/api/v1/messages/chat/{chatId}/{userId}/read';
+  static readonly MarkMessagesAsReadPath = '/messages/chat/{chatId}/read';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -82,7 +109,7 @@ export class MessageService extends BaseService {
   }
 
   /** Path part for operation `uploadMediaMessage()` */
-  static readonly UploadMediaMessagePath = '/api/v1/messages/chat/{chatId}/media';
+  static readonly UploadMediaMessagePath = '/messages/chat/{chatId}/media';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -107,7 +134,7 @@ export class MessageService extends BaseService {
   }
 
   /** Path part for operation `getChatMessages()` */
-  static readonly GetChatMessagesPath = '/api/v1/messages/chat/{chatId}';
+  static readonly GetChatMessagesPath = '/messages/chat/{chatId}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -132,7 +159,7 @@ export class MessageService extends BaseService {
   }
 
   /** Path part for operation `getUnreadMessageCount()` */
-  static readonly GetUnreadMessageCountPath = '/api/v1/messages/chat/{chatId}/unread-count';
+  static readonly GetUnreadMessageCountPath = '/messages/chat/{chatId}/unread-count';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -157,7 +184,7 @@ export class MessageService extends BaseService {
   }
 
   /** Path part for operation `isChatRead()` */
-  static readonly IsChatReadPath = '/api/v1/messages/chat/{chatId}/is-read';
+  static readonly IsChatReadPath = '/messages/chat/{chatId}/is-read';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.

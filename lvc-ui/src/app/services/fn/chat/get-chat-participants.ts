@@ -8,13 +8,13 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { User } from '../../models/user';
+import { UserDto } from '../../models/user-dto';
 
 export interface GetChatParticipants$Params {
-  chatId: string;
+  chatId: number;
 }
 
-export function getChatParticipants(http: HttpClient, rootUrl: string, params: GetChatParticipants$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<User>>> {
+export function getChatParticipants(http: HttpClient, rootUrl: string, params: GetChatParticipants$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<UserDto>>> {
   const rb = new RequestBuilder(rootUrl, getChatParticipants.PATH, 'get');
   if (params) {
     rb.path('chatId', params.chatId, {});
@@ -25,9 +25,9 @@ export function getChatParticipants(http: HttpClient, rootUrl: string, params: G
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Array<User>>;
+      return r as StrictHttpResponse<Array<UserDto>>;
     })
   );
 }
 
-getChatParticipants.PATH = '/api/v1/chats/{chatId}/participants';
+getChatParticipants.PATH = '/chats/{chatId}/participants';

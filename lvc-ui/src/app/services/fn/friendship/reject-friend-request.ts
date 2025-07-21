@@ -10,7 +10,7 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface RejectFriendRequest$Params {
-  friendshipId: string;
+  friendshipId: number;
 }
 
 export function rejectFriendRequest(http: HttpClient, rootUrl: string, params: RejectFriendRequest$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
@@ -29,4 +29,4 @@ export function rejectFriendRequest(http: HttpClient, rootUrl: string, params: R
   );
 }
 
-rejectFriendRequest.PATH = '/friend/{friendshipId}/reject';
+rejectFriendRequest.PATH = '/friendship/{friendshipId}/reject';

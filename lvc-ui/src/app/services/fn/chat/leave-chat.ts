@@ -10,7 +10,7 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface LeaveChat$Params {
-  chatId: string;
+  chatId: number;
 }
 
 export function leaveChat(http: HttpClient, rootUrl: string, params: LeaveChat$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
@@ -29,4 +29,4 @@ export function leaveChat(http: HttpClient, rootUrl: string, params: LeaveChat$P
   );
 }
 
-leaveChat.PATH = '/api/v1/chats/{chatId}/leave';
+leaveChat.PATH = '/chats/{chatId}/leave';

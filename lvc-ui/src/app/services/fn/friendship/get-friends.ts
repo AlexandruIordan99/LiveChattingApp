@@ -28,4 +28,4 @@ export function getFriends(http: HttpClient, rootUrl: string, params?: GetFriend
   );
 }
 
-getFriends.PATH = '/friend/friendlist';
+getFriends.PATH = '/friendship/friendslist';

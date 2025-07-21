@@ -8,15 +8,17 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { MessageRequest } from '../../models/message-request';
+import { MessageInputDto } from '../../models/message-input-dto';
 
-export interface SendMessage$Params {
-      body: MessageRequest
+export interface SendDirectMessage$Params {
+  chatId: number;
+      body: MessageInputDto
 }
 
-export function sendMessage(http: HttpClient, rootUrl: string, params: SendMessage$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-  const rb = new RequestBuilder(rootUrl, sendMessage.PATH, 'post');
+export function sendDirectMessage(http: HttpClient, rootUrl: string, params: SendDirectMessage$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  const rb = new RequestBuilder(rootUrl, sendDirectMessage.PATH, 'post');
   if (params) {
+    rb.path('chatId', params.chatId, {});
     rb.body(params.body, 'application/json');
   }
 
@@ -30,4 +32,4 @@ export function sendMessage(http: HttpClient, rootUrl: string, params: SendMessa
   );
 }
 
-sendMessage.PATH = '/api/v1/messages';
+sendDirectMessage.PATH = '/messages/direct-chats/{chatId}';

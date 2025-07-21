@@ -11,7 +11,7 @@ import { RequestBuilder } from '../../request-builder';
 import { MessageResponse } from '../../models/message-response';
 
 export interface GetChatMessages$Params {
-  chatId: string;
+  chatId: number;
 }
 
 export function getChatMessages(http: HttpClient, rootUrl: string, params: GetChatMessages$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<MessageResponse>>> {
@@ -30,4 +30,4 @@ export function getChatMessages(http: HttpClient, rootUrl: string, params: GetCh
   );
 }
 
-getChatMessages.PATH = '/api/v1/messages/chat/{chatId}';
+getChatMessages.PATH = '/messages/chat/{chatId}';

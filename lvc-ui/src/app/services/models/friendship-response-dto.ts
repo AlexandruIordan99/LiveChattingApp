@@ -6,7 +6,7 @@ export interface FriendshipResponseDto {
   createdAt?: string;
   displayName?: string;
   email?: string;
-  id?: string;
+  id?: number;
   requester?: boolean;
   status?: string;
   userId?: string;

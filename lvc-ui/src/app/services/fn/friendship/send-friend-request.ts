@@ -31,4 +31,4 @@ export function sendFriendRequest(http: HttpClient, rootUrl: string, params: Sen
   );
 }
 
-sendFriendRequest.PATH = '/friend/request';
+sendFriendRequest.PATH = '/friendship/request';

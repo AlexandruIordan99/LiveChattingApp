@@ -10,7 +10,7 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface RemoveParticipant$Params {
-  chatId: string;
+  chatId: number;
   userId: string;
 }
 
@@ -31,4 +31,4 @@ export function removeParticipant(http: HttpClient, rootUrl: string, params: Rem
   );
 }
 
-removeParticipant.PATH = '/api/v1/chats/{chatId}/participants/{userId}';
+removeParticipant.PATH = '/chats/{chatId}/participants/{userId}';

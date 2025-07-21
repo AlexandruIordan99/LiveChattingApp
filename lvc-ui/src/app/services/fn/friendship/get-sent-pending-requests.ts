@@ -28,4 +28,4 @@ export function getSentPendingRequests(http: HttpClient, rootUrl: string, params
   );
 }
 
-getSentPendingRequests.PATH = '/friend/sent-pending-requests';
+getSentPendingRequests.PATH = '/friendship/sent-pending-requests';

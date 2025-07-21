@@ -10,7 +10,7 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface UploadMediaMessage$Params {
-  chatId: string;
+  chatId: number;
       body?: {
 'file': Blob;
 }
@@ -33,4 +33,4 @@ export function uploadMediaMessage(http: HttpClient, rootUrl: string, params: Up
   );
 }
 
-uploadMediaMessage.PATH = '/api/v1/messages/chat/{chatId}/media';
+uploadMediaMessage.PATH = '/messages/chat/{chatId}/media';

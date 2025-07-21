@@ -8,15 +8,16 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { UserDto } from '../../models/user-dto';
 
 export interface CreateDirectChat$Params {
-  receiverId: string;
+      body: UserDto
 }
 
-export function createDirectChat(http: HttpClient, rootUrl: string, params: CreateDirectChat$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
+export function createDirectChat(http: HttpClient, rootUrl: string, params: CreateDirectChat$Params, context?: HttpContext): Observable<StrictHttpResponse<number>> {
   const rb = new RequestBuilder(rootUrl, createDirectChat.PATH, 'post');
   if (params) {
-    rb.query('receiverId', params.receiverId, {});
+    rb.body(params.body, 'application/json');
   }
 
   return http.request(
@@ -24,9 +25,9 @@ export function createDirectChat(http: HttpClient, rootUrl: string, params: Crea
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<string>;
+      return (r as HttpResponse<any>).clone({ body: parseFloat(String((r as HttpResponse<any>).body)) }) as StrictHttpResponse<number>;
     })
   );
 }
 
-createDirectChat.PATH = '/api/v1/chats/direct';
+createDirectChat.PATH = '/chats/direct';

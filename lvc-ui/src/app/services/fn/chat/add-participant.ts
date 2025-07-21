@@ -10,7 +10,7 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface AddParticipant$Params {
-  chatId: string;
+  chatId: number;
       body: string
 }
 
@@ -31,4 +31,4 @@ export function addParticipant(http: HttpClient, rootUrl: string, params: AddPar
   );
 }
 
-addParticipant.PATH = '/api/v1/chats/{chatId}/participants';
+addParticipant.PATH = '/chats/{chatId}/participants';

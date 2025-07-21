@@ -29,4 +29,4 @@ export function removeFriend(http: HttpClient, rootUrl: string, params: RemoveFr
   );
 }
 
-removeFriend.PATH = '/friend/friends/{friendId}';
+removeFriend.PATH = '/friendship/friends/{friendId}';

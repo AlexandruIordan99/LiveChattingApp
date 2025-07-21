@@ -23,7 +23,7 @@ import { leaveChat } from '../fn/chat/leave-chat';
 import { LeaveChat$Params } from '../fn/chat/leave-chat';
 import { removeParticipant } from '../fn/chat/remove-participant';
 import { RemoveParticipant$Params } from '../fn/chat/remove-participant';
-import { User } from '../models/user';
+import { UserDto } from '../models/user-dto';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService extends BaseService {
@@ -32,7 +32,7 @@ export class ChatService extends BaseService {
   }
 
   /** Path part for operation `getChatParticipants()` */
-  static readonly GetChatParticipantsPath = '/api/v1/chats/{chatId}/participants';
+  static readonly GetChatParticipantsPath = '/chats/{chatId}/participants';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -40,7 +40,7 @@ export class ChatService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  getChatParticipants$Response(params: GetChatParticipants$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<User>>> {
+  getChatParticipants$Response(params: GetChatParticipants$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<UserDto>>> {
     return getChatParticipants(this.http, this.rootUrl, params, context);
   }
 
@@ -50,14 +50,14 @@ export class ChatService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  getChatParticipants(params: GetChatParticipants$Params, context?: HttpContext): Observable<Array<User>> {
+  getChatParticipants(params: GetChatParticipants$Params, context?: HttpContext): Observable<Array<UserDto>> {
     return this.getChatParticipants$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Array<User>>): Array<User> => r.body)
+      map((r: StrictHttpResponse<Array<UserDto>>): Array<UserDto> => r.body)
     );
   }
 
   /** Path part for operation `addParticipant()` */
-  static readonly AddParticipantPath = '/api/v1/chats/{chatId}/participants';
+  static readonly AddParticipantPath = '/chats/{chatId}/participants';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -82,7 +82,7 @@ export class ChatService extends BaseService {
   }
 
   /** Path part for operation `leaveChat()` */
-  static readonly LeaveChatPath = '/api/v1/chats/{chatId}/leave';
+  static readonly LeaveChatPath = '/chats/{chatId}/leave';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -107,7 +107,7 @@ export class ChatService extends BaseService {
   }
 
   /** Path part for operation `createGroupChat()` */
-  static readonly CreateGroupChatPath = '/api/v1/chats/group';
+  static readonly CreateGroupChatPath = '/chats/group';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -115,7 +115,7 @@ export class ChatService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  createGroupChat$Response(params: CreateGroupChat$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
+  createGroupChat$Response(params: CreateGroupChat$Params, context?: HttpContext): Observable<StrictHttpResponse<number>> {
     return createGroupChat(this.http, this.rootUrl, params, context);
   }
 
@@ -125,22 +125,22 @@ export class ChatService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  createGroupChat(params: CreateGroupChat$Params, context?: HttpContext): Observable<string> {
+  createGroupChat(params: CreateGroupChat$Params, context?: HttpContext): Observable<number> {
     return this.createGroupChat$Response(params, context).pipe(
-      map((r: StrictHttpResponse<string>): string => r.body)
+      map((r: StrictHttpResponse<number>): number => r.body)
     );
   }
 
   /** Path part for operation `createDirectChat()` */
-  static readonly CreateDirectChatPath = '/api/v1/chats/direct';
+  static readonly CreateDirectChatPath = '/chats/direct';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `createDirectChat()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `application/json` and handles request body of type `application/json`.
    */
-  createDirectChat$Response(params: CreateDirectChat$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
+  createDirectChat$Response(params: CreateDirectChat$Params, context?: HttpContext): Observable<StrictHttpResponse<number>> {
     return createDirectChat(this.http, this.rootUrl, params, context);
   }
 
@@ -148,16 +148,16 @@ export class ChatService extends BaseService {
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `createDirectChat$Response()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `application/json` and handles request body of type `application/json`.
    */
-  createDirectChat(params: CreateDirectChat$Params, context?: HttpContext): Observable<string> {
+  createDirectChat(params: CreateDirectChat$Params, context?: HttpContext): Observable<number> {
     return this.createDirectChat$Response(params, context).pipe(
-      map((r: StrictHttpResponse<string>): string => r.body)
+      map((r: StrictHttpResponse<number>): number => r.body)
     );
   }
 
   /** Path part for operation `removeParticipant()` */
-  static readonly RemoveParticipantPath = '/api/v1/chats/{chatId}/participants/{userId}';
+  static readonly RemoveParticipantPath = '/chats/{chatId}/participants/{userId}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.

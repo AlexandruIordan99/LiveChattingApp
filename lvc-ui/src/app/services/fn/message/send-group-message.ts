@@ -8,15 +8,18 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { MessageInputDto } from '../../models/message-input-dto';
 
-export interface MarkMessagesAsRead$Params {
+export interface SendGroupMessage$Params {
   chatId: number;
+      body: MessageInputDto
 }
 
-export function markMessagesAsRead(http: HttpClient, rootUrl: string, params: MarkMessagesAsRead$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-  const rb = new RequestBuilder(rootUrl, markMessagesAsRead.PATH, 'post');
+export function sendGroupMessage(http: HttpClient, rootUrl: string, params: SendGroupMessage$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  const rb = new RequestBuilder(rootUrl, sendGroupMessage.PATH, 'post');
   if (params) {
     rb.path('chatId', params.chatId, {});
+    rb.body(params.body, 'application/json');
   }
 
   return http.request(
@@ -29,4 +32,4 @@ export function markMessagesAsRead(http: HttpClient, rootUrl: string, params: Ma
   );
 }
 
-markMessagesAsRead.PATH = '/messages/chat/{chatId}/read';
+sendGroupMessage.PATH = '/messages/group-chats/{chatId}';

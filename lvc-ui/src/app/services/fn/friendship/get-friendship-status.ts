@@ -29,4 +29,4 @@ export function getFriendshipStatus(http: HttpClient, rootUrl: string, params: G
   );
 }
 
-getFriendshipStatus.PATH = '/friend/friendship-status/{friendId}';
+getFriendshipStatus.PATH = '/friendship/friendship-status/{friendId}';

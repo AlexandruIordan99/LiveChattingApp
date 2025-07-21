@@ -28,4 +28,4 @@ export function getBlockedUsers(http: HttpClient, rootUrl: string, params?: GetB
   );
 }
 
-getBlockedUsers.PATH = '/friend/blocked-users';
+getBlockedUsers.PATH = '/friendship/blocked-users';

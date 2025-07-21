@@ -40,7 +40,7 @@ export class FriendshipService extends BaseService {
   }
 
   /** Path part for operation `rejectFriendRequest()` */
-  static readonly RejectFriendRequestPath = '/friend/{friendshipId}/reject';
+  static readonly RejectFriendRequestPath = '/friendship/{friendshipId}/reject';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -65,7 +65,7 @@ export class FriendshipService extends BaseService {
   }
 
   /** Path part for operation `acceptFriendRequest()` */
-  static readonly AcceptFriendRequestPath = '/friend/{friendshipId}/accept';
+  static readonly AcceptFriendRequestPath = '/friendship/{friendshipId}/accept';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -94,7 +94,7 @@ export class FriendshipService extends BaseService {
   }
 
   /** Path part for operation `sendFriendRequest()` */
-  static readonly SendFriendRequestPath = '/friend/request';
+  static readonly SendFriendRequestPath = '/friendship/request';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -119,7 +119,7 @@ export class FriendshipService extends BaseService {
   }
 
   /** Path part for operation `blockUser()` */
-  static readonly BlockUserPath = '/friend/block/{userToBlockId}';
+  static readonly BlockUserPath = '/friendship/block/{userToBlockId}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -144,7 +144,7 @@ export class FriendshipService extends BaseService {
   }
 
   /** Path part for operation `getSentPendingRequests()` */
-  static readonly GetSentPendingRequestsPath = '/friend/sent-pending-requests';
+  static readonly GetSentPendingRequestsPath = '/friendship/sent-pending-requests';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -169,7 +169,7 @@ export class FriendshipService extends BaseService {
   }
 
   /** Path part for operation `getReceivedPendingRequests()` */
-  static readonly GetReceivedPendingRequestsPath = '/friend/received-pending-requests';
+  static readonly GetReceivedPendingRequestsPath = '/friendship/received-pending-requests';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -193,33 +193,8 @@ export class FriendshipService extends BaseService {
     );
   }
 
-  /** Path part for operation `getFriendshipStatus()` */
-  static readonly GetFriendshipStatusPath = '/friend/friendship-status/{friendId}';
-
-  /**
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getFriendshipStatus()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getFriendshipStatus$Response(params: GetFriendshipStatus$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
-    return getFriendshipStatus(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getFriendshipStatus$Response()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getFriendshipStatus(params: GetFriendshipStatus$Params, context?: HttpContext): Observable<string> {
-    return this.getFriendshipStatus$Response(params, context).pipe(
-      map((r: StrictHttpResponse<string>): string => r.body)
-    );
-  }
-
   /** Path part for operation `getFriends()` */
-  static readonly GetFriendsPath = '/friend/friendlist';
+  static readonly GetFriendsPath = '/friendship/friendslist';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -243,8 +218,33 @@ export class FriendshipService extends BaseService {
     );
   }
 
+  /** Path part for operation `getFriendshipStatus()` */
+  static readonly GetFriendshipStatusPath = '/friendship/friendship-status/{friendId}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getFriendshipStatus()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getFriendshipStatus$Response(params: GetFriendshipStatus$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
+    return getFriendshipStatus(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getFriendshipStatus$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getFriendshipStatus(params: GetFriendshipStatus$Params, context?: HttpContext): Observable<string> {
+    return this.getFriendshipStatus$Response(params, context).pipe(
+      map((r: StrictHttpResponse<string>): string => r.body)
+    );
+  }
+
   /** Path part for operation `getBlockedUsers()` */
-  static readonly GetBlockedUsersPath = '/friend/blocked-users';
+  static readonly GetBlockedUsersPath = '/friendship/blocked-users';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
@@ -269,7 +269,7 @@ export class FriendshipService extends BaseService {
   }
 
   /** Path part for operation `removeFriend()` */
-  static readonly RemoveFriendPath = '/friend/friends/{friendId}';
+  static readonly RemoveFriendPath = '/friendship/friends/{friendId}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.

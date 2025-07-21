@@ -10,7 +10,7 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface IsChatRead$Params {
-  chatId: string;
+  chatId: number;
 }
 
 export function isChatRead(http: HttpClient, rootUrl: string, params: IsChatRead$Params, context?: HttpContext): Observable<StrictHttpResponse<boolean>> {
@@ -29,4 +29,4 @@ export function isChatRead(http: HttpClient, rootUrl: string, params: IsChatRead
   );
 }
 
-isChatRead.PATH = '/api/v1/messages/chat/{chatId}/is-read';
+isChatRead.PATH = '/messages/chat/{chatId}/is-read';

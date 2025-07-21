@@ -14,7 +14,7 @@ export interface CreateGroupChat$Params {
       body: CreateGroupChatRequest
 }
 
-export function createGroupChat(http: HttpClient, rootUrl: string, params: CreateGroupChat$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
+export function createGroupChat(http: HttpClient, rootUrl: string, params: CreateGroupChat$Params, context?: HttpContext): Observable<StrictHttpResponse<number>> {
   const rb = new RequestBuilder(rootUrl, createGroupChat.PATH, 'post');
   if (params) {
     rb.body(params.body, 'application/json');
@@ -25,9 +25,9 @@ export function createGroupChat(http: HttpClient, rootUrl: string, params: Creat
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<string>;
+      return (r as HttpResponse<any>).clone({ body: parseFloat(String((r as HttpResponse<any>).body)) }) as StrictHttpResponse<number>;
     })
   );
 }
 
-createGroupChat.PATH = '/api/v1/chats/group';
+createGroupChat.PATH = '/chats/group';
