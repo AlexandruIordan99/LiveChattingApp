@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, input, InputSignal} from '@angular/core';
+import {ChatResponse} from '../../services/models/chat-response';
 
 @Component({
   selector: 'app-chat-list',
@@ -7,5 +8,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./chat-list.component.scss']
 })
 export class ChatListComponent {
+
+
+  chats: InputSignal<ChatResponse[]> = input<ChatResponse[]>([]);
+  searchContact = false;
 
 }

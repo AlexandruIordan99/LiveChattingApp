@@ -1,1 +1,29 @@
-<p>chat-list works!</p>
+<div class="sticky-top bg-white">
+  <div class="d-flex justify-content-between align-items-center gap-2 p-2">
+    <h4>Chat</h4>
+    @if(!searchContact){
+      <i class = "fas fa-comment-medical cursor-pointer" (click) = "searchContact"></i>
+    } @else {
+      <i class = "fas fa-times-circle cursor-pointer" (click) = "searchContact = false"></i>
+    }
+
+  </div>
+
+  <div class="d-flex flex-column gap-2 p-2">
+    <div class="input-group">
+      <span class ="input-group-text">
+        <i class = "fas fa-search"></i>
+      </span>
+      <input type = "text" class = "form-control-sm"
+             placeholder="Search in the chat"  aria-label="Search">
+    </div>
+    <div class="d-flex gap-2">
+      <span class="badge rounded-pill text-bg-light cursor-pointer">All</span>
+      <span class="badge rounded-pill text-bg-light cursor-pointer">Unread</span>
+      <span class="badge rounded-pill text-bg-light cursor-pointer">Favorites</span>
+    </div>
+
+
+  </div>
+
+</div>
