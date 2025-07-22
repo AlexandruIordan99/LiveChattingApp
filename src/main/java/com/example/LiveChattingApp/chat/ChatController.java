@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -106,4 +107,8 @@ public class ChatController {
     return ResponseEntity.ok().build();
   }
 
+  @GetMapping
+  public ResponseEntity<List<ChatResponse>> getChatsByReceiver(Authentication authentication) {
+    return ResponseEntity.ok(chatService.getChatsByReceiverId(authentication));
+  }
 }
