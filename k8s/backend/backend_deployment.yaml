@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  labels:
+    app: spring-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-app
+  template:
+    metadata:
+      labels:
+        app: spring-app
+    spec:
+      containers:
+        - name: spring-app
+          image: backend-image:latest
+          imagePullPolicy: Never #uses local image
+          ports:
+            - containerPort: 8100
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/LiveChattingAppDB"
+            - name : SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "pass"
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+              value: "http://keycloak:8090/realms/LiveChattingApp"
+            - name: SPRING_MAIL_HOST
+              value: "mail-dev"
+            - name: SPRING_MAIL_PORT
+              value: "1025"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          readinessProbe:
+            httpGet:
+              path: /api/v1/actuator/health
+              port: 8100
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+              httpGet:
+                path: /api/v1/actuator/health
+                port: 8100
+              initialDelaySeconds: 120
+              periodSeconds: 15
+              timeoutSeconds: 5
+              failureThreshold: 3
+          volumeMounts:
+              - name: uploads-volume
+                mountPath: /app/uploads
+      volumes:
+        - name: uploads-volume
+          emptyDir: { }
+

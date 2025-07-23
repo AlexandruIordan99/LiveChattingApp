@@ -933,11 +933,10 @@
       }
     },
     "securitySchemes": {
-        "bearerAuth": { "type": "http",
-          "scheme": "bearer",
-          "bearerFormat": "JWT"
-        },
-        "keycloak": {
+      "bearerAuth": { "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT" },
+      "keycloak": {
         "type": "oauth2",
         "in": "header",
         "scheme": "bearer",
