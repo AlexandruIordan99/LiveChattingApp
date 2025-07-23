@@ -14,6 +14,12 @@ services:
     networks:
       - spring-demo
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   keycloak:
     container_name: keycloak-lvc
     image: quay.io/keycloak/keycloak:26.3.0
@@ -34,6 +40,20 @@ services:
     - 1080:1080 #web service
     - 1025:1025 #SMTP
 
+
+  spring-app:
+    container_name: spring-app-lvc
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - 8100:8100
+    networks:
+      - spring-demo
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
 
 networks:
   spring-demo:
