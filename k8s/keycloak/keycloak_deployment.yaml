@@ -28,11 +28,15 @@ spec:
             - name: KC_DB
               value: "postgres"
             - name: KC_DB_URL
-              value: "jdbc:postgresql://postgres-service:5432/LiveChattingAppDB"
+              value: "jdbc:postgresql://postgres:5432/LiveChattingAppDB"
             - name: KC_DB_USERNAME
               value: "postgres"
             - name: KC_DB_PASSWORD
               value: "pass"
+            - name: KC_HOSTNAME_STRICT
+              value: "false"
+            - name: KC_HOSTNAME_STRICT_HTTPS
+              value: "false"
           resources:
             requests:
               memory: "512Mi"

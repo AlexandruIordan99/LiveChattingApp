@@ -42,27 +42,17 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "1000m"
-          readinessProbe:
+          livenessProbe:
             httpGet:
               path: /api/v1/actuator/health
               port: 8100
-            initialDelaySeconds: 60
-            periodSeconds: 10
+            initialDelaySeconds: 120
+            periodSeconds: 15
             timeoutSeconds: 5
-            successThreshold: 1
             failureThreshold: 3
-          livenessProbe:
-              httpGet:
-                path: /api/v1/actuator/health
-                port: 8100
-              initialDelaySeconds: 120
-              periodSeconds: 15
-              timeoutSeconds: 5
-              failureThreshold: 3
           volumeMounts:
-              - name: uploads-volume
-                mountPath: /app/uploads
+            - name: uploads-volume
+              mountPath: /app/uploads
       volumes:
         - name: uploads-volume
           emptyDir: { }
-
