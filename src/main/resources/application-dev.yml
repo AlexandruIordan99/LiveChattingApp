@@ -52,4 +52,5 @@ application:
       media-output-path: ./uploads
 
 server:
+  address: 0.0.0.0
   port: 8100
