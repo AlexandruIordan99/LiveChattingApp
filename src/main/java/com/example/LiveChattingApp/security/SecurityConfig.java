@@ -30,7 +30,7 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->req.requestMatchers("/auth/**",
-                                        "/api/v1/actuator/health",
+                                        "/actuator/**",
                                         "/v3/api-docs",
                                         "/v3/api-docs/**",
                                         "/swagger-resources",
