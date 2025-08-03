@@ -1,7 +1,7 @@
 services:
   postgres:
     container_name: postgres-sql-lap
-    image: postgres #taken from DockerHub
+    image: postgres:17 #taken from DockerHub
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pass
@@ -28,6 +28,10 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/LiveChattingAppDB
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: pass
     networks:
       - spring-demo
     command:
@@ -54,6 +58,7 @@ services:
       - spring-demo
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/LiveChattingAppDB
 
 networks:
   spring-demo:
@@ -61,4 +66,6 @@ networks:
 
 volumes:
   postgres:
+    driver: local
+  keycloak:
     driver: local
