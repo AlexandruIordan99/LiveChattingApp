@@ -29,8 +29,6 @@ services:
     networks:
       - spring-demo
 
-
-
   spring-app:
     container_name: spring-app-lvc
     build:
