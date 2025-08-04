@@ -39,6 +39,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.springframework.boot:spring-boot-starter-mail:3.5.4")
 	implementation("org.springframework.boot:spring-boot-starter-actuator:3.5.3")
 	implementation("org.springframework.integration:spring-integration-http")
 	implementation("org.springframework.integration:spring-integration-jpa")
