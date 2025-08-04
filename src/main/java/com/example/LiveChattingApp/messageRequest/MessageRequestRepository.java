@@ -14,7 +14,7 @@ public interface MessageRequestRepository extends JpaRepository<MessageRequest, 
   @NotNull
   Optional<MessageRequest> findById(@NotNull Long messageRequestId);
 
-  Optional<MessageRequest> findBySenderIdAndReceiverId(String senderId, String receiverId);
+  Optional<MessageRequest> findBySenderIdAndReceiverId(Long senderId, Long receiverId);
 
   @Query("""
       SELECT mr FROM MessageRequest mr
@@ -23,8 +23,8 @@ public interface MessageRequestRepository extends JpaRepository<MessageRequest, 
           AND mr.status = :status
 """)
   Optional<MessageRequest> findBySenderIdAndReceiverIdAndMessageRequestStatus(
-    @Param("senderId") String senderId,
-    @Param("receiverId") String receiverId,
+    @Param("senderId") Long senderId,
+    @Param("receiverId") Long receiverId,
     @Param("status") MessageRequestStatus status);
 
 }

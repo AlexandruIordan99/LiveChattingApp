@@ -21,7 +21,7 @@ public class FriendshipService {
   private final FriendshipRepository friendshipRepository;
   private final UserRepository userRepository;
 
-  public  FriendshipResponseDTO sendFriendRequest(String  currentUserId, String  friendId){
+  public  FriendshipResponseDTO sendFriendRequest(Long  currentUserId, Long  friendId){
     User currentUser = findUserById(currentUserId);
     User friendUser = findUserById(friendId);
 
@@ -44,7 +44,7 @@ public class FriendshipService {
   }
 
 
-  public  FriendshipResponseDTO acceptFriendRequest(String  currentUserId, Long  friendshipId){
+  public  FriendshipResponseDTO acceptFriendRequest(Long  currentUserId, Long  friendshipId){
     Friendship friendship = findFriendshipById(friendshipId);
 
     if(!friendship.getFriend().getId().equals(currentUserId)){
@@ -60,7 +60,7 @@ public class FriendshipService {
     return mapToResponseDto(savedFriendship, currentUserId);
   }
 
-  public void rejectFriendRequest(String  currentUserId, Long  friendshipId){
+  public void rejectFriendRequest(Long  currentUserId, Long  friendshipId){
     Friendship friendship = findFriendshipById(friendshipId);
 
     if(!friendship.getFriend().getId().equals(currentUserId)){
@@ -75,14 +75,14 @@ public class FriendshipService {
     friendshipRepository.save(friendship);
   }
 
-  public  void removeFriend(String  currentUserId, String friendId){
+  public  void removeFriend(Long currentUserId, Long friendId){
     Friendship friendship = friendshipRepository.findFriendshipBetweenUsers(currentUserId, friendId)
       .orElseThrow(() -> new FriendshipNotFoundException("Friendship not found between these users"));
 
     friendshipRepository.delete(friendship);
   }
 
-  public void blockUser(String  currentUserId, String  userToBlockId){
+  public void blockUser(Long currentUserId, Long userToBlockId){
     User userToBlock = findUserById(userToBlockId);
 
     Friendship friendship = friendshipRepository.findFriendshipBetweenUsers(currentUserId, userToBlockId)
@@ -95,7 +95,7 @@ public class FriendshipService {
   }
 
   @Transactional(readOnly= true)
-  public List<FriendshipResponseDTO> getFriends(String  userId){
+  public List<FriendshipResponseDTO> getFriends(Long userId){
 
     List<Friendship> friendships = friendshipRepository.findAcceptedFriendships(userId);
 
@@ -105,7 +105,7 @@ public class FriendshipService {
   }
 
   @Transactional(readOnly= true)
-  public List<FriendshipResponseDTO> getReceivedPendingRequests(String  userId){
+  public List<FriendshipResponseDTO> getReceivedPendingRequests(Long userId){
     List<Friendship> pendingFriendships = friendshipRepository.findPendingReceivedRequests(userId);
 
     return pendingFriendships.stream()
@@ -114,7 +114,7 @@ public class FriendshipService {
   }
 
   @Transactional(readOnly= true)
-  public List<FriendshipResponseDTO> getSentPendingRequests(String userId){
+  public List<FriendshipResponseDTO> getSentPendingRequests(Long userId){
     List<Friendship> pendingFriendships = friendshipRepository.findPendingSentRequests(userId);
 
     return pendingFriendships.stream()
@@ -124,7 +124,7 @@ public class FriendshipService {
 
 
   @Transactional(readOnly = true)
-  public List<FriendshipResponseDTO> getBlockedUsers(String userId){
+  public List<FriendshipResponseDTO> getBlockedUsers(Long userId){
     List<Friendship> blockedUsers=  friendshipRepository.findBlockedUsers(userId);
 
     return blockedUsers.stream()
@@ -133,17 +133,17 @@ public class FriendshipService {
   }
 
   @Transactional(readOnly = true)
-  public String getFriendshipStatus(String  userId, String friendId){
+  public String getFriendshipStatus(Long  userId, Long friendId){
     return friendshipRepository.findFriendshipBetweenUsers(userId, friendId)
       .map(friendship -> friendship.getFriendshipsStatus().toString())
       .orElse("NONE");
   }
 
-  public boolean existsFriendshipBetweenUsers(String userId, String friendId){
+  public boolean existsFriendshipBetweenUsers(Long userId, Long friendId){
     return friendshipRepository.existsFriendshipBetweenUsers(userId, friendId);
   }
 
-  private User findUserById(String userId){
+  private User findUserById(Long userId){
     return userRepository.findById(userId)
       .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
   }
@@ -153,7 +153,7 @@ public class FriendshipService {
       .orElseThrow(() -> new FriendshipNotFoundException("Friendship not found with ID: " + friendshipId));
   }
 
-  private FriendshipResponseDTO mapToResponseDto(Friendship friendship, String currentUserId){
+  private FriendshipResponseDTO mapToResponseDto(Friendship friendship, Long currentUserId){
     User otherUser = friendship.getUser().getId().equals(currentUserId)
       ? friendship.getFriend() : friendship.getUser();
 

@@ -13,7 +13,7 @@ public class NotificationService {
 
   private final SimpMessagingTemplate messagingTemplate;
 
-  public void sendNotification(String userId, Notification notification) {
+  public void sendNotification(Long userId, Notification notification) {
     try {
       log.info("Sending WS notification to {} with payload {}", userId, notification);
       messagingTemplate.convertAndSendToUser(

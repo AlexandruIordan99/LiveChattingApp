@@ -25,7 +25,7 @@ public class MessageRequestService {
   private final MessageRepository messageRepository;
   private final ChatRepository chatRepository;
 
-  public MessageRequest createMessageRequest(String senderId, Long chatId) {
+  public MessageRequest createMessageRequest(Long senderId, Long chatId) {
 
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found."));
@@ -55,7 +55,7 @@ public class MessageRequestService {
     messageRequestRepository.save(request);
   }
 
-  public Optional<MessageRequest> findExistingRequest(String senderId, String receiverId) {
+  public Optional<MessageRequest> findExistingRequest(Long senderId, Long receiverId) {
     return messageRequestRepository.findBySenderIdAndReceiverId(senderId, receiverId);
   }
 

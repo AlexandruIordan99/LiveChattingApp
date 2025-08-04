@@ -99,7 +99,7 @@ public class MessageServiceTest {
       .createdDate(testTime)
       .build();
 
-    user1.setId("1");
+    user1.setId(1L);
 
     user2 = User.builder()
       .firstname("Vlad")
@@ -112,7 +112,7 @@ public class MessageServiceTest {
       .enabled(true)
       .createdDate(testTime)
       .build();
-    user2.setId("2");
+    user2.setId(2L);
 
     user3 = User.builder()
       .firstname("Matei")
@@ -125,7 +125,7 @@ public class MessageServiceTest {
       .enabled(true)
       .createdDate(testTime)
       .build();
-    user3.setId("3");
+    user3.setId(3L);
 
     directChat = Chat.builder()
       .id(1L)
@@ -142,7 +142,7 @@ public class MessageServiceTest {
       .type(ChatType.GROUP)
       .creator(user1)
       .participants(Set.of(user1, user2, user3))
-      .adminUserIds(Set.of("1"))
+      .adminUserIds(Set.of(1L))
       .lastReadTimestamps(new HashMap<>())
       .messages(new ArrayList<>())
       .build();
@@ -159,7 +159,7 @@ public class MessageServiceTest {
 
     messageRequest = MessageRequest.builder()
       .id(1L)
-      .senderId("1")
+      .senderId(1L)
       .chat(directChat)
       .status(MessageRequestStatus.PENDING)
       .firstMessages(new ArrayList<>())
@@ -171,8 +171,8 @@ public class MessageServiceTest {
   @Test
   void test_sendDirectMessage_whenUsersAreFriends_savesMessage() {
     // Arrange
-    String senderId = "1";
-    String receiverId = "2";
+    Long senderId = 1L;
+    Long receiverId = 2L;
     Long chatId = 1L;
     String content = "Hello there!";
 
@@ -195,15 +195,15 @@ public class MessageServiceTest {
     assertEquals(MessageType.TEXT, savedMessage.getType());
     assertEquals(MessageState.SENT, savedMessage.getState());
 
-    verify(messageRequestService, never()).createMessageRequest(anyString(), anyLong());
+    verify(messageRequestService, never()).createMessageRequest(anyLong(), anyLong());
   }
 
 
   @Test
   void test_sendDirectMessage_whenUsersAreNotFriends_createsMessageRequest() {
     // Arrange
-    String senderId = "1";
-    String receiverId = "2";
+    Long senderId = 1L;
+    Long receiverId = 2L;
     Long chatId = 1L;
     String content = "Hello there!";
 
@@ -448,7 +448,7 @@ public class MessageServiceTest {
   void test_uploadMediaMessage_savesMessageAndSendsNotifications() {
     // Arrange
     Long chatId = 1L;
-    String senderId = "1";
+    Long senderId = 1L;
     String filePath = "/path/to/file.jpg";
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(directChat));
@@ -469,7 +469,7 @@ public class MessageServiceTest {
     assertEquals(MessageType.IMAGE, savedMessage.getType());
     assertEquals(filePath, savedMessage.getMediaFilePath());
 
-    verify(notificationService).sendNotification(eq("2"), any(Notification.class));
+    verify(notificationService).sendNotification(eq(2L), any(Notification.class));
   }
 
   @Test
@@ -541,7 +541,7 @@ public class MessageServiceTest {
   void test_isChatRead_withNoMessages_returnsTrue() {
     // Arrange
     Long chatId = 1L;
-    String userId = "1";
+    Long userId = 1L;
     directChat.setMessages(new ArrayList<>());
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(directChat));
@@ -557,11 +557,11 @@ public class MessageServiceTest {
   void test_isChatRead_withUnreadMessages_returnsFalse() {
     // Arrange
     Long chatId = 1L;
-    String userId = "1";
+    Long userId = 1L;
     LocalDateTime lastRead = testTime.minusHours(1);
 
-    user2.setId("2");
-    assertEquals("2", user2.getId());
+    user2.setId(2L);
+    assertEquals(2L, user2.getId());
 
     Message newMessage = Message.builder()
       .sender(user2)
@@ -585,7 +585,7 @@ public class MessageServiceTest {
   void test_isChatRead_whenUserIsNotParticipant_throwsRuntimeException() {
     // Arrange
     Long chatId = 1L;
-    String userId = "999";
+    Long userId = 999L;
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(directChat));
 

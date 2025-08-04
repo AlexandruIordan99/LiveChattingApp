@@ -24,7 +24,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
         and message.state != com.example.LiveChattingApp.message.MessageState.READ
     """)
   long countUnreadMessagesByChatIdAndUserId(@Param("chatId") Long chatId,
-                                            @Param("userId") String userId);
+                                            @Param("userId") Long userId);
 
 
   @Query("""

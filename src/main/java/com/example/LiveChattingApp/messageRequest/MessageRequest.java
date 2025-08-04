@@ -28,8 +28,8 @@ public class MessageRequest {
   @JoinColumn(name="chat_id")
   private Chat chat;
 
-  private String senderId;
-  private String receiverId;
+  private Long senderId;
+  private Long receiverId;
   private MessageType type;
 
   @Enumerated(EnumType.STRING)

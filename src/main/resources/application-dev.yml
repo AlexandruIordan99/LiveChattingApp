@@ -20,11 +20,9 @@ spring:
           com.example.LiveChattingApp: DEBUG
       database: postgresql
       database-platform: org.hibernate.dialect.PostgreSQLDialect
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://keycloak:8090/realms/LiveChattingApp
+
+
+
   mail:
     host: mail-dev
     port: 1025
@@ -44,9 +42,17 @@ spring:
 
 
 application:
+  security:
+    jwt:
+      secret-key: OXotaGV4I3puMiMmMCgmJmlxZjJ3bD0wYiRkeXIlOW5vZz12bC1kMDdiMHV3Y2VfPWM= #must be in base 64 to be properly decoded later
+      expiration: 8640000  #equivalent to 1 day
+  emailing:
+    frontend:
+      activation-url: http://localhost:4200/activate-account
   file:
     uploads:
       media-output-path: ./uploads
+
 
 server:
   address: 0.0.0.0

@@ -26,9 +26,9 @@ public class MessageController {
     Authentication authentication,
     @PathVariable Long chatId,
     @RequestBody MessageInputDTO messageInput) {
-    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
-    String receiverId = messageService.getMessageReceiverId(senderId, chatId);
+    Long receiverId = messageService.getMessageReceiverId(senderId, chatId);
 
     messageService.sendDirectMessage(senderId, receiverId, chatId, messageInput.getContent());
     return ResponseEntity.ok().build();
@@ -39,7 +39,7 @@ public class MessageController {
     Authentication authentication,
     @PathVariable Long chatId,
     @RequestBody MessageInputDTO messageInput) {
-    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
 
     messageService.sendGroupMessage(senderId, chatId, messageInput.getContent());
@@ -50,7 +50,7 @@ public class MessageController {
   public ResponseEntity<List<MessageResponse>> getChatMessages(
     @PathVariable Long chatId,
     Authentication authentication) {
-    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
 
     List<MessageResponse> messages = messageService.findChatMessages(chatId, senderId);
@@ -62,7 +62,7 @@ public class MessageController {
     @PathVariable Long chatId,
     Authentication authentication){
 
-    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
 
     messageService.markAsRead(chatId, senderId);
@@ -75,7 +75,7 @@ public class MessageController {
     @RequestParam("file") MultipartFile file,
     Authentication authentication) {
 
-    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
 
     messageService.uploadMediaMessage(chatId, file, senderId);
@@ -87,7 +87,7 @@ public class MessageController {
     @PathVariable Long chatId,
     Authentication authentication) {
 
-    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
 
     boolean isRead = messageService.isChatRead(chatId, senderId);
@@ -98,7 +98,7 @@ public class MessageController {
   public ResponseEntity<Integer> getUnreadMessageCount(
     @PathVariable Long chatId,
     Authentication authentication) {
-    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
     Integer unreadCount = messageService.getUnreadCount(chatId, senderId);
     return ResponseEntity.ok(unreadCount);

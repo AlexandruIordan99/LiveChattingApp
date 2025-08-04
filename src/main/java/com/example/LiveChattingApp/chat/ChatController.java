@@ -31,7 +31,7 @@ public class ChatController {
     Authentication authentication,
     @RequestBody UserDTO receiverDTO
    ) {
-    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
     Long chatId = chatService.createDirectChat(senderId, receiverDTO.getId());
     return ResponseEntity.ok(chatId);
@@ -41,7 +41,7 @@ public class ChatController {
   public ResponseEntity<Long> createGroupChat(
     Authentication authentication,
     @RequestBody CreateGroupChatRequest request) {
-    String senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long senderId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
     Long chatId = chatService.createGroupChat(
       senderId,
@@ -54,9 +54,9 @@ public class ChatController {
   @PostMapping("/{chatId}/participants")
   public ResponseEntity<Void> addParticipant(
     @PathVariable Long chatId,
-    @RequestBody String userId,
+    @RequestBody  Long userId,
     Authentication authentication) {
-    String addedByUserId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long addedByUserId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
     chatService.addParticipantToGroup(chatId, userId, addedByUserId);
     return ResponseEntity.ok().build();
@@ -65,9 +65,9 @@ public class ChatController {
   @DeleteMapping("/{chatId}/participants/{userId}")
   public ResponseEntity<Void> removeParticipant(
     @PathVariable Long chatId,
-    @PathVariable String userId,
+    @PathVariable Long userId,
     Authentication authentication) {
-    String userDoingTheRemovingId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long userDoingTheRemovingId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
     chatService.removeParticipantFromGroup(chatId, userId, userDoingTheRemovingId);
     return ResponseEntity.ok().build();
@@ -77,7 +77,7 @@ public class ChatController {
   public ResponseEntity<Set<UserDTO>> getChatParticipants(
     @PathVariable Long chatId,
     Authentication authentication) {
-    String currentUserId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long currentUserId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
 
     if (!chatService.isUserParticipant(chatId, currentUserId)) {
@@ -101,7 +101,7 @@ public class ChatController {
   public ResponseEntity<Void> leaveChat(
     @PathVariable Long chatId,
     Authentication authentication) {
-    String leaverId = userRepository.findByEmail(authentication.getName()).map(User::getId)
+    Long leaverId = userRepository.findByEmail(authentication.getName()).map(User::getId)
       .orElseThrow(() -> new EntityNotFoundException("Could not find user with this email address."));
     chatService.removeParticipantFromGroup(chatId, leaverId,leaverId);
     return ResponseEntity.ok().build();

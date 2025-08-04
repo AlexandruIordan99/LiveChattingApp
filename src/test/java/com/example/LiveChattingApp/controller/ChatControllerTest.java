@@ -4,7 +4,6 @@ import com.example.LiveChattingApp.chat.Chat;
 import com.example.LiveChattingApp.chat.ChatService;
 import com.example.LiveChattingApp.chat.ChatType;
 import com.example.LiveChattingApp.message.MessageService;
-import com.example.LiveChattingApp.security.UserSynchronizer;
 import com.example.LiveChattingApp.user.User;
 import com.example.LiveChattingApp.user.UserDTO;
 import com.example.LiveChattingApp.user.UserRepository;
@@ -49,7 +48,7 @@ public class ChatControllerTest {
   private User mockUser1;
   private User mockUser2;
   private User mockUser3;
-  private Set<String> chatParticipantsIds;
+  private Set<Long> chatParticipantsIds;
   private MockMvc mockMvc;
 
   @Autowired
@@ -63,8 +62,6 @@ public class ChatControllerTest {
   private Chat chatToBeFound;
 
   @MockitoBean
-  private UserSynchronizer userSynchronizer;
-  @MockitoBean
   private UserRepository userRepository;
 
   @BeforeEach
@@ -77,36 +74,36 @@ public class ChatControllerTest {
     objectMapper = new ObjectMapper();
 
     mockUser1 = User.builder()
-      .id("1")
+      .id(1L)
       .displayName("Jordan299")
       .email("alexandru.iordan99@gmail.com")
       .build();
 
     mockUser2 = User.builder()
-      .id("2")
+      .id(2L)
       .displayName("gtgmycatisonfire")
       .email("catonfire99@gmail.com")
       .build();
 
      mockUser2DTO = UserDTO.builder()
-      .id("2")
+      .id(3L)
       .email("catonfire99@gmail.com")
       .displayName("gtgmycatisonfire")
       .build();
 
     mockUser3 = User.builder()
-      .id("3")
+      .id(3L)
       .displayName("copilcoiot")
       .email("coiot2000@gmail.com")
       .build();
 
     mockUser3DTO = UserDTO.builder()
-      .id("3")
+      .id(3L)
       .email("coiot2000@gmail.com")
       .displayName("copilcoiot")
       .build();
 
-    chatParticipantsIds = new HashSet<String>();
+    chatParticipantsIds = new HashSet<Long>();
     chatParticipantsIds.add(mockUser2.getId());
     chatParticipantsIds.add(mockUser3.getId());
 
@@ -125,7 +122,7 @@ public class ChatControllerTest {
 
     when(userRepository.findByEmail("alexandru.iordan99@gmail.com"))
       .thenReturn(Optional.ofNullable(mockUser1));
-    when(chatService.createDirectChat("1", mockUser2DTO.getId()))
+    when(chatService.createDirectChat(1L, mockUser2DTO.getId()))
       .thenReturn(1L);
 
     String requestBody = objectMapper.writeValueAsString(mockUser2DTO);
@@ -138,8 +135,8 @@ public class ChatControllerTest {
 
     //Verify
     verify(chatService, times(1)).createDirectChat(
-      argThat(senderId -> senderId.equals("1")),
-        argThat(receiverId -> receiverId.equals("2")));
+      argThat(senderId -> senderId.equals(1L)),
+        argThat(receiverId -> receiverId.equals(2L)));
   }
 
   @Test
@@ -148,7 +145,7 @@ public class ChatControllerTest {
     //Arrange
     when(userRepository.findByEmail("alexandru.iordan99@gmail.com"))
       .thenReturn(Optional.ofNullable(mockUser1));
-    when(chatService.createGroupChat("1","Nu joc helldivers", chatParticipantsIds))
+    when(chatService.createGroupChat(1L,"Nu joc helldivers", chatParticipantsIds))
       .thenReturn(1L);
 
   String requestBody = objectMapper.writeValueAsString(Map.of(
@@ -163,7 +160,7 @@ public class ChatControllerTest {
 
     //Verify
   verify(chatService, times(1)).createGroupChat(
-    argThat(creatorId -> creatorId.equals("1")),
+    argThat(creatorId -> creatorId.equals(1L)),
       argThat(chatName-> chatName.equals("Nu joc helldivers")),
       argThat(partIds-> partIds.equals(chatParticipantsIds)));
 
@@ -174,20 +171,21 @@ public class ChatControllerTest {
   void test_addParticipant() throws Exception{
     //Arrange
     Long chatId = 1L;
-    String userIdToAdd = "3";
+    Long userIdToAdd = 3L;
 
     when(userRepository.findByEmail("alexandru.iordan99@gmail.com"))
       .thenReturn(Optional.ofNullable(mockUser1));
-    doNothing().when(chatService).addParticipantToGroup(chatId, userIdToAdd, "1");
+    doNothing().when(chatService).addParticipantToGroup(chatId, userIdToAdd, 1L);
     //Act & Assert
     mockMvc.perform(post("/chats/{chatId}/participants", chatId)
         .contentType(MediaType.APPLICATION_JSON)
-        .content(userIdToAdd))
+        .content(userIdToAdd.toString())
+      )
       .andExpect(status().isOk());
 
     //Verify
     verify(chatService, times(1))
-      .addParticipantToGroup(chatId, userIdToAdd, "1");
+      .addParticipantToGroup(chatId, userIdToAdd, 1L);
 
   }
   @Test
@@ -195,18 +193,18 @@ public class ChatControllerTest {
   void test_removeParticipant() throws Exception{
     //Arrange
     Long chatId = 1L;
-    String userIdToRemove = "2";
+    Long userIdToRemove = 2L;
 
     when(userRepository.findByEmail("alexandru.iordan99@gmail.com"))
       .thenReturn(Optional.ofNullable(mockUser1));
-    doNothing().when(chatService).removeParticipantFromGroup(chatId, userIdToRemove, "1");
+    doNothing().when(chatService).removeParticipantFromGroup(chatId, userIdToRemove, 1L);
 
     //Act & Assert
     mockMvc.perform(delete("/chats/{chatId}/participants/{userId}", chatId, userIdToRemove))
       .andExpect(status().isOk());
 
     //Verify
-    verify(chatService, times(1)).removeParticipantFromGroup(chatId, userIdToRemove, "1");
+    verify(chatService, times(1)).removeParticipantFromGroup(chatId, userIdToRemove, 1L);
 
   }
 
@@ -220,7 +218,7 @@ public class ChatControllerTest {
     when(userRepository.findByEmail("alexandru.iordan99@gmail.com"))
       .thenReturn(Optional.ofNullable(mockUser1));
 
-    when(chatService.isUserParticipant(chatId, "1")).thenReturn(true);
+    when(chatService.isUserParticipant(chatId, 1L)).thenReturn(true);
     when(chatService.getChatParticipants(chatId)).thenReturn(participants);
 
     //Act & Assert
@@ -229,7 +227,7 @@ public class ChatControllerTest {
 
     //Verify
     verify(chatService, times(1))
-      .isUserParticipant(chatId, "1");
+      .isUserParticipant(chatId, 1L);
     verify(chatService, times(1))
       .getChatParticipants(chatId);
 
@@ -243,14 +241,14 @@ public class ChatControllerTest {
 
     when(userRepository.findByEmail("alexandru.iordan99@gmail.com"))
       .thenReturn(Optional.ofNullable(mockUser1));
-    doNothing().when(chatService).removeParticipantFromGroup(chatId, "1", "1");
+    doNothing().when(chatService).removeParticipantFromGroup(chatId, 1L, 1L);
 
     //Act & Assert
     mockMvc.perform(post("/chats/{chatId}/leave", chatId))
       .andExpect(status().isOk());
 
     //Verify
-    verify(chatService, times(1)).removeParticipantFromGroup(chatId, "1", "1");
+    verify(chatService, times(1)).removeParticipantFromGroup(chatId, 1L, 1L);
 
   }
 

@@ -15,14 +15,17 @@ public class UserService {
   private final UserMapper userMapper;
 
   public List<UserResponse> getAllUsersExceptSelf(Authentication connectedUser){
-    return userRepository.findAllUsersExceptSelf(connectedUser.getName())
+    User currentUser = (User) connectedUser.getPrincipal();
+    Long userId = currentUser.getId();
+
+    return userRepository.findAllUsersExceptSelf(userId)
       .stream()
       .map(userMapper::toUserResponse)
       .toList();
 
   }
 
-  public Optional<User> findById(String userId){
+  public Optional<User> findById(Long userId){
     return userRepository.findById(userId);
   }
 

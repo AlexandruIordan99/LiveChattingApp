@@ -38,7 +38,7 @@ public class MessageService {
   private final MessageRequestService messageRequestService;
   private final ChatService chatService;
 
-  public void sendDirectMessage(String senderId, String receiverId, Long chatId, String content) {
+  public void sendDirectMessage(Long senderId, Long receiverId, Long chatId, String content) {
     if (content == null || content.trim().isEmpty()) {
       throw new IllegalArgumentException("Message content cannot be empty.");
     }
@@ -84,7 +84,7 @@ public class MessageService {
 
   }
 
-  public void sendGroupMessage(String senderId, Long chatId, String content) {
+  public void sendGroupMessage(Long senderId, Long chatId, String content) {
     if (content == null || content.trim().isEmpty()) {
       throw new IllegalArgumentException("Message content cannot be empty.");
     }
@@ -101,7 +101,7 @@ public class MessageService {
 
     Set<User> chatParticipants = chat.getParticipants();
     User chatCreator = chat.getCreator();
-    String chatCreatorId = chatCreator.getId();
+    Long chatCreatorId = chatCreator.getId();
 
     boolean senderIsParticipant = chatParticipants.stream()
       .anyMatch(participant -> participant.getId().equals(senderId));
@@ -151,7 +151,7 @@ public class MessageService {
     sendNotificationsToParticipants(chat, savedMessage, chatCreator);
   }
 
-  public String getMessageReceiverId(String senderId, Long chatId){
+  public  Long getMessageReceiverId(Long senderId, Long chatId){
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(()-> new EntityNotFoundException("Chat not found"));
 
@@ -186,7 +186,7 @@ public class MessageService {
   }
 
   @Transactional(readOnly = true)
-  public List<MessageResponse> findChatMessages(Long chatId, String senderId){
+  public List<MessageResponse> findChatMessages(Long chatId, Long senderId){
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
@@ -224,7 +224,7 @@ public class MessageService {
   }
 
 
-  private void sendSeenNotifications(Chat chat, String userId) {
+  private void sendSeenNotifications(Chat chat,  Long userId) {
     Set<User> participants = chat.getParticipants();
 
     participants.stream()
@@ -241,7 +241,7 @@ public class MessageService {
       });
   }
 
-  public void uploadMediaMessage(Long chatId, MultipartFile file, String senderId) {
+  public void uploadMediaMessage(Long chatId, MultipartFile file, Long senderId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
@@ -278,7 +278,7 @@ public class MessageService {
       });
   }
 
-  public void markAsRead(Long chatId, String userId) {
+  public void markAsRead(Long chatId, Long userId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found."));
     chat.getLastReadTimestamps().put(userId, LocalDateTime.now());
@@ -286,7 +286,7 @@ public class MessageService {
     chatRepository.save(chat);
   }
 
-  public Integer getUnreadCount(Long chatId, String userId) {
+  public Integer getUnreadCount(Long chatId, Long userId) {
     Chat chat = chatRepository.findById(chatId).orElseThrow();
     LocalDateTime lastRead = chat.getLastReadTimestamps().get(userId);
 
@@ -300,7 +300,7 @@ public class MessageService {
 
 
   @Transactional(readOnly = true)
-  public boolean isChatRead(Long chatId, String userId) {
+  public boolean isChatRead(Long chatId, Long userId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 

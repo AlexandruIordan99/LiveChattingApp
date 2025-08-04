@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 public class User extends BaseAuditingEntity implements UserDetails, Principal {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id; //TO DO: Switch data type to UUID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String firstname;
     private String lastname;
     @Column(unique = true)
@@ -52,8 +52,8 @@ public class User extends BaseAuditingEntity implements UserDetails, Principal {
     @ManyToMany(fetch= FetchType.EAGER) //when you fetch the user, do so eagerly
     @JoinTable(
         name="users_roles",
-        joinColumns = @JoinColumn(name="roles_id"),
-        inverseJoinColumns = @JoinColumn(name="users_id")
+        joinColumns = @JoinColumn(name="users_id"),
+        inverseJoinColumns = @JoinColumn(name="roles_id")
     )
     private List<Role> roles;
 

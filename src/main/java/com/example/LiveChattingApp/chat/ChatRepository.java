@@ -17,7 +17,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
                 where participants.id = :userId
                 order by chat.lastModifiedDate desc
 """)
-  List<Chat> findChatsByUserId(@Param("userId") String userId);
+  List<Chat> findChatsByUserId(@Param("userId") Long userId);
 
   @Query("""
        select chat from Chat chat
@@ -26,8 +26,8 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
        and exists (select 1 from chat.participants p1 where p1.id = :user1Id)
        and exists (select 1 from chat.participants p2 where p2.id = :user2Id)
     """)
-  Optional<Chat> findDirectChatBetweenUsers(@Param("user1Id") String user1Id,
-                                            @Param("user2Id") String user2Id);
+  Optional<Chat> findDirectChatBetweenUsers(@Param("user1Id") Long user1Id,
+                                            @Param("user2Id") Long user2Id);
 
 
   @Query("""
@@ -37,7 +37,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
                 and chat.type = com.example.LiveChattingApp.chat.ChatType.GROUP
                 order by chat.lastModifiedDate desc
     """)
-  List<Chat> findGroupChatsByUserId(@Param("userId") String userId);
+  List<Chat> findGroupChatsByUserId(@Param("userId") Long userId);
 
 
 

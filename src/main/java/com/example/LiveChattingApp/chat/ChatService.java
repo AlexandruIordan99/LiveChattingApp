@@ -26,15 +26,16 @@ public class ChatService {
   private final ChatMapper mapper;
 
   @Transactional(readOnly = true)
-  public List<ChatResponse> getChatsByReceiverId(Authentication currentUser) {
-    final String userId = currentUser.getName();
+  public List<ChatResponse> getChatsByReceiverId(Authentication authentication) {
+    User currentUser = (User) authentication.getPrincipal();
+    Long userId = currentUser.getId();
     return chatRepository.findChatsByUserId(userId)
       .stream()
       .map(c -> mapper.toChatResponse(c, userId))
       .toList();
   }
 
-  public String resolveReceiverIdFromChat(Chat chat, String senderId){
+  public Long resolveReceiverIdFromChat(Chat chat, Long senderId){
     return chat.getParticipants().stream()
       .filter(user-> user.getId().equals(senderId))
       .findFirst()
@@ -42,7 +43,7 @@ public class ChatService {
       .getId();
   }
 
-  public Long createDirectChat(String senderId, String receiverId) {
+  public Long createDirectChat( Long senderId,  Long receiverId) {
     Optional<Chat> existingChat = chatRepository.findDirectChatBetweenUsers(senderId, receiverId);
     if (existingChat.isPresent()) {
       return existingChat.get().getId();
@@ -62,7 +63,7 @@ public class ChatService {
     return chatRepository.save(chat).getId();
   }
 
-  public Long createGroupChat(String creatorId, String chatName, Set<String> participantIds) {
+  public Long createGroupChat(Long creatorId, String chatName, Set<Long> participantIds) {
     User creator = userRepository.findById(creatorId)
       .orElseThrow(() -> new EntityNotFoundException("Creator not found"));
 
@@ -86,7 +87,7 @@ public class ChatService {
 
 
   @Transactional
-  public void addParticipantToGroup(Long chatId, String userId, String addedByUserId) {
+  public void addParticipantToGroup(Long chatId,  Long userId,  Long addedByUserId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
@@ -114,7 +115,7 @@ public class ChatService {
   }
 
   @Transactional
-  public void removeParticipantFromGroup(Long chatId, String userId, String removedByUserId) {
+  public void removeParticipantFromGroup(Long chatId, Long userId, Long removedByUserId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
@@ -133,7 +134,7 @@ public class ChatService {
     participants.remove(userToRemove);
     chat.setParticipants(participants);
 
-    Set<String> adminUserIds = new HashSet<>(chat.getAdminUserIds());
+    Set<Long> adminUserIds = new HashSet<>(chat.getAdminUserIds());
     adminUserIds.remove(userId);
     chat.setAdminUserIds(adminUserIds);
 
@@ -148,14 +149,14 @@ public class ChatService {
   }
 
   @Transactional(readOnly = true)
-  public boolean isUserParticipant(Long chatId, String userId) {
+  public boolean isUserParticipant(Long chatId, Long userId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
     return chat.isParticipant(userId);
   }
 
   @Transactional
-  public void makeUserAdmin(Long chatId, String userId, String requestedByUserId) {
+  public void makeUserAdmin(Long chatId, Long userId, Long requestedByUserId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
@@ -167,7 +168,7 @@ public class ChatService {
       throw new IllegalArgumentException("User must be a participant to become admin");
     }
 
-    Set<String> adminUserIds = new HashSet<>(chat.getAdminUserIds());
+    Set<Long> adminUserIds = new HashSet<>(chat.getAdminUserIds());
     adminUserIds.add(userId);
     chat.setAdminUserIds(adminUserIds);
 
@@ -175,7 +176,7 @@ public class ChatService {
   }
 
   @Transactional
-  public void removeAdminRole(Long chatId, String userId, String requestedByUserId) {
+  public void removeAdminRole(Long chatId, Long userId, Long requestedByUserId) {
     Chat chat = chatRepository.findById(chatId)
       .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
@@ -191,13 +192,13 @@ public class ChatService {
     chatRepository.save(chat);
   }
 
-  public void markAsRead(Long chatId, String userId) {
+  public void markAsRead(Long chatId, Long userId) {
     Chat chat = chatRepository.findById(chatId).orElseThrow();
     chat.getLastReadTimestamps().put(userId, LocalDateTime.now());
     chatRepository.save(chat);
   }
 
-  public long getUnreadCount(Long chatId, String userId) {
+  public long getUnreadCount(Long chatId, Long userId) {
     Chat chat = chatRepository.findById(chatId).orElseThrow();
     LocalDateTime lastRead = chat.getLastReadTimestamps().get(userId);
     if (lastRead == null) return chat.getMessages().size();

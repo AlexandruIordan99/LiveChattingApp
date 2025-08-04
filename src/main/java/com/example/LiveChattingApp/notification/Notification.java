@@ -13,8 +13,8 @@ public class Notification {
 
   private Long chatId;
   private String content;
-  private String senderId;
-  private String receiverId;
+  private Long senderId;
+  private Long receiverId;
   private String chatName;
   private MessageType messageType;
   private NotificationType type;

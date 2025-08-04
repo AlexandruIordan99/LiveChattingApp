@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);  //finds a user by their email
                                                   //optional used to avoid null pointer errors
@@ -16,7 +16,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     select user from User user\s
     where user.id != :userId
 """)
-    List<User> findAllUsersExceptSelf(@Param("userId") String userId);
+    List<User> findAllUsersExceptSelf(@Param("userId") Long userId);
 
 
     @Query("""

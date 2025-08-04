@@ -16,8 +16,8 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long > {
     where (f.user.id = :userId and f.friend.id= :friendId)\s
     or (f.user.id = :friendId and f.friend.id =:userId)
    \s""")
-  Optional<Friendship> findFriendshipBetweenUsers(@Param("userId") String  userId,
-                                              @Param("friendId") String  friendId);
+  Optional<Friendship> findFriendshipBetweenUsers(@Param("userId") Long  userId,
+                                              @Param("friendId") Long  friendId);
 
   @Query("""
         select count(f) > 0 \s
@@ -26,22 +26,22 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long > {
            or (f.user.id = :friendId and f.friend.id = :userId)
        and f.friendshipsStatus = 'ACCEPTED'
        \s""")
-  boolean existsFriendshipBetweenUsers(@Param("userId") String  userId,
-                                       @Param("friendId") String  friendId);
+  boolean existsFriendshipBetweenUsers(@Param("userId") Long  userId,
+                                       @Param("friendId") Long  friendId);
 
   @Query("""
     select f from Friendship f
     where (f.user.id= :userId or f.friend.id= :userId)
     and f.friendshipsStatus = 'ACCEPTED'
 """)
-  List<Friendship> findAcceptedFriendships(@Param("userId") String userId);
+  List<Friendship> findAcceptedFriendships(@Param("userId") Long userId);
 
   @Query("""
     select f from Friendship f
     where f.user.id =:userId
     and f.friendshipsStatus = 'PENDING'
 """)
-    List<Friendship> findPendingSentRequests(@Param("userId") String  userId);
+    List<Friendship> findPendingSentRequests(@Param("userId") Long userId);
 
 
   @Query("""
@@ -49,17 +49,17 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long > {
         where f.friend.id = :userId\s
           and f.friendshipsStatus = 'PENDING'
        \s""")
-  List<Friendship> findPendingReceivedRequests(@Param("userId") String  userId);
+  List<Friendship> findPendingReceivedRequests(@Param("userId") Long  userId);
 
   @Query("""
         select f from Friendship f
         where f.user.id = :userId\s
          and f.friendshipsStatus = 'BLOCKED'
        \s""")
-  List<Friendship> findBlockedUsers(@Param("userId") String userId);
+  List<Friendship> findBlockedUsers(@Param("userId") Long userId);
 
-  List<Friendship> findByUserIdAndFriendshipsStatus(String  userId, FriendshipStatus status);
+  List<Friendship> findByUserIdAndFriendshipsStatus(Long userId, FriendshipStatus status);
 
-  List<Friendship> findByFriendIdAndFriendshipsStatus(String friendId, FriendshipStatus status);
+  List<Friendship> findByFriendIdAndFriendshipsStatus(Long friendId, FriendshipStatus status);
 
 }

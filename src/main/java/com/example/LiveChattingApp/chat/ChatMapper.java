@@ -12,7 +12,7 @@ public class ChatMapper {
 
   private final MessageRepository messageRepository;
 
-  public ChatResponse toChatResponse(Chat chat, String currentUserId){
+  public ChatResponse toChatResponse(Chat chat, Long currentUserId){
 
     ChatResponse response = ChatResponse.builder()
       .id(chat.getId())

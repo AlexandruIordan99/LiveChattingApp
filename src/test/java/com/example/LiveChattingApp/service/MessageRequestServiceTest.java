@@ -74,7 +74,7 @@ public class MessageRequestServiceTest {
       .createdDate(testTime)
       .build();
 
-    user1.setId("1");
+    user1.setId(1L);
 
     user2 = User.builder()
       .firstname("Vlad")
@@ -87,7 +87,7 @@ public class MessageRequestServiceTest {
       .enabled(true)
       .createdDate(testTime)
       .build();
-    user2.setId("2");
+    user2.setId(2L);
 
     user3 = User.builder()
       .firstname("Matei")
@@ -100,7 +100,7 @@ public class MessageRequestServiceTest {
       .enabled(true)
       .createdDate(testTime)
       .build();
-    user3.setId("3");
+    user3.setId(3L);
 
     directChat = Chat.builder()
       .id(1L)
@@ -127,24 +127,24 @@ public class MessageRequestServiceTest {
 
     pendingRequest = MessageRequest.builder()
       .id(1L)
-      .senderId("1")
-      .receiverId("2")
+      .senderId(1L)
+      .receiverId(2L)
       .status(MessageRequestStatus.PENDING)
       .firstMessages(messages)
       .build();
 
     acceptedRequest = MessageRequest.builder()
       .id(2L)
-      .senderId("1")
-      .receiverId("2")
+      .senderId(1L)
+      .receiverId(2L)
       .status(MessageRequestStatus.ACCEPTED)
       .firstMessages(messages)
       .build();
 
     declinedRequest = MessageRequest.builder()
       .id(3L)
-      .senderId("1")
-      .receiverId("2")
+      .senderId(1L)
+      .receiverId(2L)
       .status(MessageRequestStatus.DECLINED)
       .firstMessages(messages)
       .build();
@@ -154,7 +154,7 @@ public class MessageRequestServiceTest {
   @Test
   void test_createMessageRequest_WhenChatExists_ShouldCreateNewRequest() {
     // Arrange
-    String senderId = "1";
+    Long senderId = 1L;
     Long chatId = 1L;
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(directChat));
@@ -179,7 +179,7 @@ public class MessageRequestServiceTest {
   @Test
   void test_createMessageRequest_WhenChatNotFound_ShouldThrowException() {
     // Arrange
-    String senderId = "1";
+    Long senderId = 1L;
     Long chatId = 1L;
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.empty());
@@ -259,7 +259,7 @@ public class MessageRequestServiceTest {
 
     MessageRequest fullRequest = MessageRequest.builder()
       .id(requestId)
-      .senderId("1")
+      .senderId(1L)
       .chat(directChat)
       .status(MessageRequestStatus.PENDING)
       .firstMessages(maxMessages)
@@ -279,8 +279,8 @@ public class MessageRequestServiceTest {
   @Test
   void test_findExistingRequest_WhenRequestExists_ShouldReturnRequest() {
     // Arrange
-    String senderId = "1";
-    String receiverId = "2";
+    Long senderId = 1L;
+    Long receiverId = 2L;
 
     when(messageRequestRepository.findBySenderIdAndReceiverId(senderId, receiverId))
       .thenReturn(Optional.of(pendingRequest));
@@ -297,8 +297,8 @@ public class MessageRequestServiceTest {
   @Test
   void test_findExistingRequest_WhenRequestNotExists_ShouldReturnEmpty() {
     // Arrange
-    String senderId = "1";
-    String receiverId = "2";
+    Long senderId = 1L;
+    Long receiverId = 2L;
 
     when(messageRequestRepository.findBySenderIdAndReceiverId(senderId, receiverId))
       .thenReturn(Optional.empty());
@@ -315,7 +315,7 @@ public class MessageRequestServiceTest {
   void test_extractMessageRequestContent_WhenChatNotFound_ShouldThrowException() {
     //Arrange
     Long chatId = 1L;
-    when(userRepository.findById("1")).thenReturn(Optional.of(user1));
+    when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
     when(chatRepository.findById(chatId)).thenReturn(Optional.empty());
     //Act & Assert
 
@@ -323,7 +323,7 @@ public class MessageRequestServiceTest {
       () -> messageRequestService.extractMessageRequestContent(acceptedRequest, chatId));
 
     assertEquals("Chat not found.", exception.getMessage());
-    verify(userRepository).findById("1");
+    verify(userRepository).findById(1L);
     verify(chatRepository).findById(chatId);
     verify(messageRepository, never()).save(any(Message.class));
     verify(messageRequestRepository, never()).delete(any(MessageRequest.class));
@@ -333,7 +333,7 @@ public class MessageRequestServiceTest {
   void test_extractMessageRequestContent_WhenRequestIsAccepted_ShouldCreateMessageAndDeleteRequest() {
     // Act
     Long chatId = 1L;
-    when(userRepository.findById("1")).thenReturn(Optional.of(user1));
+    when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(directChat));
 
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
@@ -349,7 +349,7 @@ public class MessageRequestServiceTest {
     assertEquals(directChat, savedMessage.getChat());
     assertEquals(acceptedRequest.getFirstMessages().toString(), savedMessage.getContent());
 
-    verify(userRepository).findById("1");
+    verify(userRepository).findById(1L);
     verify(chatRepository).findById(chatId);
     verify(messageRepository, times(2)).save(any(Message.class));
     verify(messageRequestRepository).delete(acceptedRequest);
@@ -371,7 +371,7 @@ public class MessageRequestServiceTest {
   void test_extractMessageRequestContent_WhenAcceptedButSenderNotFound_ShouldThrowException() {
     //Arrange
     Long chatId = 1L;
-    when(userRepository.findById("1")).thenReturn(Optional.empty());
+    when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
     //Act & Assert
     EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
@@ -379,7 +379,7 @@ public class MessageRequestServiceTest {
     });
 
     assertEquals("Sender not found.", exception.getMessage());
-    verify(userRepository).findById("1");
+    verify(userRepository).findById(1L);
     verify(chatRepository, never()).findById(anyLong());
     verify(messageRepository, never()).save(any(Message.class));
     verify(messageRequestRepository, never()).delete(any(MessageRequest.class));
@@ -393,8 +393,8 @@ public class MessageRequestServiceTest {
       Message.builder().content("How are you?").sender(user1).build()
     ));
 
-    String senderId = "1";
-    String receiverId = "2";
+    Long senderId = 1L;
+    Long receiverId = 2L;
     MessageRequest newRequest = MessageRequest.builder()
       .senderId(senderId)
       .receiverId(receiverId)

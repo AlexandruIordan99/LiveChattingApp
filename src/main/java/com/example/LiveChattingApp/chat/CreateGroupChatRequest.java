@@ -10,6 +10,6 @@ public class CreateGroupChatRequest {
 
   private String name;
   private String description;
-  private Set<String> participantIds;
+  private Set<Long> participantIds;
 
 }

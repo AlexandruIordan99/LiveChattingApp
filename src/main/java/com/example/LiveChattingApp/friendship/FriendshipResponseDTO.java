@@ -10,7 +10,7 @@ import lombok.*;
 public class FriendshipResponseDTO {
 
   private Long id;
-  private String userId;
+  private Long userId;
   private String displayName;
   private String email;
   private String status;

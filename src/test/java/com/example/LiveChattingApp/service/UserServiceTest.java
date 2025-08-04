@@ -57,7 +57,7 @@ public class UserServiceTest {
       .createdDate(testTime)
       .build();
 
-    user1.setId("1");
+    user1.setId(1L);
 
     user2 = User.builder()
       .firstname("Vlad")
@@ -70,10 +70,10 @@ public class UserServiceTest {
       .enabled(true)
       .createdDate(testTime)
       .build();
-    user2.setId("2");
+    user2.setId(2L);
 
     userResponse1 = UserResponse.builder()
-      .id("1")
+      .id(1L)
       .firstName("Alexandru")
       .lastName("Iordan")
       .displayName("Jordan299")
@@ -83,7 +83,7 @@ public class UserServiceTest {
       .build();
 
     userResponse2 = UserResponse.builder()
-      .id("2")
+      .id(2L)
       .firstName("Vlad")
       .lastName("Loghin")
       .displayName("gtgmycatisonfire")
@@ -97,11 +97,10 @@ public class UserServiceTest {
   @Test
   void getAllUsersExceptSelf_ShouldReturnMappedUserResponses_WhenUsersExist() {
     // Arrange
-    String currentUserName = "Jordan299";
+    Long currentUserId = 1L;
     List<User> users = List.of(user2);
 
-    when(authentication.getName()).thenReturn(currentUserName);
-    when(userRepository.findAllUsersExceptSelf(currentUserName)).thenReturn(users);
+    when(userRepository.findAllUsersExceptSelf(currentUserId)).thenReturn(users);
     when(userMapper.toUserResponse(user2)).thenReturn(userResponse2);
 
     // Act
@@ -111,18 +110,17 @@ public class UserServiceTest {
     assertThat(result).hasSize(1);
     assertThat(result.get(0)).isEqualTo(userResponse2);
 
-    verify(userRepository).findAllUsersExceptSelf(currentUserName);
+    verify(userRepository).findAllUsersExceptSelf(currentUserId);
     verify(userMapper).toUserResponse(user2);
   }
 
   @Test
   void getAllUsersExceptSelf_ShouldReturnEmptyList_WhenNoOtherUsersExist() {
     // Arrange
-    String currentUserName = "Jordan299";
+    Long currentUserId= 1L;
     List<User> emptyUserList = List.of();
 
-    when(authentication.getName()).thenReturn(currentUserName);
-    when(userRepository.findAllUsersExceptSelf(currentUserName)).thenReturn(emptyUserList);
+    when(userRepository.findAllUsersExceptSelf(currentUserId)).thenReturn(emptyUserList);
 
     // Act
     List<UserResponse> result = userService.getAllUsersExceptSelf(authentication);
@@ -130,18 +128,17 @@ public class UserServiceTest {
     // Assert
     assertThat(result).isEmpty();
 
-    verify(userRepository).findAllUsersExceptSelf(currentUserName);
+    verify(userRepository).findAllUsersExceptSelf(currentUserId);
     verify(userMapper, never()).toUserResponse(any());
   }
 
   @Test
   void getAllUsersExceptSelf_ShouldReturnMultipleUsers_WhenMultipleUsersExist() {
     // Arrange
-    String currentUserName = "someOtherUser";
+    Long currentUserId = 5L;
     List<User> users = List.of(user1, user2);
 
-    when(authentication.getName()).thenReturn(currentUserName);
-    when(userRepository.findAllUsersExceptSelf(currentUserName)).thenReturn(users);
+    when(userRepository.findAllUsersExceptSelf(currentUserId)).thenReturn(users);
     when(userMapper.toUserResponse(user1)).thenReturn(userResponse1);
     when(userMapper.toUserResponse(user2)).thenReturn(userResponse2);
 
@@ -152,7 +149,7 @@ public class UserServiceTest {
     assertThat(result).hasSize(2);
     assertThat(result).containsExactly(userResponse1, userResponse2);
 
-    verify(userRepository).findAllUsersExceptSelf(currentUserName);
+    verify(userRepository).findAllUsersExceptSelf(currentUserId);
     verify(userMapper).toUserResponse(user1);
     verify(userMapper).toUserResponse(user2);
   }
@@ -160,7 +157,7 @@ public class UserServiceTest {
   @Test
   void findById_ShouldReturnUser_WhenUserExists() {
     // Arrange
-    String userId = "1";
+    Long userId = 1L;
     when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
 
     // Act
@@ -176,7 +173,7 @@ public class UserServiceTest {
   @Test
   void findById_ShouldReturnEmpty_WhenUserDoesNotExist() {
     // Arrange
-    String userId = "999";
+    Long userId = 999L;
     when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
     // Act
@@ -191,7 +188,7 @@ public class UserServiceTest {
   @Test
   void findById_ShouldHandleNullUserId() {
     // Arrange
-    String userId = null;
+    Long userId = null;
     when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
     // Act

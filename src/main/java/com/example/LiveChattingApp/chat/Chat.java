@@ -40,7 +40,7 @@ public class Chat extends BaseAuditingEntity {
   private Set<User> participants = new HashSet<>();
 
   @ElementCollection
-  private Set<String> adminUserIds = new HashSet<>(); // Simple set of admin IDs
+  private Set<Long> adminUserIds = new HashSet<>(); // Simple set of admin IDs
 
   @Enumerated
   private ChatType type;
@@ -53,7 +53,7 @@ public class Chat extends BaseAuditingEntity {
 
   private LocalDateTime lastModifiedDate;
 
-  public String getChatName(String userId) {
+  public String getChatName(Long userId) {
     if (type == ChatType.GROUP) {
       return name != null ? name : "Group Chat";
     } else {
@@ -65,7 +65,7 @@ public class Chat extends BaseAuditingEntity {
     }
   }
 
-  public boolean isParticipant(String userId) {
+  public boolean isParticipant(Long userId) {
     return participants.stream()
       .anyMatch(p -> p.getId().equals(userId));
   }
@@ -76,7 +76,7 @@ public class Chat extends BaseAuditingEntity {
   }
 
 
-  public User getOtherParticipant(String userId) {
+  public User getOtherParticipant(Long userId) {
     if (type != ChatType.DIRECT) {
       throw new IllegalStateException("This method is only for direct chats");
     }
@@ -87,7 +87,7 @@ public class Chat extends BaseAuditingEntity {
   }
 
   @Transient
-  public Long getUnreadMessagesCount(String userId){
+  public Long getUnreadMessagesCount(Long  userId){
     return messages.stream()
       .filter(message -> message.getSender().getId().equals(userId))
       .filter(message -> message.getState()  ==  MessageState.SENT)
@@ -113,14 +113,14 @@ public class Chat extends BaseAuditingEntity {
     return null;
   }
 
-  public boolean isAdmin(String userId) {
+  public boolean isAdmin(Long userId) {
     return adminUserIds.contains(userId) || creator.getId().equals(userId);
   }
 
   @ElementCollection
   @MapKeyColumn(name = "user_id")
   @Column(name = "last_read_at")
-  private Map<String, LocalDateTime> lastReadTimestamps = new HashMap<>();
+  private Map<Long, LocalDateTime> lastReadTimestamps = new HashMap<>();
 
 
   @PrePersist

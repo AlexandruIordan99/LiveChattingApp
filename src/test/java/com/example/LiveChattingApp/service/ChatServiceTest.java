@@ -160,10 +160,10 @@ public class ChatServiceTest {
   @Test
   void resolveReceiverIdFromChat_ReturnsReceiverId() {
     // Arrange
-    String senderId = "1";
+    Long senderId = 1L;
 
     // Act
-    String receiverId = chatService.resolveReceiverIdFromChat(directChat, senderId);
+    Long receiverId = chatService.resolveReceiverIdFromChat(directChat, senderId);
 
     // Assert
     assertEquals(senderId, receiverId);
@@ -172,7 +172,7 @@ public class ChatServiceTest {
   @Test
   void resolveReceiverIdFromChat_ThrowsException_WhenReceiverNotFound() {
     // Arrange
-    String senderId = "999";
+    Long senderId = 999L;
 
     // Act & Assert
     assertThrows(IllegalStateException.class, () ->
@@ -182,8 +182,8 @@ public class ChatServiceTest {
   @Test
   void createDirectChat_ReturnExistingChatId_WhenChatExists() {
     // Arrange
-    String senderId = "1";
-    String receiverId = "2";
+    Long senderId = 1L;
+    Long receiverId = 2L;
 
     when(chatRepository.findDirectChatBetweenUsers(senderId, receiverId))
       .thenReturn(Optional.of(directChat));
@@ -200,8 +200,8 @@ public class ChatServiceTest {
   @Test
   void createDirectChat_CreateNewChat_WhenChatDoesNotExist() {
     // Arrange
-    String senderId = "1";
-    String receiverId = "2";
+    Long senderId = 1L;
+    Long receiverId = 2L;
     Chat savedChat = Chat.builder().id(3L).build();
 
     when(chatRepository.findDirectChatBetweenUsers(senderId, receiverId))
@@ -221,8 +221,8 @@ public class ChatServiceTest {
   @Test
   void createDirectChat_ThrowException_WhenSenderNotFound() {
     // Arrange
-    String senderId = "999";
-    String receiverId = "2";
+    Long senderId = 999L;
+    Long receiverId = 2L;
 
     when(chatRepository.findDirectChatBetweenUsers(senderId, receiverId))
       .thenReturn(Optional.empty());
@@ -236,8 +236,8 @@ public class ChatServiceTest {
   @Test
   void createDirectChat_ThrowsException_WhenReceiverNotFound() {
     // Arrange
-    String senderId = "1";
-    String receiverId = "999";
+    Long senderId = 1L;
+    Long receiverId = 999L;
 
     when(chatRepository.findDirectChatBetweenUsers(senderId, receiverId))
       .thenReturn(Optional.empty());
@@ -252,14 +252,14 @@ public class ChatServiceTest {
   @Test
   void createGroupChat_ShouldCreateNewGroupChat() {
     // Arrange
-    String creatorId = "1";
+    Long creatorId = 1L;
     String chatName = "Test Group";
-    Set<String> participantIds = Set.of("2", "3");
+    Set<Long> participantIds = Set.of(2L, 3L);
     Chat savedChat = Chat.builder().id(4L).build();
 
     when(userRepository.findById(creatorId)).thenReturn(Optional.of(user1));
-    when(userRepository.findById("2")).thenReturn(Optional.of(user2));
-    when(userRepository.findById("3")).thenReturn(Optional.of(user3));
+    when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
+    when(userRepository.findById(3L)).thenReturn(Optional.of(user3));
     when(chatRepository.save(any(Chat.class))).thenReturn(savedChat);
 
     // Act
@@ -403,8 +403,8 @@ public class ChatServiceTest {
   void removeParticipantFromGroup_ShouldThrowException_WhenNonAdminRemovesOther() {
     // Arrange
     Long chatId = 2L;
-    String userId = "3";
-    String removedByUserId = "2";
+    Long userId = 3L;
+    Long  removedByUserId = 2L;
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(groupChat));
 
@@ -435,7 +435,7 @@ public class ChatServiceTest {
   void isUserParticipant_ShouldReturnTrue_WhenUserIsParticipant() {
     // Arrange
     Long chatId = 2L;
-    String userId = "1";
+    Long  userId = 1L;
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(groupChat));
 
@@ -450,7 +450,7 @@ public class ChatServiceTest {
   void isUserParticipant_ShouldReturnFalse_WhenUserIsNotParticipant() {
     // Arrange
     Long chatId = 2L;
-    String userId = "999";
+    Long userId = 999L;
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(groupChat));
 
@@ -465,8 +465,8 @@ public class ChatServiceTest {
   void makeUserAdmin_ShouldAddUserToAdmins() {
     // Arrange
     Long chatId = 2L;
-    String userId = "2";
-    String requestedByUserId = "1";
+    Long userId = 2L;
+    Long requestedByUserId = 1L;
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(groupChat));
 
@@ -501,10 +501,10 @@ public class ChatServiceTest {
 
     Chat testChat = new Chat();
     testChat.setId(chatId);
-    testChat.setAdminUserIds(new HashSet<>(Arrays.asList("2")));
+    testChat.setAdminUserIds(new HashSet<>(Arrays.asList(2L)));
 
     User creator = new User();
-    creator.setId("1");
+    creator.setId(1L);
     testChat.setCreator(creator);
 
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(testChat));

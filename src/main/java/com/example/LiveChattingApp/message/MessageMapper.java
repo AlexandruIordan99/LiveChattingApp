@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class MessageMapper {
 
-  public MessageResponse toMessageResponse(Message message, String currentUserId) {
-    MessageResponse response = MessageResponse.builder()
+  public MessageResponse toMessageResponse(Message message, Long currentUserId) {
+    return MessageResponse.builder()
       .id(message.getId())
       .senderId(currentUserId)
       .content(message.getContent())
@@ -19,8 +19,6 @@ public class MessageMapper {
       .createdAt(message.getCreatedDate())
       .mediaFilePath(message.getMediaFilePath())
       .build();
-
-    return response;
 
   }
 
