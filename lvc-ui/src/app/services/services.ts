@@ -5,4 +5,5 @@
 export { FriendshipService } from './services/friendship.service';
 export { MessageService } from './services/message.service';
 export { ChatService } from './services/chat.service';
+export { AuthenticationControllerService } from './services/authentication-controller.service';
 export { UserService } from './services/user.service';

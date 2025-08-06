@@ -8,9 +8,9 @@ export interface MessageResponse {
   id?: number;
   media?: string;
   mediaFilePath?: string;
-  receiverId?: string;
+  receiverId?: number;
   replyTo?: MessageResponse;
-  senderId?: string;
+  senderId?: number;
   state?: 'SENT' | 'DELIVERED' | 'READ' | 'FAILED';
   type?: 'JOIN' | 'LEAVE' | 'TEXT' | 'IMAGE' | 'AUDIO' | 'VIDEO';
 }

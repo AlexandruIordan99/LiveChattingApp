@@ -9,5 +9,5 @@ export interface FriendshipResponseDto {
   id?: number;
   requester?: boolean;
   status?: string;
-  userId?: string;
+  userId?: number;
 }

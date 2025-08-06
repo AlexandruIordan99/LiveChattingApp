@@ -10,7 +10,7 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface RemoveFriend$Params {
-  friendId: string;
+  friendId: number;
 }
 
 export function removeFriend(http: HttpClient, rootUrl: string, params: RemoveFriend$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {

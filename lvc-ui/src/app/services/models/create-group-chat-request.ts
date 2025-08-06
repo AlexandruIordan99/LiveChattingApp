@@ -5,5 +5,5 @@
 export interface CreateGroupChatRequest {
   description?: string;
   name?: string;
-  participantIds?: Array<string>;
+  participantIds?: Array<number>;
 }

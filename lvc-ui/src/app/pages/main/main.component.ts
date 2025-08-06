@@ -5,9 +5,9 @@ import {ChatResponse} from '../../services/models/chat-response';
 import {MessageResponse} from '../../services/models/message-response';
 import {DatePipe, NgOptimizedImage} from '@angular/common';
 import {MessageService} from '../../services/services/message.service';
-import {KeycloakService} from '../../utils/keycloak/keycloak.service';
 import {FormsModule} from '@angular/forms';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
+import {UserService} from '../../services/services/user.service';
 
 @Component({
   selector: 'app-main',
@@ -15,7 +15,6 @@ import { PickerModule } from '@ctrl/ngx-emoji-mart';
     ChatListComponent,
     FormsModule,
     DatePipe,
-    NgOptimizedImage,
     FormsModule,
     PickerModule
   ],
@@ -37,7 +36,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
   constructor(
     private chatService: ChatService,
     private messageService: MessageService,
-    private keycloakService: KeycloakService,
+    private userService: UserService,
   ) {
   }
 
@@ -57,20 +56,6 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.getAllChats();
   }
 
-  isSelfMessage(message: MessageResponse): boolean {
-    return message.senderId === this.keycloakService.userId;
-  }
-
-
-  logout() {
-    this.keycloakService.logout();
-  }
-
-  userProfile() {
-    this.keycloakService.accountManagement();
-  }
-
-
 
   private getAllChats() {
     this.chatService.getChatsByReceiver()
@@ -81,19 +66,6 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
       });
   }
 
-   private getSenderId(): string {
-    if (this.selectedChat.senderId === this.keycloakService.userId) {
-      return this.selectedChat.senderId as string;
-    }
-    return this.selectedChat.receiverId as string;
-  }
-
-  private getReceiverId(): string {
-    if (this.selectedChat.senderId === this.keycloakService.userId) {
-      return this.selectedChat.receiverId as string;
-    }
-    return this.selectedChat.senderId as string;
-  }
 
   private scrollToBottom() {
     if (this.scrollableDiv) {
@@ -147,4 +119,17 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
   sendMessage() {
 
   }
+
+  logout() {
+
+  }
+
+  userProfile() {
+
+  }
+
+  isSelfMessage(message: MessageResponse): boolean {
+    return false;
+  }
+
 }

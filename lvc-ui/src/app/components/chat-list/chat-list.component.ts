@@ -1,7 +1,6 @@
 import {Component, input, InputSignal, output} from '@angular/core';
 import {ChatResponse} from '../../services/models/chat-response';
 import {DatePipe} from '@angular/common';
-import {KeycloakService} from '../../utils/keycloak/keycloak.service';
 import {ChatService} from '../../services/services/chat.service';
 import {UserService} from '../../services/services/user.service';
 import {UserResponse} from '../../services/models/user-response';
@@ -16,7 +15,7 @@ import {UserResponse} from '../../services/models/user-response';
   styleUrls: ['./chat-list.component.scss']
 })
 export class ChatListComponent {
-  
+
   chats: InputSignal<ChatResponse[]> = input<ChatResponse[]>([]);
   searchNewContact = false;
   contacts: Array<UserResponse> = [];
@@ -25,7 +24,6 @@ export class ChatListComponent {
   constructor(
     private chatService: ChatService,
     private userService: UserService,
-    private keycloakService: KeycloakService
   ) {
   }
 
@@ -38,7 +36,7 @@ export class ChatListComponent {
         }
       });
   }
-  
+
   chatClicked(chat: ChatResponse) {
     this.chatSelected.emit(chat);
   }
@@ -51,6 +49,6 @@ export class ChatListComponent {
   }
 
   selectContact(contact: UserResponse) {
-    
+
   }
 }

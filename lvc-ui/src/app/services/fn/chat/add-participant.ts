@@ -11,7 +11,7 @@ import { RequestBuilder } from '../../request-builder';
 
 export interface AddParticipant$Params {
   chatId: number;
-      body: string
+      body: number
 }
 
 export function addParticipant(http: HttpClient, rootUrl: string, params: AddParticipant$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {

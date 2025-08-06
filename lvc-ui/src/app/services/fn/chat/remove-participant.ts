@@ -11,7 +11,7 @@ import { RequestBuilder } from '../../request-builder';
 
 export interface RemoveParticipant$Params {
   chatId: number;
-  userId: string;
+  userId: number;
 }
 
 export function removeParticipant(http: HttpClient, rootUrl: string, params: RemoveParticipant$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {

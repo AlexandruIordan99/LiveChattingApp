@@ -252,7 +252,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
             }
           }
         ],
@@ -317,7 +318,8 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string"
+                "type": "integer",
+                "format": "int64"
               }
             }
           },
@@ -409,6 +411,66 @@
                 "schema": {
                   "type": "integer",
                   "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/authenticate": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "authenticate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthenticationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticationResponse"
                 }
               }
             }
@@ -594,7 +656,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
             }
           }
         ],
@@ -658,6 +721,29 @@
         }
       }
     },
+    "/auth/activate-account": {
+      "get": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "confirm",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/users": {
       "get": {
         "tags": [
@@ -693,7 +779,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
             }
           }
         ],
@@ -725,7 +812,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
             }
           }
         ],
@@ -757,7 +845,9 @@
         "type": "object",
         "properties": {
           "friendId": {
-            "type": "string"
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -769,7 +859,8 @@
             "format": "int64"
           },
           "userId": {
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           "displayName": {
             "type": "string"
@@ -801,7 +892,8 @@
             "uniqueItems": true,
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
             }
           }
         }
@@ -810,12 +902,63 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           "email": {
             "type": "string"
           },
           "displayName": {
+            "type": "string"
+          }
+        }
+      },
+      "RegistrationRequest": {
+        "required": [
+          "email",
+          "firstname",
+          "lastname",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 2147483647,
+            "minLength": 8,
+            "type": "string"
+          }
+        }
+      },
+      "AuthenticationRequest": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 2147483647,
+            "minLength": 8,
+            "type": "string"
+          }
+        }
+      },
+      "AuthenticationResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
             "type": "string"
           }
         }
@@ -842,10 +985,12 @@
             ]
           },
           "senderId": {
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           "receiverId": {
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           "state": {
             "type": "string",
@@ -894,10 +1039,12 @@
             "format": "date-time"
           },
           "senderId": {
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           "receiverId": {
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           "recipientOnline": {
             "type": "boolean"
@@ -908,7 +1055,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           "firstName": {
             "type": "string"
@@ -933,9 +1081,7 @@
       }
     },
     "securitySchemes": {
-      "bearerAuth": { "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT" },
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" },
       "keycloak": {
         "type": "oauth2",
         "in": "header",

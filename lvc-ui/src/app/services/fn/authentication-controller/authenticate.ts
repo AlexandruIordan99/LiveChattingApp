@@ -8,15 +8,17 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { AuthenticationRequest } from '../../models/authentication-request';
+import { AuthenticationResponse } from '../../models/authentication-response';
 
-export interface GetFriendshipStatus$Params {
-  friendId: number;
+export interface Authenticate$Params {
+      body: AuthenticationRequest
 }
 
-export function getFriendshipStatus(http: HttpClient, rootUrl: string, params: GetFriendshipStatus$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
-  const rb = new RequestBuilder(rootUrl, getFriendshipStatus.PATH, 'get');
+export function authenticate(http: HttpClient, rootUrl: string, params: Authenticate$Params, context?: HttpContext): Observable<StrictHttpResponse<AuthenticationResponse>> {
+  const rb = new RequestBuilder(rootUrl, authenticate.PATH, 'post');
   if (params) {
-    rb.path('friendId', params.friendId, {});
+    rb.body(params.body, 'application/json');
   }
 
   return http.request(
@@ -24,9 +26,9 @@ export function getFriendshipStatus(http: HttpClient, rootUrl: string, params: G
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<string>;
+      return r as StrictHttpResponse<AuthenticationResponse>;
     })
   );
 }
 
-getFriendshipStatus.PATH = '/friendship/friendship-status/{friendId}';
+authenticate.PATH = '/auth/authenticate';

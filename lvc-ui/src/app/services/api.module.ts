@@ -9,6 +9,7 @@ import { ApiConfiguration, ApiConfigurationParams } from './api-configuration';
 import { FriendshipService } from './services/friendship.service';
 import { MessageService } from './services/message.service';
 import { ChatService } from './services/chat.service';
+import { AuthenticationControllerService } from './services/authentication-controller.service';
 import { UserService } from './services/user.service';
 
 /**
@@ -22,6 +23,7 @@ import { UserService } from './services/user.service';
     FriendshipService,
     MessageService,
     ChatService,
+    AuthenticationControllerService,
     UserService,
     ApiConfiguration
   ],

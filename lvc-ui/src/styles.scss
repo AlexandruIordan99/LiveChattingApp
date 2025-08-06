@@ -9,10 +9,6 @@
   box-sizing: border-box;
 }
 
-body{
-  background-color: #ccc;
-}
-
 .gray-bg{
   background-color: #f6f7f8;
 }
@@ -29,4 +25,13 @@ body{
   >img {
     width: 100%;
   }
+}
+
+.login-container{
+  width: 800px !important;
+  margin-top: 15%;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }

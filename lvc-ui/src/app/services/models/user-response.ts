@@ -6,7 +6,7 @@ export interface UserResponse {
   displayName?: string;
   email?: string;
   firstName?: string;
-  id?: string;
+  id?: number;
   lastName?: string;
   lastSeen?: string;
   online?: boolean;

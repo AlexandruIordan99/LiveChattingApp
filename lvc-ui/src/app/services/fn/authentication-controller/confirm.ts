@@ -9,14 +9,14 @@ import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
 
-export interface BlockUser$Params {
-  userToBlockId: number;
+export interface Confirm$Params {
+  token: string;
 }
 
-export function blockUser(http: HttpClient, rootUrl: string, params: BlockUser$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-  const rb = new RequestBuilder(rootUrl, blockUser.PATH, 'post');
+export function confirm(http: HttpClient, rootUrl: string, params: Confirm$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  const rb = new RequestBuilder(rootUrl, confirm.PATH, 'get');
   if (params) {
-    rb.path('userToBlockId', params.userToBlockId, {});
+    rb.query('token', params.token, {});
   }
 
   return http.request(
@@ -29,4 +29,4 @@ export function blockUser(http: HttpClient, rootUrl: string, params: BlockUser$P
   );
 }
 
-blockUser.PATH = '/friendship/block/{userToBlockId}';
+confirm.PATH = '/auth/activate-account';

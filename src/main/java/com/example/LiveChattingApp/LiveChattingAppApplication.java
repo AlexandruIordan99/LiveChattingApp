@@ -13,19 +13,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @EnableAsync
 @EnableJpaAuditing
-@SecurityScheme(
-	name="keycloak",
-	type = SecuritySchemeType.OAUTH2,
-	bearerFormat = "JWT",
-	scheme = "bearer",
-	in = SecuritySchemeIn.HEADER,
-	flows = @OAuthFlows(
-		password = @OAuthFlow(
-			authorizationUrl ="http://localhost:8090/realms/LiveChattingApp/protocol/openid-connect/auth",
-			tokenUrl = "http://localhost:8090/realms/LiveChattingApp/protocol/openid-connect/token"
-		)
-	)
-)
 public class LiveChattingAppApplication {
 
 	public static void main(String[] args) {
