@@ -1,14 +1,14 @@
 services:
   postgres:
     container_name: postgres-sql-lap
-    image: postgres:17 #taken from DockerHub
+    image: postgres:16 #taken from DockerHub
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pass
       PGDATA: /var/lib/postgresql/data
       POSTGRES_DB: LiveChattingAppDB
     volumes:
-      - postgres:/data/postgres
+      - postgres:/var/lib/postgresql/data
     ports:
       - 5432:5432
     networks:
@@ -43,6 +43,9 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/LiveChattingAppDB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: pass
+      SPRING_MAIL_HOST: mail-dev
 
 networks:
   spring-demo:

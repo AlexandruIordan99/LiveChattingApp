@@ -36,4 +36,5 @@ public class AuthenticationController {
             throws MessagingException {
         service.activateAccount(token);
     }
+
 }

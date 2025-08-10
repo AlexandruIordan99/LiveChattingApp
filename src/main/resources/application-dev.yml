@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/LiveChattingAppDB
+    url: jdbc:postgresql://postgres:5432/LiveChattingAppDB
     username: postgres
     password: pass
     driver-class-name: org.postgresql.Driver
@@ -23,7 +23,7 @@ spring:
 
 
   mail:
-    host: localhost
+    host: mail-dev
     port: 1025
     username: postgres
     password: pass
