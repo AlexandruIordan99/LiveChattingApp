@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mail-dev
+  namespace: livechatting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mail-dev
+  template:
+    metadata:
+      labels:
+        app: mail-dev
+    spec:
+      containers:
+        - name: mail-dev
+          image: maildev/maildev:latest
+          ports:
+            - containerPort: 1080
+            - containerPort: 1025
