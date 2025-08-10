@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mail-dev
+  namespace: livechatting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mail-dev
+  template:
+    metadata:
+      labels:
+        app: mail-dev
+    spec:
+      containers:
+        - name: mail-dev
+          image: maildev/maildev:latest
+          ports:
+            - containerPort: 1080  # Web interface
+            - containerPort: 1025  # SMTP server
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mail-dev
+  namespace: livechatting-app
+spec:
+  selector:
+    app: mail-dev
+  ports:
+    - name: web
+      port: 1080
+      targetPort: 1080
+    - name: smtp
+      port: 1025
+      targetPort: 1025
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mail-dev-web
+  namespace: livechatting-app
+spec:
+  selector:
+    app: mail-dev
+  ports:
+    - port: 1080
+      targetPort: 1080
+      nodePort: 30080
+  type: NodePort

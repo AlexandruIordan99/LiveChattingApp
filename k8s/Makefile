@@ -1,9 +1,7 @@
-# Kubernetes Makefile for LiveChat App
 NAMESPACE = livechatting-app
 APP_NAME = spring-app-lvc
 MINIKUBE_PROFILE = minikube
 
-# Colors for output
 GREEN = \033[0;32m
 YELLOW = \033[0;33m
 RED = \033[0;31m
@@ -20,7 +18,6 @@ setup:
 	minikube start --profile $(MINIKUBE_PROFILE)
 	@echo "$(GREEN)Configuring Docker to use minikube daemon...$(NC)"
 	@echo "Run: eval $$(minikube docker-env)"
-	@echo "$(YELLOW)Please run the above command in your terminal, then run 'make build'$(NC)"
 
 build:
 	@echo "$(GREEN)Building Docker image...$(NC)"
@@ -33,9 +30,7 @@ deploy:
 	kubectl apply -f namespace.yaml
 	kubectl apply -f postgres.yaml
 	kubectl apply -f maildev.yaml
-	kubectl apply -f spring-app.yaml
-	@echo "$(GREEN)Deployment complete!$(NC)"
-	@echo "$(YELLOW)Run 'make status' to check deployment status$(NC)"
+	kubectl apply -f backend.yaml
 
 deploy-postgres:
 	kubectl apply -f namespace.yaml
@@ -45,11 +40,10 @@ deploy-maildev:
 	kubectl apply -f namespace.yaml
 	kubectl apply -f maildev.yaml
 
-deploy-spring:
+deploy-backend:
 	kubectl apply -f namespace.yaml
-	kubectl apply -f spring-app.yaml
+	kubectl apply -f backend.yaml
 
-##@ Status and Monitoring
 status:
 	@echo "$(GREEN)Checking deployment status...$(NC)"
 	kubectl get all -n $(NAMESPACE)
@@ -62,15 +56,14 @@ pods:
 events:
 	kubectl get events -n $(NAMESPACE) --sort-by='.lastTimestamp'
 
-describe-spring:
-	kubectl describe pod -l app=spring-app -n $(NAMESPACE)
+describe-backend:
+	kubectl describe pod -l app=backend -n $(NAMESPACE)
 
 describe-postgres:
 	kubectl describe pod -l app=postgres -n $(NAMESPACE)
 
-##@ Logs
 logs:
-	kubectl logs -f deployment/spring-app -n $(NAMESPACE)
+	kubectl logs -f deployment/backend -n $(NAMESPACE)
 
 logs-postgres:
 	kubectl logs -f deployment/postgres -n $(NAMESPACE)
@@ -79,11 +72,11 @@ logs-maildev:
 	kubectl logs -f deployment/mail-dev -n $(NAMESPACE)
 
 logs-all:
-	kubectl logs -f deployment/spring-app -n $(NAMESPACE) &
+	kubectl logs -f deployment/backend -n $(NAMESPACE) &
 	kubectl logs -f deployment/postgres -n $(NAMESPACE) &
 	kubectl logs -f deployment/mail-dev -n $(NAMESPACE) &
 	wait
 
-open: ## Open services in browser using minikube
-	@echo "$(GREEN)Opening Spring app...$(NC)"
-	minikube service spring-app
+open:
+	@echo "$(GREEN)Opening Backend...$(NC)"
+	minikube service backend
